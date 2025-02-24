@@ -1,54 +1,105 @@
-import React from 'react'
-import Button from '../Button/Button'
-import { MessageSquare } from 'lucide-react'
+import React from "react";
+import Button from "../Button/Button";
+import { MessageSquare } from "lucide-react";
 
 interface UserInfoPreviewCardProps {
     profileName: string | null;
     profilePicture: string | null;
-    coverPicture: string | null; 
+    coverPicture: string | null;
+    linkedin: string | null;
+    medium: string | null;
+    spotify: string | null;
+    website: string | null;
+    tags?: string[];
+    shortIntroduction?: string;
 }
 
 const UserInfoPreviewCard: React.FC<UserInfoPreviewCardProps> = ({
     profileName,
     profilePicture,
     coverPicture,
+    linkedin,
+    medium,
+    spotify,
+    website,
+    tags = [],
+    shortIntroduction,
 }) => {
     return (
         <div className="bg-neutral-50 w-[60vw] h-[95vh] ml-12 rounded-lg flex items-center justify-center">
             {/* Main Card */}
-            <div className="bg-white w-[80%] h-[40%] rounded-md shadow-sm flex flex-col relative p-4">
-                {/* Cover Image (Grey Box) */}
-                <div
-                    className="bg-neutral-100 w-full h-[70%] rounded-md shadow-sm flex items-center justify-center"
-                    style={{
-                        backgroundImage: `url(${coverPicture})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                    }}
-                >
+            <div className="bg-white w-[80%] rounded-md flex flex-col relative p-4 shadow-md">
+                <div className="relative">
+                    {/* Cover Image */}
+                    <div
+                        className="w-full h-40 rounded-t-lg bg-gray-200"
+                        style={{
+                            backgroundImage: coverPicture ? `url(${coverPicture})` : "none",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }}
+                    >
+                        {coverPicture && (
+                            <div className="absolute inset-0 bg-black opacity-30 rounded-t-lg"></div>
+                        )}
+                    </div>
+
+                    {/* Profile Picture */}
+                    <div className="absolute left-6 bottom-0 transform translate-y-1/2">
+                        <div className="w-32 h-32 rounded-lg shadow-md bg-gray-300">
+                            {profilePicture && (
+                                <div
+                                    className="w-full h-full rounded-full"
+                                    style={{
+                                        backgroundImage: `url(${profilePicture})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }}
+                                ></div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Profile Image */}
-                <div
-                    className="absolute bottom-8 left-16 bg-neutral-200 rounded-md shadow-sm w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
-                    style={{
-                        backgroundImage: `url(${profilePicture})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                    }}
-                ></div>
+                <div className="mb-8 ml-12 flex justify-between items-center">
+                    <div className="ml-28 mt-2">
+                        <p className="text-lg font-bold">{profileName}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                            {linkedin && <img src="/icons/linked.svg" alt="LinkedIn" />}
+                            {medium && <img src="/icons/medium.svg" alt="Medium" />}
+                            {spotify && <img src="/icons/spotify.svg" alt="Spotify" />}
+                            {website && <img src="/icons/web.svg" alt="Website" />}
+                        </div>
+                    </div>
 
-                {/* Profile Name & Button */}
-                <div className="flex items-center justify-between w-full mt-2">
-                    <p className="text-lg font-bold ml-40">{profileName}</p>
-                    <Button variant="primary" className="text-sm px-4 py-1 flex items-center w-[auto]">
+                    <Button
+                        size="small"
+                        variant="primary"
+                        className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                    >
                         <MessageSquare size={16} className="mr-2" />
                         Have a Chat
                     </Button>
                 </div>
+
+                <div>
+                    <p className="text-[11px] text-neutral-600">{shortIntroduction}</p>
+
+                    {/* Tags Section */}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        {tags.map((tag, index) => (
+                            <span
+                                key={index}
+                                className="border border-primary-700 text-primary-700 px-2 rounded-[2px] text-sm font-medium"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default UserInfoPreviewCard
+export default UserInfoPreviewCard;
