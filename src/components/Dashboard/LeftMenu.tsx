@@ -52,7 +52,7 @@ export const LeftMenu = () => {
       name: "Text Post Maker",
       icon: <AlignCenter size={20} className="mr-2" />,
       underline: false,
-      link: "/dashboard/text-post-maker",
+      link: "/dashboard/post-maker",
     },
     {
       name: "Carousel Maker",
@@ -83,13 +83,12 @@ export const LeftMenu = () => {
       <div className="flex flex-col items-start h-full">
         <ul className="w-full">
           {menuItems.map((item, index) => (
-            <>
+            <div key={index}>
               <Link href={item.link} key={index} className="w-full">
                 <li
                   key={index}
-                  className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${
-                    active === index ? "bg-neutral-50" : ""
-                  }`}
+                  className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${active === index ? "bg-neutral-50" : ""
+                    }`}
                   onClick={() => setActive(index)}
                 >
                   {item.icon && item.icon}
@@ -99,7 +98,7 @@ export const LeftMenu = () => {
               {item.underline && (
                 <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
               )}
-            </>
+            </div>
           ))}
         </ul>
       </div>

@@ -25,7 +25,7 @@ export default function Campaign({ }: CampaignProps) {
           ]}
         />
 
-        <div className="mt-4 flex flex-col w-[90%] px-8 py-8 bg-white rounded-lg shadow-sm">
+        <div className="mt-4 flex flex-col w-full px-8 py-8 bg-white rounded-lg shadow-sm">
           <img src="/images/campaign.png" alt="campaign" />
           <div className="flex items-center mt-4">
             <h1 className="text-2xl font-bold">

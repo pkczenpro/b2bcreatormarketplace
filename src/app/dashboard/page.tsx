@@ -10,9 +10,11 @@ import { MessageSquare, Plus } from "lucide-react";
 
 import React, { useState } from "react";
 
+import { motion } from "framer-motion";
+
 type DashboardProps = object;
 
-export default function Dashboard({}: DashboardProps) {
+export default function Dashboard({ }: DashboardProps) {
   const [showSections, setShowSections] = React.useState({
     services: true,
     partnerships: true,
@@ -65,12 +67,12 @@ export default function Dashboard({}: DashboardProps) {
             />
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-end">
-            <p className="text-[15px] text-neutral-700 sm:w-3/4">
+            <div className="text-[15px] text-neutral-700 sm:w-3/4">
               <Input
                 placeholder="Add Service Description Here"
                 className="w-full sm:w-[70%]"
               />
-            </p>
+            </div>
             <div className="flex items-center space-x-2 mt-4 sm:mt-0">
               <div>
                 <Input placeholder="Enter Amount" className="w-24" />
@@ -334,115 +336,128 @@ export default function Dashboard({}: DashboardProps) {
   return (
     <div className="flex">
       <LeftMenu />
+
+
       <div className="flex flex-col w-full min-h-screen bg-neutral-50">
         {/* Content */}
         <div className="flex flex-col items-center justify-start h-full py-12">
+
           <div className="flex flex-col w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">
-            <div>
-              <div className="relative">
-                {/* Cover Image */}
-                <div className="relative w-full h-60">
-                  <img
-                    src="/images/wallpaper.png"
-                    alt="Cover"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
-
-                {/* Profile Section */}
-                <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
-                  {/* Profile Picture and Info */}
-                  <div className="flex items-end space-x-4">
-                    <div className="rounded-sm overflow-hidden">
-                      <img
-                        src="/images/profile_2.png"
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Name and Socials */}
-                    <div className="flex flex-col">
-                      <h2 className="text-2xl font-semibold">Andrew Bishop</h2>
-                      <div className="flex space-x-3 mt-1 text-gray-500">
-                        <a href="#" className="hover:text-gray-700">
-                          🔗
-                        </a>
-                        <a href="#" className="hover:text-gray-700">
-                          🎙
-                        </a>
-                        <a href="#" className="hover:text-gray-700">
-                          🌎
-                        </a>
-                      </div>
-                    </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div>
+                <div className="relative">
+                  {/* Cover Image */}
+                  <div className="relative w-full h-60">
+                    <img
+                      src="/images/wallpaper.png"
+                      alt="Cover"
+                      className="w-full h-full object-cover rounded-md"
+                    />
                   </div>
 
-                  {/* Chat Button */}
-                  <Button
-                    size="small"
-                    variant="primary"
-                    className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-                  >
-                    <MessageSquare size={16} className="mr-2" />
-                    Have a Chat
-                  </Button>
+                  {/* Profile Section */}
+                  <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
+                    {/* Profile Picture and Info */}
+                    <div className="flex items-end space-x-4">
+                      <div className="rounded-sm overflow-hidden">
+                        <img
+                          src="/images/profile_2.png"
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Name and Socials */}
+                      <div className="flex flex-col">
+                        <h2 className="text-2xl font-semibold">Andrew Bishop</h2>
+                        <div className="flex space-x-3 mt-1 text-gray-500">
+                          <a href="#" className="hover:text-gray-700">
+                            🔗
+                          </a>
+                          <a href="#" className="hover:text-gray-700">
+                            🎙
+                          </a>
+                          <a href="#" className="hover:text-gray-700">
+                            🌎
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Chat Button */}
+                    <Button
+                      size="small"
+                      variant="primary"
+                      className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                    >
+                      <MessageSquare size={16} className="mr-2" />
+                      Have a Chat
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Bio */}
-            <p className="mt-24 text-gray-600 text-sm">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptates veniam saepe officiis fugiat quidem maxime, laudantium
-              eligendi pariatur ex soluta animi aut nihil commodi ipsum quisquam
-              perferendis aperiam. Facilis eligendi nisi ullam voluptates
-              blanditiis sed rerum consectetur maiores rem hic, soluta quisquam,
-              facere numquam aliquam repellat doloremque delectus? Cum fugit
-              voluptatibus quod, animi repellat amet obcaecati beatae excepturi
-              corrupti esse vel neque quis, magni, odit distinctio? Ducimus
-              perspiciatis molestias quam id rerum, placeat exercitationem
-              assumenda, distinctio, hic illo laborum. Impedit totam odit rem at
-              esse magnam saepe velit, aperiam molestias quas natus delectus et
-              itaque, labore ipsum ad aspernatur. Facere!{" "}
-            </p>
+              {/* Bio */}
+              <p className="mt-24 text-gray-600 text-sm">
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                Voluptates veniam saepe officiis fugiat quidem maxime, laudantium
+                eligendi pariatur ex soluta animi aut nihil commodi ipsum quisquam
+                perferendis aperiam. Facilis eligendi nisi ullam voluptates
+                blanditiis sed rerum consectetur maiores rem hic, soluta quisquam,
+                facere numquam aliquam repellat doloremque delectus? Cum fugit
+                voluptatibus quod, animi repellat amet obcaecati beatae excepturi
+                corrupti esse vel neque quis, magni, odit distinctio? Ducimus
+                perspiciatis molestias quam id rerum, placeat exercitationem
+                assumenda, distinctio, hic illo laborum. Impedit totam odit rem at
+                esse magnam saepe velit, aperiam molestias quas natus delectus et
+                itaque, labore ipsum ad aspernatur. Facere!{" "}
+              </p>
 
-            {/* Tags */}
-            <div className="mt-4 flex space-x-2">
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Marketing
-              </span>
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Design
-              </span>
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Tech
-              </span>
-            </div>
+              {/* Tags */}
+              <div className="mt-4 flex space-x-2">
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Marketing
+                </span>
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Design
+                </span>
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Tech
+                </span>
+              </div>
 
-            {/* Sections */}
-            <div className="mt-12 space-y-6">
-              {showSections.services && <ServicesDiv />}
-              {showSections.partnerships && <PartnershipsDiv />}
-              {showSections.work && <WorkDiv />}
-              {showSections.linkedin && <LinkedInDiv />}
-              {showSections.testimonials && <TestimonialsDiv />}
-              {showSections.textBlock && <TextBlockDiv />}
-              {showSections.statBlock && <StatBlockDiv />}
-            </div>
+              {/* Sections */}
+              <div className="mt-12 space-y-6">
+                {showSections.services && <ServicesDiv />}
+                {showSections.partnerships && <PartnershipsDiv />}
+                {showSections.work && <WorkDiv />}
+                {showSections.linkedin && <LinkedInDiv />}
+                {showSections.testimonials && <TestimonialsDiv />}
+                {showSections.textBlock && <TextBlockDiv />}
+                {showSections.statBlock && <StatBlockDiv />}
+              </div>
 
-            {/* Add a section */}
+              {/* Add a section */}
 
-            <div className="mt-8">
-              <PopupDropdown
-              // todo: add props here
-              // showSections={showSections}
-              // setShowSections={setShowSections}
-              />
-            </div>
+              <div className="mt-8">
+                <PopupDropdown
+                // todo: add props here
+                // showSections={showSections}
+                // setShowSections={setShowSections}
+                />
+              </div>
+
+            </motion.div>
           </div>
+
         </div>
       </div>
-    </div>
+
+    </div >
   );
 }
