@@ -10,7 +10,7 @@ import React from "react";
 
 type DashboardProps = object;
 
-export default function StoreFront({}: DashboardProps) {
+export default function StoreFront({ }: DashboardProps) {
   const tabs = [
     {
       id: 1,
