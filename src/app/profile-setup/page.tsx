@@ -9,8 +9,13 @@ import Link from "next/link";
 
 type ProfileSetupProps = object;
 
-export default function ProfileSetup({}: ProfileSetupProps) {
+export default function ProfileSetup({ }: ProfileSetupProps) {
+  const userType = "brand";
+  // const userType = "creator";
+
+
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
+  const [location, setLocation] = useState<string>("Location");
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [coverPicture, setCoverPicture] = useState<string | null>(null);
   const [linkedin, setLinkedin] = useState<string>("linkedin.com/in/johndoe");
@@ -51,21 +56,43 @@ export default function ProfileSetup({}: ProfileSetupProps) {
   const ProfileInformation = () => {
     return (
       <div>
-        <h1 className="text-h5 font-bold text-left mb-1">Profile Name</h1>
-        <p className="text-neutral-600 text-left mb-6">
-          Change your profile name if it differs from your previously entered
-          full name.
-        </p>
-        <div className="w-[70%]">
-          <Input
-            type="text"
-            value={profileName}
-            onChange={(e) => setProfileName(e.target.value)}
-            placeholder="Andrew Bishop"
-            required
-            name="profileName"
-          />
-        </div>
+        {userType === "creator" ?
+          <>
+            <h1 className="text-h5 font-bold text-left mb-1">Profile Name</h1>
+            <p className="text-neutral-600 text-left mb-6">
+              Change your profile name if it differs from your previously entered
+              full name.
+            </p>
+            <div className="w-[70%]">
+              <Input
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder="Andrew Bishop"
+                required
+                name="profileName"
+              />
+            </div>
+          </>
+          :
+          <>
+            <h1 className="text-h5 font-bold text-left mb-1">Brand Name</h1>
+            <p className="text-neutral-600 text-left mb-6">
+              Provide the creators with your brand name.
+            </p>
+            <div className="w-[70%]">
+              <Input
+                size="large"
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder=""
+                required
+                name="brandName"
+              />
+            </div>
+          </>
+        }
         <h1 className="text-h5 font-bold text-left mb-1 mt-10">
           Profile Picture
         </h1>
@@ -173,6 +200,25 @@ export default function ProfileSetup({}: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
+        {userType === "brand" && (
+          <>
+            <h1 className="text-h5 font-bold text-left mb-1">Company Location</h1>
+            <p className="text-neutral-600 text-left mb-6">
+              Let creators know where you are located
+            </p>
+            <div className="w-[70%] mb-4">
+              <Input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location"
+                required
+                name="location"
+              />
+            </div>
+          </>
+        )}
+
         <h1 className="text-h5 font-bold text-left mb-1">Short Introduction</h1>
         <p className="text-neutral-600 text-left mb-6">
           Share a little bit about yourself and what you can provide for the
@@ -256,8 +302,8 @@ export default function ProfileSetup({}: ProfileSetupProps) {
           {sections[activeId - 1]?.skip && (
             <Button
               variant="secondary"
-              className="w-auto mt-8 underline text-primary-700"
-              onClick={() => {}}
+              className="w-1/3 mt-8 underline text-primary-700"
+              onClick={() => { }}
               size="small"
             >
               Skip this step
@@ -267,7 +313,7 @@ export default function ProfileSetup({}: ProfileSetupProps) {
           {activeId > 1 && (
             <Button
               variant="outline"
-              className="w-auto mt-8 px-12"
+              className="w-1/3 mt-8 px-12"
               socialMediaIcon={<ArrowLeft />}
               size="small"
               onClick={() => {
@@ -281,7 +327,7 @@ export default function ProfileSetup({}: ProfileSetupProps) {
           {activeId < sections.length ? (
             <Button
               variant="primary"
-              className="w-auto mt-8 px-12 ml-4"
+              className="w-1/3 mt-8 px-12 ml-4"
               icon={<ArrowRight />}
               onClick={() => setActiveId(activeId + 1)}
               size="small"
@@ -289,8 +335,8 @@ export default function ProfileSetup({}: ProfileSetupProps) {
               Continue
             </Button>
           ) : (
-            <Link href="/dashboard" className="w-auto mt-8 px-12 ml-4">
-              <Button size="small" variant="primary" icon={<ArrowRight />}>
+            <Link href="/dashboard" className="w-1/3 mt-8 px-12">
+              <Button size="small" className="w-full" variant="primary" icon={<ArrowRight />}>
                 Finish Setting Up
               </Button>
             </Link>

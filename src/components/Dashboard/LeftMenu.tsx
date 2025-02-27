@@ -15,6 +15,9 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 export const LeftMenu = () => {
+  const userType = "brand";
+
+
   const [active, setActive] = useState(0);
 
   const menuItems = [
@@ -31,7 +34,7 @@ export const LeftMenu = () => {
       link: "/dashboard/inbox",
     },
     {
-      name: "Storefront",
+      name: userType === "brand" ? "Brandfront" : "Storefront",
       icon: <Store size={20} className="mr-2" />,
       underline: true,
       link: "/dashboard/store-front",
@@ -74,6 +77,12 @@ export const LeftMenu = () => {
     },
   ];
 
+
+  const logout = () => {
+    window.localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
+
   return (
     <div className="flex flex-col w-[20%] px-[16px] max-h-screen bg-white border-r border-gray-200">
       <div className="py-6 flex items-center justify-between mt-6">
@@ -108,7 +117,9 @@ export const LeftMenu = () => {
           <span className="font-bold">Andrew Bishop</span>
           <span className="text-xs text-neutral-500">test@example.com</span>
         </div>
-        <LogOut size={20} className="cursor-pointer" />
+        <LogOut size={20} className="cursor-pointer"
+          onClick={logout}
+        />
       </div>
     </div>
   );

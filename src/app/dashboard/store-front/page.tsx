@@ -5,7 +5,7 @@ import Button from "@/components/Button/Button";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Tabs from "@/components/Tabs/Tabs";
 import { ArrowRight, Image, Mic, Text, Video } from "lucide-react";
-
+import { motion } from "framer-motion";
 import React from "react";
 
 type DashboardProps = object;
@@ -145,123 +145,130 @@ export default function StoreFront({ }: DashboardProps) {
         {/* Content */}
         <div className="flex flex-col items-center justify-start h-full py-12">
           <div className="flex flex-col w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">
-            <div>
-              <div className="relative">
-                {/* Cover Image */}
-                <div className="relative w-full h-60">
-                  <img
-                    src="/images/wallpaper.png"
-                    alt="Cover"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
-
-                {/* Profile Section */}
-                <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
-                  {/* Profile Picture and Info */}
-                  <div className="flex items-end space-x-4">
-                    <div className="rounded-sm overflow-hidden">
-                      <img
-                        src="/images/profile_2.png"
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Name and Socials */}
-                    <div className="flex flex-col">
-                      <div className="flex items-end space-x-2">
-                        <h2 className="text-2xl font-semibold">
-                          Andrew Bishop
-                        </h2>
-                        <h4>Mersin, Turkey</h4>
-                      </div>
-                      <div className="flex space-x-3 mt-1 text-gray-500">
-                        <a href="#" className="hover:text-gray-700">
-                          🔗
-                        </a>
-                        <a href="#" className="hover:text-gray-700">
-                          🎙
-                        </a>
-                        <a href="#" className="hover:text-gray-700">
-                          🌎
-                        </a>
-                      </div>
-                    </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div>
+                <div className="relative">
+                  {/* Cover Image */}
+                  <div className="relative w-full h-60">
+                    <img
+                      src="/images/wallpaper.png"
+                      alt="Cover"
+                      className="w-full h-full object-cover rounded-md"
+                    />
                   </div>
 
-                  {/* Chat Button */}
-                  <Button
-                    size="small"
-                    variant="primary"
-                    className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-                  >
-                    Follow
-                  </Button>
+                  {/* Profile Section */}
+                  <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
+                    {/* Profile Picture and Info */}
+                    <div className="flex items-end space-x-4">
+                      <div className="rounded-sm overflow-hidden">
+                        <img
+                          src="/images/profile_2.png"
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Name and Socials */}
+                      <div className="flex flex-col">
+                        <div className="flex items-end space-x-2">
+                          <h2 className="text-2xl font-semibold">
+                            Andrew Bishop
+                          </h2>
+                          <h4>Mersin, Turkey</h4>
+                        </div>
+                        <div className="flex space-x-3 mt-1 text-gray-500">
+                          <a href="#" className="hover:text-gray-700">
+                            🔗
+                          </a>
+                          <a href="#" className="hover:text-gray-700">
+                            🎙
+                          </a>
+                          <a href="#" className="hover:text-gray-700">
+                            🌎
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Chat Button */}
+                    <Button
+                      size="small"
+                      variant="primary"
+                      className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                    >
+                      Follow
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Bio */}
-            <p className="mt-24 text-gray-600 text-sm">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-              Voluptates veniam saepe officiis fugiat quidem maxime, laudantium
-              eligendi pariatur ex soluta animi aut nihil commodi ipsum quisquam
-              perferendis aperiam. Facilis eligendi nisi ullam voluptates
-              blanditiis sed rerum consectetur maiores rem hic, soluta quisquam,
-              facere numquam aliquam repellat doloremque delectus? Cum fugit
-              voluptatibus quod, animi repellat amet obcaecati beatae excepturi
-              corrupti esse vel neque quis, magni, odit distinctio? Ducimus
-              perspiciatis molestias quam id rerum, placeat exercitationem
-              assumenda, distinctio, hic illo laborum. Impedit totam odit rem at
-              esse magnam saepe velit, aperiam molestias quas natus delectus et
-              itaque, labore ipsum ad aspernatur. Facere!{" "}
-            </p>
+              {/* Bio */}
+              <p className="mt-24 text-gray-600 text-sm">
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                Voluptates veniam saepe officiis fugiat quidem maxime, laudantium
+                eligendi pariatur ex soluta animi aut nihil commodi ipsum quisquam
+                perferendis aperiam. Facilis eligendi nisi ullam voluptates
+                blanditiis sed rerum consectetur maiores rem hic, soluta quisquam,
+                facere numquam aliquam repellat doloremque delectus? Cum fugit
+                voluptatibus quod, animi repellat amet obcaecati beatae excepturi
+                corrupti esse vel neque quis, magni, odit distinctio? Ducimus
+                perspiciatis molestias quam id rerum, placeat exercitationem
+                assumenda, distinctio, hic illo laborum. Impedit totam odit rem at
+                esse magnam saepe velit, aperiam molestias quas natus delectus et
+                itaque, labore ipsum ad aspernatur. Facere!{" "}
+              </p>
 
-            {/* Tags */}
-            <div className="mt-4 flex space-x-2">
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Marketing
-              </span>
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Design
-              </span>
-              <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                #Tech
-              </span>
-            </div>
-
-            {/* STATS */}
-            <div className="flex gap-4 mt-4">
-              <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
-                <h1 className="text-lg font-semibold">1,200</h1>
-                <p className="text-gray-600">#Jobs Completed</p>
-              </div>
-              <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
-                <h1 className="text-lg font-semibold">1,200</h1>
-                <p className="text-gray-600">#Jobs Completed</p>
+              {/* Tags */}
+              <div className="mt-4 flex space-x-2">
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Marketing
+                </span>
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Design
+                </span>
+                <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                  #Tech
+                </span>
               </div>
 
-              <div className="w-full sm:w-0 border-l-2 border-gray-200 mx-2"></div>
+              {/* STATS */}
+              <div className="flex gap-4 mt-4">
+                <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
+                  <h1 className="text-lg font-semibold">1,200</h1>
+                  <p className="text-gray-600">#Jobs Completed</p>
+                </div>
+                <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
+                  <h1 className="text-lg font-semibold">1,200</h1>
+                  <p className="text-gray-600">#Jobs Completed</p>
+                </div>
 
-              <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
-                <h1 className="text-lg font-semibold">1,200</h1>
-                <p className="text-gray-600">#Jobs Completed</p>
-              </div>
-              <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
-                <h1 className="text-lg font-semibold">1,200</h1>
-                <p className="text-gray-600">#Jobs Completed</p>
-              </div>
-              <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
-                <h1 className="text-lg font-semibold">1,200</h1>
-                <p className="text-gray-600">#Jobs Completed</p>
-              </div>
-            </div>
+                <div className="w-full sm:w-0 border-l-2 border-gray-200 mx-2"></div>
 
-            {/* divider */}
-            <div className="border-t border-gray-200 my-6"></div>
+                <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
+                  <h1 className="text-lg font-semibold">1,200</h1>
+                  <p className="text-gray-600">#Jobs Completed</p>
+                </div>
+                <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
+                  <h1 className="text-lg font-semibold">1,200</h1>
+                  <p className="text-gray-600">#Jobs Completed</p>
+                </div>
+                <div className="flex flex-col w-full bg-white p-4 rounded-md border border-gray-200">
+                  <h1 className="text-lg font-semibold">1,200</h1>
+                  <p className="text-gray-600">#Jobs Completed</p>
+                </div>
+              </div>
 
-            <Tabs tabs={tabs} />
+              {/* divider */}
+              <div className="border-t border-gray-200 my-6"></div>
+
+              <Tabs tabs={tabs} />
+            </motion.div>
           </div>
         </div>
       </div>
