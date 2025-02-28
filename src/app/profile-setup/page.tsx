@@ -9,10 +9,9 @@ import Link from "next/link";
 
 type ProfileSetupProps = object;
 
-export default function ProfileSetup({ }: ProfileSetupProps) {
-  const userType = "brand";
+export default function ProfileSetup({}: ProfileSetupProps) {
+  const userType: "brand" | "creator" = "brand";
   // const userType = "creator";
-
 
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
   const [location, setLocation] = useState<string>("Location");
@@ -56,12 +55,12 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const ProfileInformation = () => {
     return (
       <div>
-        {userType === "creator" ?
+        {userType === "creator" ? (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">Profile Name</h1>
             <p className="text-neutral-600 text-left mb-6">
-              Change your profile name if it differs from your previously entered
-              full name.
+              Change your profile name if it differs from your previously
+              entered full name.
             </p>
             <div className="w-[70%]">
               <Input
@@ -74,7 +73,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               />
             </div>
           </>
-          :
+        ) : (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">Brand Name</h1>
             <p className="text-neutral-600 text-left mb-6">
@@ -92,7 +91,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               />
             </div>
           </>
-        }
+        )}
         <h1 className="text-h5 font-bold text-left mb-1 mt-10">
           Profile Picture
         </h1>
@@ -202,7 +201,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       <>
         {userType === "brand" && (
           <>
-            <h1 className="text-h5 font-bold text-left mb-1">Company Location</h1>
+            <h1 className="text-h5 font-bold text-left mb-1">
+              Company Location
+            </h1>
             <p className="text-neutral-600 text-left mb-6">
               Let creators know where you are located
             </p>
@@ -303,7 +304,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
             <Button
               variant="secondary"
               className="w-1/3 mt-8 underline text-primary-700"
-              onClick={() => { }}
+              onClick={() => {}}
               size="small"
             >
               Skip this step
@@ -313,7 +314,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId > 1 && (
             <Button
               variant="outline"
-              className="w-1/3 mt-8 px-12"
+              className="w-1/3 mt-8 px-4" // Adjust padding for consistency
               socialMediaIcon={<ArrowLeft />}
               size="small"
               onClick={() => {
@@ -327,7 +328,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId < sections.length ? (
             <Button
               variant="primary"
-              className="w-1/3 mt-8 px-12 ml-4"
+              className="w-1/3 mt-8 px-4 ml-4" // Adjust padding for consistency
               icon={<ArrowRight />}
               onClick={() => setActiveId(activeId + 1)}
               size="small"
@@ -335,8 +336,15 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               Continue
             </Button>
           ) : (
-            <Link href="/dashboard" className="w-1/3 mt-8 px-12">
-              <Button size="small" className="w-full" variant="primary" icon={<ArrowRight />}>
+            <Link href="/dashboard" className="w-1/3 mt-8 px-4">
+              {" "}
+              {/* Adjust padding for consistency */}
+              <Button
+                size="small"
+                className="w-full"
+                variant="primary"
+                icon={<ArrowRight />}
+              >
                 Finish Setting Up
               </Button>
             </Link>
