@@ -9,7 +9,7 @@ import Link from "next/link";
 
 type ProfileSetupProps = object;
 
-export default function ProfileSetup({}: ProfileSetupProps) {
+export default function ProfileSetup({ }: ProfileSetupProps) {
   const userType: "brand" | "creator" = "brand";
   // const userType = "creator";
 
@@ -199,7 +199,7 @@ export default function ProfileSetup({}: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
-        {userType === "brand" && (
+        {userType === "creator" && (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">
               Company Location
@@ -304,7 +304,7 @@ export default function ProfileSetup({}: ProfileSetupProps) {
             <Button
               variant="secondary"
               className="w-1/3 mt-8 underline text-primary-700"
-              onClick={() => {}}
+              onClick={() => { }}
               size="small"
             >
               Skip this step

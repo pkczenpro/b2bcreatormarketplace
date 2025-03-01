@@ -12,7 +12,7 @@ interface SignupFormProps {
     userType?: "creator" | "brand";
 }
 
-const SignupForm = ({ userType = "creator" }: SignupFormProps) => {
+const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
     const router = useRouter();
     const paragraph =
         userType === "creator"

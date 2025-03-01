@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 interface FileUploadProps {
-    name: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    name?: string;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
+    multiple?: boolean;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required, multiple }) => {
     const [dragOver, setDragOver] = useState<boolean>(false);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -24,7 +25,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required }) => 
         const files = e.dataTransfer.files;
         if (files && files.length > 0) {
             // Trigger the onChange function with the files.
-            onChange({ target: { files } } as React.ChangeEvent<HTMLInputElement>);
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            onChange && onChange({ target: { files } } as React.ChangeEvent<HTMLInputElement>);
         }
     };
 
@@ -44,6 +46,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required }) => 
                 </p>
                 <p className="text-xs text-gray-400">Max file size: 5MB</p>
                 <input
+                    multiple={multiple}
                     id={name}
                     type="file"
                     name={name}

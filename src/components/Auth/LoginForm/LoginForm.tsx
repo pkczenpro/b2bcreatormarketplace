@@ -11,7 +11,7 @@ interface LoginFormProps {
     userType?: "creator" | "brand";
 }
 
-const LoginForm = ({ userType = "creator" }: LoginFormProps) => {
+const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
     const paragraph =
         userType === "creator"
             ? "Grow together with your favorite brands."

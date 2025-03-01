@@ -15,9 +15,10 @@ interface Input {
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     className?: string;
+    multiple?: boolean;
 }
 
-const Input: React.FC<Input> = ({ name, label, type, value, onChange, placeholder, required, size = "medium",
+const Input: React.FC<Input> = ({ name, label, type, value, onChange, placeholder, required, size = "medium", multiple,
     onKeyDown,
     onKeyPress,
     className
@@ -38,6 +39,7 @@ const Input: React.FC<Input> = ({ name, label, type, value, onChange, placeholde
                     name={name}
                     onChange={onChange}
                     required={required}
+                    multiple={multiple}
                 />
             ) : (
                 <input

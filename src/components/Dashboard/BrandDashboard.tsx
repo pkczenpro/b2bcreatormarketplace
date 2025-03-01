@@ -10,11 +10,12 @@ import { Divider, Modal, Select, Switch } from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
+import ShowProductModal from "./ShowProductModal";
 
 type BrandDashboardProps = object;
 
-export default function BrandDashboard({}: BrandDashboardProps) {
-  const userType = "brand";
+export default function BrandDashboard({ }: BrandDashboardProps) {
+  const userType = "creator";
 
   const tabs = [
     {
@@ -122,8 +123,17 @@ export default function BrandDashboard({}: BrandDashboardProps) {
               Add Product
             </Button>
           </div>
-          <div className="border border-neutral-100 mt-6 p-6 rounded-md flex space-x-4 mb-4">
-            <img src="/images/profile_2.png" alt="" />
+          <div className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer" onClick={() => {
+            setShowProductModal(true);
+            setSelectedProduct({
+              productName: "Product Name",
+              productDescription: "Product Description",
+              productLogo: null,
+              productImages: [] as File[],
+              publicVisibility: false,
+            });
+          }}>
+            <img src="/images/product.png" alt="" />
             <div className="flex flex-col">
               <h2 className="text-h5 font-bold mb-2">Lorem, ipsum.</h2>
               <p className="text-neutral-600">
@@ -136,20 +146,7 @@ export default function BrandDashboard({}: BrandDashboardProps) {
               </p>
             </div>
           </div>
-          <div className="border border-neutral-100 mt-6 p-6 rounded-md flex space-x-4">
-            <img src="/images/profile_2.png" alt="" />
-            <div className="flex flex-col">
-              <h2 className="text-h5 font-bold mb-2">Lorem, ipsum.</h2>
-              <p className="text-neutral-600">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Hic
-                quis reprehenderit pariatur non illum voluptatum reiciendis
-                nostrum libero rem temporibus ad nisi odit earum praesentium
-                amet aliquid fugiat quo ducimus quos, magnam officiis nobis
-                tenetur aperiam atque. Quo cupiditate aspernatur accusamus
-                similique, necessitatibus neque quam?
-              </p>
-            </div>
-          </div>
+
         </div>
       ),
     },
@@ -304,11 +301,18 @@ export default function BrandDashboard({}: BrandDashboardProps) {
   };
 
   const [modal, setModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   return (
     <div className="flex flex-col items-center justify-start h-full py-12">
       {createCampaign()}
       <AddProductModal modal={modal} setModal={setModal} />
+      <ShowProductModal
+        modal={showProductModal}
+        setModal={setShowProductModal}
+        product={selectedProduct}
+      />
       <div className="flex flex-col w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">
         <motion.div
           initial={{ opacity: 0 }}

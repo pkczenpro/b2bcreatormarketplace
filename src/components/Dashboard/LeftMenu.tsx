@@ -15,7 +15,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 export const LeftMenu = () => {
-  const userType = "brand";
+  const userType = "creator";
 
 
   const [active, setActive] = useState(0);
@@ -37,7 +37,7 @@ export const LeftMenu = () => {
       name: userType === "brand" ? "Brandfront" : "Storefront",
       icon: <Store size={20} className="mr-2" />,
       underline: true,
-      link: "/dashboard/store-front",
+      link: userType === "brand" ? "/brand-dashboard/store-front" : "/dashboard",
     },
     {
       name: "Campaigns",

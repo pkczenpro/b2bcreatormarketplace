@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Input, Switch, Divider } from "antd";
-
+import CustomInput from "@/components/Input/Input";
 const { TextArea } = Input;
 
 interface AddProductModalProps {
@@ -17,8 +17,10 @@ export default function CreatorDashboard({
     productLogo: null,
     publicVisibility: false,
     productDescription: "",
-    productImage: "",
+    productImages: [] as File[],
   });
+
+  console.log(formData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,11 +37,18 @@ export default function CreatorDashboard({
     }));
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
+  const handleFileChange = (name: string, files: File[]) => {
+    if (name === "productImages") {
+
+      setFormData((prevData) => ({
+        ...prevData,
+        productImages: [...prevData.productImages, ...files.target.files],
+      }));
+      return;
+    }
     setFormData((prevData) => ({
       ...prevData,
-      [name]: files[0],
+      [name]: files?.target?.files[0],
     }));
   };
 
@@ -47,14 +56,19 @@ export default function CreatorDashboard({
     <Modal
       width="60%"
       centered
-      title="Add Product"
+      title={
+        <h2 className="text-text-large font-semibold text-neutral-800">
+          Add a New Product
+        </h2>
+      }
       open={modal}
       onOk={() => setModal(false)}
       onCancel={() => setModal(false)}
     >
       <Divider />
-      <div>
-        <h3 className="text-xl font-semibold mb-4">Basic Information</h3>
+      {/* overflow */}
+      <div className="overflow-y-auto" style={{ maxHeight: "70vh" }}>
+        <h3 className="text-text-large font-medium mb-4 text-neutral-600">Basic Information</h3>
         <div className="flex space-x-6">
           <div className="w-1/2">
             <div className="mb-4">
@@ -69,25 +83,36 @@ export default function CreatorDashboard({
                 name="productName"
                 value={formData.productName}
                 onChange={handleInputChange}
-                placeholder="Product Name"
-                className="mt-1 p-2 border rounded-lg w-full"
+                placeholder="Enter Product Name"
+                className="mt-1 p-2 border rounded-lg w-[80%]"
               />
             </div>
 
             <div className="mb-4">
               <label
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mb-2"
                 htmlFor="productLogo"
               >
                 Product Logo
               </label>
-              <input
-                type="file"
-                id="productLogo"
-                name="productLogo"
-                onChange={handleFileChange}
-                className="mt-1 p-2 w-full border rounded-lg"
-              />
+              <div className="w-[80%]">
+                <CustomInput
+                  type="file"
+                  onChange={(files) => handleFileChange("productLogo", files)}
+                  required
+                  name="coverPicture"
+                />
+              </div>
+
+              {formData.productLogo && (
+                <div className="mt-2">
+                  <img
+                    src={URL.createObjectURL(formData.productLogo)}
+                    alt="Product Logo"
+                    className="w-24 h-24 object-cover rounded-lg"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
@@ -108,14 +133,14 @@ export default function CreatorDashboard({
                 className="block text-sm font-medium text-gray-700"
                 htmlFor="productDescription"
               >
-                Product Description
+                Brief Description
               </label>
               <TextArea
                 id="productDescription"
                 name="productDescription"
                 value={formData.productDescription}
                 onChange={handleInputChange}
-                placeholder="Product Description"
+                placeholder="Tell others about your product"
                 className="mt-1 p-2 border rounded-lg w-full"
                 style={{
                   height: "150px",
@@ -133,19 +158,37 @@ export default function CreatorDashboard({
           <div className="w-1/2">
             <div className="mb-4">
               <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="productImage"
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="productImages"
               >
                 Product Image
               </label>
-              <input
-                multiple
-                type="file"
-                id="productLogo"
-                name="productLogo"
-                onChange={handleFileChange}
-                className="mt-1 p-2 w-full border rounded-lg"
-              />
+              <div className="w-full">
+                <CustomInput
+                  type="file"
+                  required
+                  name="productImages"
+                  multiple={true}
+                  onChange={(files) => handleFileChange("productImages", files)}
+                />
+              </div>
+            </div>
+
+            {/* Display uploaded product images */}
+            <div className="mt-4">
+              {formData.productImages.length > 0 && (
+                <div className="grid grid-cols-3 gap-4">
+                  {formData.productImages.map((file, index) => (
+                    <div key={index} className="w-full">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Uploaded Product Image ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
