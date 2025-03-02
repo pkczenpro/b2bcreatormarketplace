@@ -12,21 +12,23 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
 export const LeftMenu = () => {
+  const pathname = usePathname();
   const userType = "creator";
 
 
   const [active, setActive] = useState(0);
 
   const menuItems = [
-    {
-      name: "Home",
-      icon: <Home size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard",
-    },
+    // {
+    //   name: "Home",
+    //   icon: <Home size={20} className="mr-2" />,
+    //   underline: false,
+    //   link: "/dashboard",
+    // },
     {
       name: "Inbox",
       icon: <Inbox size={20} className="mr-2" />,
@@ -91,24 +93,29 @@ export const LeftMenu = () => {
       </div>
       <div className="flex flex-col items-start h-full">
         <ul className="w-full">
-          {menuItems.map((item, index) => (
-            <div key={index}>
-              <Link href={item.link} key={index} className="w-full">
-                <li
-                  key={index}
-                  className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${active === index ? "bg-neutral-50" : ""
-                    }`}
-                  onClick={() => setActive(index)}
-                >
-                  {item.icon && item.icon}
-                  {item.name}
-                </li>
-              </Link>
-              {item.underline && (
-                <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
-              )}
-            </div>
-          ))}
+          {menuItems.map((item, index) => {
+            const isActive = pathname === item.link;
+
+
+            return (
+              <div key={index}>
+                <Link href={item.link} key={index} className="w-full">
+                  <li
+                    key={index}
+                    className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${isActive ? "bg-neutral-50" : ""
+                      }`}
+                    onClick={() => setActive(index)}
+                  >
+                    {item.icon && item.icon}
+                    {item.name}
+                  </li>
+                </Link>
+                {item.underline && (
+                  <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
+                )}
+              </div>
+            )
+          })}
         </ul>
       </div>
       <div className="flex items-center justify-around mt-auto py-8">

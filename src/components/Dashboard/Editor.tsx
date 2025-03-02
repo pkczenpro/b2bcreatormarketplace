@@ -1,191 +1,170 @@
-// components/CarouselEditor.js
+import { Button, Input, Select } from "antd";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import html2canvas from "html2canvas";
+import Template_1 from "./TEMPLATES/Template_1";
+import Template_2 from "./TEMPLATES/Template_2";
+import Template_3 from "./TEMPLATES/Template_3";
+import Template_4 from "./TEMPLATES/Template_4";
 
-import { Select } from "antd";
-import { useState } from "react";
-import Button from "../Button/Button";
-
+// Templates data
 const TEMPLATES = [
     {
         id: 1,
         name: "Template 1",
-        size: "540x540",
-        font: "font-sans",
-        background: "bg-white",
-        backgroundElement: "gradient-spots",
+        size: "288x360",
+        component: Template_1,
     },
     {
         id: 2,
         name: "Template 2",
-        size: "960x540",
-        font: "font-serif",
-        background: "bg-gray-200",
-        backgroundElement: "gradient-lines",
+        size: "288x360",
+        component: Template_2,
     },
     {
         id: 3,
         name: "Template 3",
-        size: "540x960",
-        font: "font-mono",
-        background: "bg-blue-200",
-        backgroundElement: "gradient-circles",
+        size: "288x360",
+        component: Template_3,
     },
-]
-
-
+    {
+        id: 4,
+        name: "Template 4",
+        size: "288x360",
+        component: Template_4,
+    },
+];
 
 const CarouselEditor = () => {
-    // State for selected template size, typography, background, and canvas elements
-    const [selectedSize, setSelectedSize] = useState("540x540");
-    const [selectedFont, setSelectedFont] = useState("font-sans");
-    const [selectedBackground, setSelectedBackground] = useState("bg-white");
-    const [canvasText, setCanvasText] = useState("Edit this text...");
-    const [selectedBackgroundElement, setSelectedBackgroundElement] = useState("");
+    const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
+    const [fontFamily, setFontFamily] = useState("Arial");
+    const fontFamilies = [
+        "Arial",
+        "Courier New",
+        "Georgia",
+        "Lucida Console",
+        "Tahoma",
+        "Times New Roman",
+        "Trebuchet MS",
+        "Verdana",
+    ]
 
-    // Template sizes
-    const sizes = [
-        { label: "Square (1080x1080)", value: "540x540" },
-        { label: "Landscape (1920x1080)", value: "960x540" },
-        { label: "Portrait (1080x1920)", value: "540x960" },
-    ];
+    // Export Single Image Function
+    const exportImage = (index) => {
+        const postElement = document.querySelector(`#post-${index}`);
+        if (postElement) {
+            html2canvas(postElement, { backgroundColor: null }).then((canvas) => {
+                const link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = `carousel_${index + 1}.png`;
+                link.click();
+            });
+        }
+    };
 
-    // Fonts
-    const fonts = ["font-sans", "font-serif", "font-mono"];
-
-    // Backgrounds
-    const backgrounds = [
-        "bg-white",
-        "bg-gray-200",
-        "bg-blue-200",
-        "bg-red-200",
-        "bg-green-200",
-    ];
-
-    // Background elements
-    const backgroundElements = [
-        "gradient-spots",
-        "gradient-lines",
-        "gradient-circles",
-    ];
+    // Export All Images Function
+    const exportAllImages = () => {
+        [...Array(4)].forEach((_, index) => {
+            exportImage(index); // Reuse exportImage for each post
+        });
+    };
 
     return (
         <div className="flex w-full min-h-[80vh]">
-            {/* Left panel */}
-            <div className="w-[25vw] border-r border-neutral-200 p-6">
-                {/* Template Size Selector */}
-                <div className="mb-2">
-                    <h3 className="font-medium mb-2">Template Size</h3>
-                    <Select
-                        className="w-full"
-                        value={selectedSize}
-                        onChange={(value) => setSelectedSize(value)}
-                    >
-                        {sizes.map((size) => (
-                            <Select.Option key={size.value} value={size.value}>
-                                {size.label}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </div>
-
-                <Button
+            {/* Left Panel */}
+            <div className="min-w-[15vw] border-r border-neutral-200 p-6">
+                <h3 className="font-medium mb-2">Template</h3>
+                <Select
                     className="w-full mb-2"
-                    onClick={() => alert("Change Carousel Template clicked")}
-                    variant="outline"
-                    size="small"
+                    value={selectedTemplate.name}
+                    onChange={(value) =>
+                        setSelectedTemplate(
+                            TEMPLATES.find((template) => template.name === value) || selectedTemplate
+                        )
+                    }
                 >
-                    Change Carousel Template
-                </Button>
+                    {TEMPLATES.map((template) => (
+                        <Select.Option key={template.id} value={template.name}>
+                            {template.name}
+                        </Select.Option>
+                    ))}
+                </Select>
 
-                <div className="border-b border-gray-300 my-4"></div>
-
-                {/* Background Selector */}
-                <div className="mb-2">
-                    <h3 className="font-medium mb-2">Background</h3>
-                    <Select
-                        className="w-full"
-                        value={selectedBackground}
-                        dropdownClassName="w-48"
-                        onChange={(value) => setSelectedBackground(value)}
-                    >
-                        {backgrounds.map((bg) => (
-                            <Select.Option key={bg} value={bg}>
-                                {bg}
+                {/* Size Selection */}
+                <h3 className="font-medium mb-2">Size</h3>
+                <Select
+                    className="w-full mb-2"
+                    value={selectedTemplate.size}
+                    onChange={(value) => setSelectedTemplate({ ...selectedTemplate, size: value })}
+                >
+                    {TEMPLATES
+                        .map((template) => template.size) // Get all size values
+                        .filter((value, index, self) => self.indexOf(value) === index) // Filter out duplicates
+                        .map((size, index) => (
+                            <Select.Option key={index} value={size}>
+                                {size}
                             </Select.Option>
                         ))}
-                    </Select>
-                </div>
-
-                {/* Background Elements Selector */}
-                <div className="mb-2">
-                    <h3 className="font-medium mb-2">Background Elements</h3>
-                    <Select
-                        className="w-full"
-                        value={selectedBackgroundElement}
-                        dropdownClassName="w-48"
-                        onChange={(value) => setSelectedBackgroundElement(value)}
-                    >
-                        {backgroundElements.map((element) => (
-                            <Select.Option key={element} value={element}>
-                                {element}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </div>
-
-                <div className="border-b border-gray-300 my-4"></div>
-
-                {/* Typography Selector */}
-                <div className="mb-2">
-                    <h3 className="font-medium mb-2">Typography</h3>
-                    <Select
-                        className="w-full"
-                        value={selectedFont}
-                        dropdownClassName="w-48"
-                        onChange={(value) => setSelectedFont(value)}
-                    >
-                        {fonts.map((font) => (
-                            <Select.Option key={font} value={font}>
+                </Select>
+                {/* Font Selection */}
+                <h3 className="font-medium mb-2">Font</h3>
+                <Select
+                    className="w-full mb-2"
+                    value={fontFamily}
+                    onChange={(value) => setFontFamily(value)}
+                >
+                    {
+                        fontFamilies.map((font, index) => (
+                            <Select.Option key={index} value={font}>
                                 {font}
                             </Select.Option>
-                        ))}
-                    </Select>
-                </div>
-
-                {/* Text Input for Canvas */}
-                <div className="mb-6">
-                    <h3 className="font-medium mb-2">Edit Text</h3>
-                    <input
-                        type="text"
-                        value={canvasText}
-                        onChange={(e) => setCanvasText(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
+                        ))
+                    }
+                </Select>
+                <div className="border-t border-neutral-200 my-4"></div>
+                <Button className="w-full mb-2" size="small" onClick={exportAllImages}>
+                    Export All as Images
+                </Button>
+                <Button className="w-full" size="small">
+                    Save Carousel
+                </Button>
             </div>
 
-            {/* Right panel (Canvas) */}
-            <div
-                className={`w-[100%] flex justify-center items-center`}
-                style={{
-                    width: selectedSize.split("x")[0],
-                    height: selectedSize.split("x")[1],
-                    background: 'white',
-                    backgroundImage: 'radial-gradient(#E0E2E7 2px, transparent 0)',
-                    backgroundSize: '100px 100px',
-                    backgroundPosition: '-25px -25px',
-                }}
+            {/* Right Panel - Carousel Display */}
+            <motion.div
+                key={selectedTemplate.id}
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.5 }}
+                className="m-12"
             >
-                <div
-                    className={`w-full h-full flex justify-center items-center text-center ${selectedFont} border border-neutral-200 ${selectedBackground}`}
-                    style={{
-                        width: selectedSize.split("x")[0] + "px",
-                        height: selectedSize.split("x")[1] + "px",
-                    }}
-                >
-                    <p className="text-xl font-bold">{canvasText}</p>
+                <div className="max-w-[75vw] flex justify-start items-center overflow-x-auto p-4 scroll-smooth">
+                    <div className="flex space-x-6">
+                        {[...Array(4)].map((_, index) => {
+                            const TemplateComponent = selectedTemplate.component;
+                            return (
+                                <div
+                                    key={index}
+                                    id={`post-${index}`} // Unique ID for each post
+                                    className={`relative flex justify-center items-center text-center`}
+                                    style={{
+                                        width: `${parseInt(selectedTemplate.size.split("x")[0]) * 1.5}px`,
+                                        height: `${parseInt(selectedTemplate.size.split("x")[1]) * 1.5}px`,
+                                        fontFamily: fontFamily,
+                                    }}
+                                >
+                                    <TemplateComponent
+                                        index={index}
+                                        isLastItem={index === 3}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </div >
     );
 };
 

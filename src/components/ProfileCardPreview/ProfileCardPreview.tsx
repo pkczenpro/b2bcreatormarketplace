@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../Button/Button";
 import { MessageSquare } from "lucide-react";
+import Link from "next/link";
 
 interface ProfileCardPreviewProps {
   profileName: string | null;
@@ -72,14 +73,16 @@ const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
             </div>
           </div>
 
-          <Button
-            size="small"
-            variant="primary"
-            className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-          >
-            <MessageSquare size={16} className="mr-2" />
-            Have a Chat
-          </Button>
+          <Link href="/dashboard/inbox">
+            <Button
+              size="small"
+              variant="primary"
+              className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+            >
+              <MessageSquare size={16} className="mr-2" />
+              Have a Chat
+            </Button>
+          </Link>
         </div>
 
         <div>

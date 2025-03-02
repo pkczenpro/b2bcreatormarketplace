@@ -3,7 +3,10 @@
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
 import { motion } from "framer-motion";
-type InboxProps = {};
+import { PaperclipIcon, SendIcon } from "lucide-react";
+import { useState } from "react";
+
+type InboxProps = object;
 
 export default function Inbox({ }: InboxProps) {
     // Mocked chat data for dynamic rendering
@@ -19,6 +22,15 @@ export default function Inbox({ }: InboxProps) {
         { from: "John Doe", text: "How about you?", isSender: true },
         { from: "Me", text: "I'm doing great!", isSender: false },
     ];
+
+    const [message, setMessage] = useState("");
+    const handleSendMessage = () => {
+        if (message) {
+            messages.push({ from: "Me", text: message, isSender: false });
+            setMessage("");
+        }
+    }
+
 
     return (
         <div className="flex">
@@ -52,7 +64,7 @@ export default function Inbox({ }: InboxProps) {
                                 </div>
 
                                 {/* Right Panel - Chat Window */}
-                                <div className="w-full md:w-[70%] bg-neutral-50">
+                                <div className="w-full md:w-[70%] bg-neutral-50 flex flex-col justify-between">
                                     {/* Chat Header */}
                                     <div className="flex items-center space-x-2 border-b border-neutral-100 p-4 mb-4 bg-white">
                                         <img src="/images/profile.png" alt="John Doe" className="w-10 h-10 rounded-full" />
@@ -63,7 +75,7 @@ export default function Inbox({ }: InboxProps) {
                                     </div>
 
                                     {/* Chat Body */}
-                                    <div className="flex flex-col space-y-2 px-6">
+                                    <div className="flex flex-col justify-end space-y-2 px-6">
                                         {messages.map((message, index) => (
                                             <div
                                                 key={index}
@@ -79,6 +91,26 @@ export default function Inbox({ }: InboxProps) {
                                                 {message.isSender && <img src="/images/profile.png" alt={message.from} className="w-10 h-10 rounded-full" />}
                                             </div>
                                         ))}
+                                    </div>
+
+
+                                    {/* Message Input */}
+                                    <div className="flex items-center border-t border-neutral-100 p-4 bg-white">
+                                        <label className="cursor-pointer">
+                                            <PaperclipIcon className="w-6 h-6 text-gray-500" />
+                                            <input type="file" className="hidden" />
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="flex-1 border border-neutral-300 rounded-md px-4 py-2 mx-2"
+                                            placeholder="Type a message..."
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                                        />
+                                        <button onClick={handleSendMessage} className="text-blue-500">
+                                            <SendIcon className="w-6 h-6" />
+                                        </button>
                                     </div>
 
 

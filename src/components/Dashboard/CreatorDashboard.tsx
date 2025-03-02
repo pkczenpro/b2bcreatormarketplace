@@ -10,6 +10,7 @@ import { MessageSquare, Plus } from "lucide-react";
 import React, { useState } from "react";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 type CreatorDashboardProps = object;
 
@@ -383,14 +384,15 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
                                 </div>
 
                                 {/* Chat Button */}
-                                <Button
-                                    size="small"
-                                    variant="primary"
-                                    className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-                                >
-                                    <MessageSquare size={16} className="mr-2" />
-                                    Have a Chat
-                                </Button>
+                                <Link href="/dashboard/inbox">
+                                    <Button
+                                        size="small"
+                                        variant="primary"
+                                        className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                                    >
+                                        <MessageSquare size={16} className="mr-2" />
+                                        Have a Chat
+                                    </Button></Link>
                             </div>
                         </div>
                     </div>

@@ -3,8 +3,9 @@
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
-import { Breadcrumb, Select } from "antd";
+import { Select } from "antd";
 import { EarthIcon, Search, Shuffle } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 const campaigns = [
@@ -66,7 +67,8 @@ export default function Campaign() {
         <h3 className="mt-8 text-xl font-regular mb-4">Featured</h3>
         <div className="grid grid-cols-3 gap-4">
           {campaigns.map((campaign) => (
-            <div
+            <Link
+              href={`/dashboard/campaigns-details/${campaign.id}`}
               key={campaign.id}
               className="bg-white rounded-lg p-8 border border-1 shadow-sm cursor-pointer transition-all duration-300 hover:shadow-md hover:border-neutral-100"
             >
@@ -92,7 +94,7 @@ export default function Campaign() {
                   {campaign.channels}
                 </li>
               </ul>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
