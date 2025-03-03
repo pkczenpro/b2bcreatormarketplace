@@ -2,42 +2,40 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
-import Input from "@/components/Input/Input";
-import { Select, Table } from "antd";
-import { Compass, DiscIcon, EarthIcon, Search, Shuffle } from "lucide-react";
+import { Compass } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 const campaigns = [
     {
         id: 1,
-        title: "Webflow | Creator Program 2025",
-        company: "Webflow",
-        platform: "LinkedIn",
+        name: "Dave Kline",
+        location: "Norwalk, CT, USA",
+        followers: "61k",
+        engagement: "94k",
         image: "/images/profile_2.png",
-        icon: "/icons/linkedin.svg",
-        description: "All creators who see a fit are welcome to apply",
-        channels: "LinkedIn, YouTube, Podcasts"
+        description: "Training leaders on the playbook for leading high-performance teams. Entrepreneur | Writer | Speaker | Coach | 175K+ Social Media followers.",
+        tags: ["Leadership", "Sales Management", "Coaching", "Entrepreneurship"]
     },
     {
         id: 2,
-        title: "Shopify | Influencer Program 2025",
-        company: "Shopify",
-        platform: "Instagram",
+        name: "Brianna Doe",
+        location: "United States",
+        followers: "237k",
+        engagement: "100k",
         image: "/images/profile_2.png",
-        icon: "/icons/instagram.svg",
-        description: "Looking for influencers to promote Shopify",
-        channels: "Instagram, TikTok, Twitter"
+        description: "I built a thriving, engaged audience of 225k+ professionals, marketers, and recruiters. My content focuses on entrepreneurship, marketing, leadership...",
+        tags: ["Social Selling", "Content Marketing", "Management & Leadership"]
     },
     {
         id: 3,
-        title: "Squarespace | Brand Ambassador 2025",
-        company: "Squarespace",
-        platform: "Twitter",
+        name: "Mark Kosoglow",
+        location: "State College, Pennsylvania",
+        followers: "56k",
+        engagement: "112k",
         image: "/images/profile_2.png",
-        icon: "/icons/twitter.svg",
-        description: "Join the Squarespace ambassador program",
-        channels: "Twitter, YouTube, Facebook"
+        description: "Are your customers your growth engine? They should be. I’ve been a GTM executive for 9+ years achieving revenue and sales team on GTM motions.",
+        tags: ["Sales", "Leadership", "Business Growth"]
     }
 ];
 
@@ -52,67 +50,34 @@ export default function Creators() {
                 </h1>
                 <p className="text-lg">Explore creators looking to collaborate and sponsor you in endless ways.</p>
 
-                <div className="flex mt-8 justify-between">
-                    <div className="w-1/3">
-                        <Input placeholder="Search for Creators" />
-                    </div>
-                    <div className="w-1/4">
-                        <Select defaultValue="1" style={{ width: "100%" }}>
-                            <Select.Option value="1">All</Select.Option>
-                            <Select.Option value="2">Webflow</Select.Option>
-                            <Select.Option value="3">Shopify</Select.Option>
-                            <Select.Option value="4">Wix</Select.Option>
-                            <Select.Option value="5">Squarespace</Select.Option>
-                        </Select>
-                    </div>
-                </div>
-
                 <h3 className="mt-8 text-xl font-regular mb-4">Featured</h3>
-                <Table
-                    size="small"
-                    tableLayout="fixed"
-                    columns={[
-                        {
-                            title: "Creator",
-                            dataIndex: "creator",
-                            key: "creator",
-                            render: (text, record) => (
-                                <div className="flex items-center space-x-2">
-                                    <img src={record.image} alt={record.company} className="w-10 h-10 rounded-full" />
-                                    <div>
-                                        <h1 className="font-semibold">{record.company}</h1>
-                                        <p className="text-sm text-neutral-500">{record.platform}</p>
-                                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {campaigns.map((creator) => (
+                        <div key={creator.id} className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+                            <div className="flex items-center space-x-4">
+                                <img src={creator.image} alt={creator.name} className="w-14 h-14 rounded-full" />
+                                <div>
+                                    <h2 className="font-semibold text-lg">{creator.name}</h2>
+                                    <p className="text-sm text-neutral-500">{creator.location}</p>
                                 </div>
-                            )
-                        },
-                        {
-                            title: "Description",
-                            dataIndex: "description",
-                            key: "description"
-                        },
-                        {
-                            title: "Channels",
-                            dataIndex: "channels",
-                            key: "channels"
-                        },
-                        {
-                            title: "Action",
-                            dataIndex: "id",
-                            key: "id",
-                            render: (text) => (
-                                <Link href={`/dashboard/creators/${text}`}>
-                                    <div className="flex items-center space-x-2 text-primary-500">
-                                        <DiscIcon className="w-6 h-6" />
-                                        <p>View Profile</p>
-                                    </div>
-                                </Link>
-                            )
-                        }
-                    ]}
-                    dataSource={campaigns}
-                    pagination={false}
-                />
+                            </div>
+                            <div className="flex gap-4 text-sm">
+                                <span className="text-blue-500 font-semibold">{creator.followers} Followers</span>
+                                <span className="text-green-500 font-semibold">{creator.engagement} Engagement</span>
+                            </div>
+                            <p className="text-sm text-neutral-700">{creator.description}</p>
+                            <div className="flex flex-wrap gap-2">
+                                {creator.tags.map((tag, index) => (
+                                    <span key={index} className="bg-neutral-200 text-sm px-3 py-1 rounded-full">{tag}</span>
+                                ))}
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg">Message</button>
+                                <button className="px-4 py-2 border border-neutral-300 rounded-lg">Add to Campaign</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

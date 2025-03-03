@@ -88,7 +88,7 @@ const Template_3: React.FC<Template1Props> = ({
                 </h1>
                 {isLastItem ? (
                     <button
-                        className="bg-white text-white p-2 rounded-md"
+                        className="bg-white text-black p-2 rounded-md"
                     >
                         <span
                             ref={buttonRef}
@@ -112,7 +112,7 @@ const Template_3: React.FC<Template1Props> = ({
 
                 {index === 0 && <div>
                     <img src="/templates/bg.png" alt=""
-                        className="w-full object-cover rounded-lg mt-4"
+                        className="w-[100%] h-[200px] object-cover rounded-lg mt-4"
                     />
                 </div>}
             </div >
@@ -151,7 +151,7 @@ const Template_3: React.FC<Template1Props> = ({
                     !isLastItem ? (
                         <ArrowRightCircle className="text-white w-7 h-7" />
                     ) :
-                        <Bookmark className="text-white w-7 h-7" fill="black" />
+                        <Bookmark className="text-white w-7 h-7" fill="white" />
                 }
             </div >
         </div >

@@ -69,7 +69,7 @@ const Template_1: React.FC<Template1Props> = ({
                     <img
                         src="/templates/sgtl-1.png"
                         alt="gradient"
-                        className="absolute left-0 w-1/2 z-0"
+                        className="absolute left-0 w-1/3 z-0"
                     />
                     <img
                         src="/templates/sgtr-1.png"
