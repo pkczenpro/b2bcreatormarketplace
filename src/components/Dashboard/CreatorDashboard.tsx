@@ -16,13 +16,13 @@ type CreatorDashboardProps = object;
 
 export default function CreatorDashboard({ }: CreatorDashboardProps) {
     const [showSections, setShowSections] = React.useState({
-        services: true,
-        partnerships: true,
-        work: true,
-        linkedin: true,
-        testimonials: true,
-        textBlock: true,
-        statBlock: true,
+        services: false,
+        partnerships: false,
+        work: false,
+        linkedin: false,
+        testimonials: false,
+        textBlock: false,
+        statBlock: false,
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -441,9 +441,8 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
 
                     <div className="mt-8">
                         <PopupDropdown
-                        // todo: add props here
-                        // showSections={showSections}
-                        // setShowSections={setShowSections}
+                            showSections={showSections}
+                            setShowSections={setShowSections}
                         />
                     </div>
 

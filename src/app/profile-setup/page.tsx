@@ -10,7 +10,7 @@ import Link from "next/link";
 type ProfileSetupProps = object;
 
 export default function ProfileSetup({ }: ProfileSetupProps) {
-  const userType: "brand" | "creator" = "brand";
+  const userType: "brand" | "creator" = "creator";
   // const userType = "creator";
 
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
@@ -303,7 +303,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {sections[activeId - 1]?.skip && (
             <Button
               variant="secondary"
-              className="w-1/3 mt-8 underline text-primary-700"
+              className="mt-8 underline text-primary-700 w-full"
               onClick={() => { }}
               size="small"
             >
@@ -314,7 +314,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId > 1 && (
             <Button
               variant="outline"
-              className="w-1/3 mt-8 px-4" // Adjust padding for consistency
+              className="px-4 w-full" // Adjust padding for consistency
               socialMediaIcon={<ArrowLeft />}
               size="small"
               onClick={() => {
@@ -328,7 +328,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId < sections.length ? (
             <Button
               variant="primary"
-              className="w-1/3 mt-8 px-4 ml-4" // Adjust padding for consistency
+              className="px-4 ml-4 w-full" // Adjust padding for consistency
               icon={<ArrowRight />}
               onClick={() => setActiveId(activeId + 1)}
               size="small"
@@ -336,7 +336,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               Continue
             </Button>
           ) : (
-            <Link href="/dashboard" className="w-1/3 mt-8 px-4">
+            <Link href="/dashboard" className="mt-8 ml-4 w-full">
               {" "}
               {/* Adjust padding for consistency */}
               <Button

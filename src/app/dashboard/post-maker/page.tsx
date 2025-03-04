@@ -2,8 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/Button/Button";
-import { DatePicker, Modal, Select, TimePicker } from "antd";
+import { Button, DatePicker, Modal, Select, TimePicker } from "antd";
 import { ArrowLeft, Bold, Clock, Earth, Ellipsis, Forward, Image, Italic, Link as LinkIcon, ThumbsUp, MessageCircleMore, Send } from "lucide-react";
 import Link from "next/link";
 
@@ -67,22 +66,23 @@ export default function PostMaker({ }: PostMakerProps) {
                     value={time}
                 />
 
-                <Button
-                    variant="primary"
-                    className="w-full mt-4"
-                    size="small"
-                    onClick={() => setIsModalVisible(false)}
-                >
-                    Schedule
-                </Button>
-                <Button
-                    variant="outline"
-                    className="w-full mt-2"
-                    size="small"
-                    onClick={() => setIsModalVisible(false)}
-                >
-                    Cancel
-                </Button>
+                <div className="mt-4">
+                    <Button
+                        className="mr-2 bg-primary-700"
+                        type="primary"
+                        size="small"
+                        onClick={() => setIsModalVisible(false)}
+                    >
+                        Schedule
+                    </Button>
+                    <Button
+
+                        size="small"
+                        onClick={() => setIsModalVisible(false)}
+                    >
+                        Cancel
+                    </Button>
+                </div>
             </Modal>
         )
     }
@@ -137,18 +137,15 @@ export default function PostMaker({ }: PostMakerProps) {
                         <span className="text-sm text-neutral-500">Saved at 12:48 PM</span>
                         <div className="flex space-x-2">
                             <Button
-                                variant="outline"
-                                className="flex items-center space-x-2 px-3 py-1"
-                                size="xs"
+
                                 socialMediaIcon={<Clock size={12} />}
                                 onClick={() => setIsModalVisible(true)}
                             >
                                 Schedule Post
                             </Button>
                             <Button
-                                variant="primary"
-                                className="flex items-center space-x-2 px-3 py-1"
-                                size="xs"
+                                type="primary"
+                                className="bg-primary-700"
                             >
                                 Publish to Linkedin
                             </Button>

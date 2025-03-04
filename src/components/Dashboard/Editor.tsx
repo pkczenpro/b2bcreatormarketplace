@@ -60,7 +60,7 @@ const CarouselEditor = () => {
             <Modal
                 width={"70vw"}
                 title="Select Template"
-                visible={showTemplates}
+                open={showTemplates}
                 onCancel={() => setShowTemplates(false)}
                 footer={null}
                 centered
