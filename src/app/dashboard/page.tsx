@@ -10,7 +10,7 @@ import React from "react";
 type DashboardProps = object;
 
 export default function Dashboard({ }: DashboardProps) {
-  const userType = "creator";
+  const userType = "brand";
   return (
     <div className="flex">
       <LeftMenu />
