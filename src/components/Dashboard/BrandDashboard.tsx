@@ -21,7 +21,8 @@ type BrandDashboardProps = {
 export default function BrandDashboard({
   isPreview
 }: BrandDashboardProps) {
-  const userType = localStorage.getItem("userType");
+
+  const userType = localStorage.getItem("userType") || "brand";
 
   const tabs = [
     {

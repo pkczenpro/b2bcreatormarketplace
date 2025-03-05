@@ -236,11 +236,13 @@ const Template_1: React.FC<Template1Props> = ({
                 <div className="flex justify-between items-center w-full z-10 relative">
                     {data.showProfileImage && (
                         <div className="flex items-center space-x-4">
-                            <img src={
-                                data.profileImage
-                                    ? data.profileImage
-                                    : "/images/profile.png"
-                            } alt="Profile" className="w-12 h-12 rounded-full" />
+                            <div>
+                                <img src={
+                                    data.profileImage
+                                        ? data.profileImage
+                                        : "/images/profile.png"
+                                } alt="Profile" className="w-12 h-12 rounded-full" />
+                            </div>
                             <div>
                                 <h1 className="text-white text-left font-semibold text-lg">{data.editableProfileName}</h1>
                                 <p className="text-sm text-neutral-300 text-left">{data.editableProfileUsername}</p>
