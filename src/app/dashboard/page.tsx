@@ -11,7 +11,13 @@ import React from "react";
 type DashboardProps = object;
 
 function Dashboard({ }: DashboardProps) {
-  const userType = localStorage.getItem("userType");
+  const [userType, setUserType] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserType(localStorage.getItem("userType"));
+    }
+  }, []);
 
   if (!userType) {
     return null;

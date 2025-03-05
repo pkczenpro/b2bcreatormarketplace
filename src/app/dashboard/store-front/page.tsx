@@ -1,7 +1,9 @@
 "use client";
 
-import BrandDashboard from "@/components/Dashboard/BrandDashboard";
+import dynamic from "next/dynamic";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+
+const BrandDashboard = dynamic(() => import("@/components/Dashboard/BrandDashboard"));
 
 export default function StoreFrontPage() {
     return (

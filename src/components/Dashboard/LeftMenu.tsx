@@ -20,7 +20,13 @@ import { Drawer, Button } from "antd"; // Importing Ant Design Drawer and Button
 
 export const LeftMenu = () => {
   const pathname = usePathname();
-  const userType = localStorage.getItem("userType");
+  const [userType, setUserType] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserType(localStorage.getItem("userType"));
+    }
+  }, []);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false); // For controlling Drawer visibility

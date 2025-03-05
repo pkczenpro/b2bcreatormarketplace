@@ -21,7 +21,13 @@ import { toast } from "sonner";
 type CampaignDetailsProps = object;
 
 export default function CampaignDetails({ }: CampaignDetailsProps) {
-    const userType = localStorage.getItem("userType");
+    const [userType, setUserType] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+      if (typeof window !== "undefined") {
+        setUserType(localStorage.getItem("userType"));
+      }
+    }, []);
 
     const campaignOverview = () => {
         return (

@@ -6,11 +6,18 @@ import Button from "@/components/Button/Button";
 import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
 import ProfileCardPreview from "@/components/ProfileCardPreview/ProfileCardPreview";
 import Link from "next/link";
+import React from "react";
 
 type ProfileSetupProps = object;
 
 export default function ProfileSetup({ }: ProfileSetupProps) {
-  const userType = localStorage.getItem("userType");
+  const [userType, setUserType] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserType(localStorage.getItem("userType"));
+    }
+  }, []);
 
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
   const [location, setLocation] = useState<string>("Location");

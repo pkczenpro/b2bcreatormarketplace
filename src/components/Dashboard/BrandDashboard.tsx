@@ -22,8 +22,13 @@ export default function BrandDashboard({
   isPreview
 }: BrandDashboardProps) {
 
-  const isBrowser = typeof window !== "undefined";
-  const userType = isBrowser ? localStorage.getItem("userType") : null;
+  const [userType, setUserType] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserType(localStorage.getItem("userType"));
+    }
+  }, []);
 
   const tabs = [
     {
