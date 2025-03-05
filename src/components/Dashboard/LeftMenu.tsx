@@ -83,10 +83,8 @@ export const LeftMenu = () => {
   ];
 
   const logout = () => {
-    localStorage.removeItem("token");
     localStorage.removeItem("userType");
     window.location.href = "/login";
-    window.location.reload();
   };
 
   // Function to show the Drawer (Mobile)
