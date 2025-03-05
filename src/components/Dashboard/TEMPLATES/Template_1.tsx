@@ -1,8 +1,10 @@
-import { Button, Input, Segmented, Switch, Upload, message, Space, ColorPicker, Tabs } from "antd";
-import { ArrowRightCircle } from "lucide-react";
+/* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
+import { Button, Input, Segmented, Switch, Upload, message, ColorPicker, Tabs, Slider } from "antd";
+import { ArrowRightCircle } from "lucide-react";
 import html2canvas from "html2canvas";
-import { SketchPicker } from 'react-color';
+import EmojiPicker from 'emoji-picker-react';
+import { time } from "console";
 
 interface Template1Props {
     index: number;
@@ -17,34 +19,81 @@ const Template_1: React.FC<Template1Props> = ({
     selectedSize,
     fontFamily,
     backgroundColor,
-    template,
 }) => {
     const [data, setData] = useState({
-        editableTopic: "Topic",
-        editableTitle: "Title",
-        editableTagline: "Tagline",
-        editableProfileName: "John Doe",
-        editableProfileUsername: "@johndoe",
-        editableButton: "Call to Action",
-        alignText: "center",
-        isLastItem: false,
-        swipeButton: true,
-        bgColor: backgroundColor,
-        textColor: "#ffffff",
-        showProfileImage: true,
-        backgroundImage: null,
-        profileImage: null,
+        editableTopic: {
+            label: "Topic",
+            color: "#ffffff",
+            fontSize: 16,
+            textAlign: "center",
+            hidden: false,
+        },
+        editableTitle: {
+            label: "Title",
+            color: "#ffffff",
+            fontSize: 64,
+            textAlign: "center",
+            hidden: false,
+        },
+        editableTagline: {
+            label: "Tagline",
+            color: "#ffffff",
+            fontSize: 16,
+            textAlign: "center",
+            hidden: false,
+        },
+        editableProfileName: {
+            label: "Profile Name",
+            color: "#ffffff",
+            fontSize: 16,
+            textAlign: "left",
+            hidden: false,
+        },
+        editableProfileUsername: {
+            label: "Profile Username",
+            color: "#ffffff",
+            fontSize: 16,
+            textAlign: "left",
+            hidden: false,
+        },
+        editableButton: {
+            label: "Button",
+            color: "#ffffff",
+            fontSize: 16,
+            textAlign: "center",
+            hidden: false,
+        },
+        isLastItem: false, // If the last item
+        swipeButton: true, // Show Swipe Button
+        bgColor: backgroundColor, // Background Color
+        showProfileImage: true, // Show Profile Image
+        backgroundImage: { // Background Image
+            image: null,
+            opacity: 1,
+        },
+        profileImage: { // Profile Image
+            image: "/images/profile.png",
+            opacity: 1,
+        },
+        showEditingDiv: false, // Show the editing div
+        emoji: null, // Emoji
+        isHeadImage: false, // removes profile pic and puts it on the top instead of tagline
     });
 
-    // Handle background image upload
-    const handleImageUpload = (info: any) => {
-        if (info.file.status === 'done') {
-            setData(prevData => ({
-                ...prevData,
-                backgroundImage: URL.createObjectURL(info.file.originFileObj)
-            }));
-        } else if (info.file.status === 'error') {
-            message.error('Image upload failed');
+    const handleImageUpload = (key: "backgroundImage" | "profileImage") => (info: any) => {
+        if (info.file.status === "done") {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setData({
+                    ...data, [key]: {
+                        ...data[key],
+                        image: e?.target?.result,
+                    }
+                });
+            };
+            reader.readAsDataURL(info.file.originFileObj);
+        } else if (info.file.status === "error") {
+            message.error("Image upload failed");
         }
     };
 
@@ -60,203 +109,295 @@ const Template_1: React.FC<Template1Props> = ({
         }
     };
 
+    const renderInputField = (label: string, valueKey: keyof typeof data) => (
+        <div className="text-xs text-left">
+            <label className="block text-gray-600 font-medium mb-0.5">{label}</label>
+            <div className="flex items-center gap-1">
+                <Input
+                    className="w-full px-1 py-0.5 text-xs"
+                    value={data[valueKey].label}
+                    onChange={(e) => {
+                        if (label === "Title") {
+                            const fontSize = Math.max(32, 64 - e.target.value.length);
+                            setData({ ...data, [valueKey]: { ...data[valueKey], label: e.target.value, fontSize } });
+                        } else {
+                            setData({ ...data, [valueKey]: { ...data[valueKey], label: e.target.value } })
+                        }
+                    }}
+                />
+                <ColorPicker
+                    value={data[valueKey].color}
+                    onChange={(_, color) => setData({ ...data, [valueKey]: { ...data[valueKey], color } })}
+                    size="small"
+                />
+                <Input
+                    className="w-16 px-1 py-0.5 text-xs"
+                    type="number"
+                    max={128}
+                    value={data[valueKey].fontSize}
+                    onChange={(e) => setData({ ...data, [valueKey]: { ...data[valueKey], fontSize: parseInt(e.target.value) } })}
+                />
+                <Segmented
+                    className="text-xs"
+                    value={data[valueKey].textAlign}
+                    options={[
+                        { label: "L", value: "left" },
+                        { label: "C", value: "center" },
+                        { label: "R", value: "right" },
+                    ]}
+                    onChange={(value) => setData({ ...data, [valueKey]: { ...data[valueKey], textAlign: value } })}
+                    size="small"
+                />
+                <Switch
+                    size="small"
+                    checked={!data[valueKey].hidden}
+                    onChange={(checked) => setData({ ...data, [valueKey]: { ...data[valueKey], hidden: !checked } })}
+                />
+            </div>
+        </div>
+    );
+
+
     const tabs = [
         {
-            key: 1,
+            key: "1",
             label: "Text",
             children: (
                 <div className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Topic</label>
-                        <Input value={data.editableTopic} onChange={(e) => setData({ ...data, editableTopic: e.target.value })} className="w-full" />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Title</label>
-                        <Input value={data.editableTitle} onChange={(e) => setData({ ...data, editableTitle: e.target.value })} className="w-full" />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Tagline</label>
-                        <Input value={data.editableTagline} onChange={(e) => setData({ ...data, editableTagline: e.target.value })} className="w-full" />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Profile Name</label>
-                        <Input value={data.editableProfileName} onChange={(e) => setData({ ...data, editableProfileName: e.target.value })} className="w-full" />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Profile Username</label>
-                        <Input value={data.editableProfileUsername} onChange={(e) => setData({ ...data, editableProfileUsername: e.target.value })} className="w-full" />
-                    </div>
-
-                    <div>
-                        <p className="text-xl font-semibold text-gray-800">Text Align</p>
-                        <Segmented
-                            value={data.alignText}
-                            options={[
-                                { label: "Left", value: "left" },
-                                { label: "Center", value: "center" },
-                                { label: "Right", value: "right" },
-                            ]}
-                            onChange={(value) => setData({ ...data, alignText: value })}
-                        />
-                    </div>
+                    {renderInputField("Topic", "editableTopic")}
+                    {renderInputField("Title", "editableTitle")}
+                    {renderInputField("Tagline", "editableTagline")}
+                    {renderInputField("Profile Name", "editableProfileName")}
+                    {renderInputField("Profile Username", "editableProfileUsername")}
                 </div>
             ),
         },
         {
-            key: 2,
+            key: "2",
             label: "Buttons",
             children: (
-                <div className="flex flex-col space-y-4">
-                    <div className="flex items-center justify-between">
-                        <label className="text-gray-700 font-medium">Show Profile Image</label>
-                        <Switch checked={data.showProfileImage} onChange={(checked) => setData({ ...data, showProfileImage: checked })} />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <label className="text-gray-700 font-medium">Show CTA</label>
-                        <Switch checked={data.isLastItem} onChange={(checked) => setData({ ...data, isLastItem: checked })} />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <label className="text-gray-700 font-medium">Swipe</label>
-                        <Switch checked={data.swipeButton} onChange={(checked) => setData({ ...data, swipeButton: checked })} />
-                    </div>
+                <div className="space-y-4">
+                    {["Show Profile Info", "Show CTA", "Swipe", "Headshot"].map((label, i) => (
+                        <div key={i} className="flex items-center justify-between">
+                            <label className="text-gray-700 font-medium">{label}</label>
+                            <Switch
+                                checked={data[["showProfileImage", "isLastItem", "swipeButton", "isHeadImage"][i]]}
+                                onChange={(checked) => {
+                                    setData({ ...data, [["showProfileImage", "isLastItem", "swipeButton", "isHeadImage"][i]]: checked });
+                                }}
+                            />
+                        </div>
+                    ))}
                 </div>
             ),
         },
         {
-            key: 3,
+            key: "3",
             label: "Design",
             children: (
-                <div className="flex flex-col space-y-4 items-start justify-start">
-                    {/* Background Color Picker */}
-                    <div className="text-left">
-                        <h3 className="font-medium mb-2">Background Color</h3>
-                        <ColorPicker
-                            value={data.bgColor}
-                            onChange={(_, color) => setData({ ...data, bgColor: color })}
-                            showText
-                            size="small"
-                        />
-                    </div>
-
-                    {/* Text Color Picker */}
-                    <div className="text-left">
-                        <h3 className="font-medium mb-2">Text Color</h3>
-                        <ColorPicker
-                            value={data.textColor}
-                            onChange={(_, color) => setData({ ...data, textColor: color })}
-                            showText
-                            size="small"
-                        />
-                    </div>
+                <div className="space-y-4">
+                    {["Background Color"].map((label, i) => (
+                        <div key={i} className="text-left">
+                            <h3 className="font-medium mb-2">{label}</h3>
+                            <ColorPicker
+                                value={data[["bgColor"][i]]}
+                                onChange={(_, color) => setData({ ...data, [["bgColor"][i]]: color })}
+                                showText
+                                size="small"
+                            />
+                        </div>
+                    ))}
                 </div>
             ),
-        }, {
-            key: 4,
+        },
+        {
+            key: "4",
             label: "Images",
             children: (
-                <div className="flex flex-col space-y-4 items-start justify-start">
-                    {/* Background Image */}
-                    <div className="text-left">
-                        <h3 className="font-medium mb-2">Background Image</h3>
-                        <Upload
-                            accept="image/*"
-                            showUploadList={false}
-                            onChange={handleImageUpload}
-                        >
-                            <Button type="primary">Upload Image</Button>
-                        </Upload>
-                    </div>
-
-                    {/* Profile Image */}
-                    <div className="text-left">
-                        <h3 className="font-medium mb-2">Profile Image</h3>
-                        <Upload
-                            accept="image/*"
-                            showUploadList={false}
-                            onChange={(info) => {
-                                if (info.file.status === 'done') {
-                                    setData(prevData => ({
-                                        ...prevData,
-                                        profileImage: URL.createObjectURL(info.file.originFileObj)
-                                    }));
-                                } else if (info.file.status === 'error') {
-                                    message.error('Image upload failed');
-                                }
-                            }}
-                        >
-                            <Button type="primary">Upload Image</Button>
-                        </Upload>
-                    </div>
+                <div className="space-y-4">
+                    {["Background Image", "Profile Image / Headshot"].map((label, i) => (
+                        <div key={i} className="text-left">
+                            <h3 className="font-medium mb-2">{label}</h3>
+                            <div className="flex">
+                                <Upload accept="image/*" showUploadList={false} onChange={handleImageUpload(["backgroundImage", "profileImage"][i])}>
+                                    <Button type="primary">Upload Image</Button>
+                                </Upload>
+                                <Slider
+                                    className="ml-4 w-full"
+                                    defaultValue={0}
+                                    max={1}
+                                    step={0.1}
+                                    value={data[["backgroundImage", "profileImage"][i]].opacity}
+                                    onChange={(value) => setData({ ...data, [["backgroundImage", "profileImage"][i]]: { ...data[["backgroundImage", "profileImage"][i]], opacity: value } })}
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             ),
-        }
+        },
+        {
+            key: "5",
+            label: "Emojies",
+            children: (
+                <div className="space-y-4">
+                    <EmojiPicker
+                        onEmojiClick={(e, emoji) => {
+                            setData({ ...data, emoji: emoji?.target?.outerHTML })
+                        }}
+                    />
+                </div>
+            ),
+        },
     ];
+    const [width, height] = selectedSize.split("x").map((val) => parseInt(val) * 1.5);
+
+    const timeout = (callback: any, time: number) => {
+        setTimeout(() => {
+            callback();
+        }, time);
+    };
 
     return (
         <div className="w-full h-full flex flex-col mt-12">
             <div
                 key={index}
                 id={`post-${index}`}
-                className="w-full h-full flex flex-col justify-between p-12 relative cursor-pointer"
+                className="w-full h-full flex flex-col relative cursor-pointer"
                 style={{
-                    width: `${parseInt(selectedSize.split("x")[0]) * 1.5}px`,
-                    height: `${parseInt(selectedSize?.split("x")[1]) * 1.5}px`,
+                    width: `${width}px`,
+                    height: `${height}px`,
                     fontFamily,
                     backgroundColor: data.bgColor || "#7CA3C2",
-                    backgroundImage: data.backgroundImage ? `url(${data.backgroundImage})` : 'none',
-                    backgroundSize: 'cover',
+                    justifyContent: data.isHeadImage ? "flex-start" : "center",
+                    paddingTop: data.isHeadImage ? "30px" : "0",
                 }}
                 onClick={() => setData({ ...data, showEditingDiv: !data.showEditingDiv })}
             >
-                <Button className="z-30 absolute top-[-30px] right-0" size="small">Delete</Button>
-                <Button className="z-30 absolute top-[-30px] left-0" size="small" onClick={exportImage}>Export</Button>
+                {/* Background Image Layer */}
+                {data.backgroundImage && (
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `url(${data.backgroundImage.image})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            opacity: data.backgroundImage.opacity || 1, // Only affects the image
+                        }}
+                    />
+                )}
 
-                <div className={`z-10 relative ${data.alignText === "center" ? "text-center" : data.alignText === "left" ? "text-left" : "text-right"}`}>
-                    <p className="text-neutral-300 text-lg mb-3" style={{ color: data.textColor }}>
-                        {data.editableTopic}
-                    </p>
-                    <h1 className="text-white text-6xl font-bold leading-tight mb-4 break-words" style={{ color: data.textColor }}>
-                        {data.editableTitle}
-                    </h1>
+                <div className={`z-10 relative`}>
+                    {data.emoji && (
+                        <div
+                            className='absolute top-[80%] right-10'
+                            dangerouslySetInnerHTML={{ __html: data.emoji }}></div>
+                    )}
+
+                    <div className="px-12">
+                        {data.isHeadImage &&
+                            <img
+                                src={data.profileImage.image}
+                                alt="Profile"
+                                className="rounded-full w-28 h-28 mb-3"
+                                style={{
+                                    opacity: data.profileImage.opacity || 1,
+                                }}
+                            />
+                        }
+
+                        <p className="text-neutral-300 text-lg mb-1" style={{
+                            color: data.editableTopic.color || "#ffffff",
+                            fontSize: data.editableTopic.fontSize || 16,
+                            textAlign: data.editableTopic.textAlign || "center",
+                            display: data.editableTopic.hidden ? "none" : "block",
+                        }}>
+                            {data.editableTopic.label}
+                        </p>
+                        <h1
+                            className="text-white font-bold leading-tight mb-1 break-words"
+                            style={{
+                                color: data.editableTitle.color || "#ffffff",
+                                fontSize: data.editableTitle.fontSize, // Decrease size as text grows, min 32px
+                                textAlign: data.editableTitle.textAlign || "center",
+                                display: data.editableTitle.hidden ? "none" : "block",
+                            }}
+                        >
+                            {data.editableTitle.label.length > 110
+                                ? `${data.editableTitle.label.slice(0, 110)}...`
+                                : data.editableTitle.label}
+                        </h1>
+
+                    </div>
+
                     {data.isLastItem ? (
-                        <button className="bg-white text-black p-2 rounded-md">{data.editableButton}</button>
+                        <button className="bg-white text-black p-2 rounded-md">{data.editableButton.label}</button>
                     ) : (
-                        <span className="text-neutral-300 text-2xl mt-5 block" style={{ color: data.textColor }}>
-                            {data.editableTagline}
-                        </span>
+                        <span className="text-neutral-300 text-2xl mt-1 block" style={{
+                            color: data.editableTagline.color || "#ffffff",
+                            fontSize: data.editableTagline.fontSize || 16,
+                            textAlign: data.editableTagline.textAlign || "center",
+                            display: data.editableTagline.hidden ? "none" : "block",
+                        }}>{data.editableTagline.label}</span>
                     )}
                 </div>
 
-                <div className="flex justify-between items-center w-full z-10 relative">
+                <div className="flex justify-between items-center w-full z-10 absolute px-8 bottom-8">
                     {data.showProfileImage && (
                         <div className="flex items-center space-x-4">
+                            {!data.isHeadImage && <img
+                                src={data.profileImage.image}
+                                alt="Profile"
+                                className="w-12 h-12 rounded-full"
+                                style={{
+                                    opacity: data.profileImage.opacity || 1,
+                                }}
+                            />}
                             <div>
-                                <img src={
-                                    data.profileImage
-                                        ? data.profileImage
-                                        : "/images/profile.png"
-                                } alt="Profile" className="w-12 h-12 rounded-full" />
-                            </div>
-                            <div>
-                                <h1 className="text-white text-left font-semibold text-lg">{data.editableProfileName}</h1>
-                                <p className="text-sm text-neutral-300 text-left">{data.editableProfileUsername}</p>
+                                <h1
+                                    className="text-white text-left font-semibold text-lg"
+                                    style={{
+                                        color: data.editableProfileName.color || "#ffffff",
+                                        fontSize: data.editableProfileName.fontSize || 16,
+                                        textAlign: data.editableProfileName.textAlign || "left",
+                                        display: data.editableProfileName.hidden ? "none" : "block",
+                                    }}
+                                >
+                                    {data.editableProfileName.label}
+                                </h1>
+                                <p
+                                    className="text-sm text-neutral-300 text-left"
+                                    style={{
+                                        color: data.editableProfileUsername.color || "#ffffff",
+                                        fontSize: data.editableProfileUsername.fontSize || 16,
+                                        textAlign: data.editableProfileUsername.textAlign || "left",
+                                        display: data.editableProfileUsername.hidden ? "none" : "block",
+                                    }}
+                                >
+                                    {data.editableProfileUsername.label}
+                                </p>
                             </div>
                         </div>
                     )}
 
-                    {!data.isLastItem && data.swipeButton && <ArrowRightCircle className="text-white w-7 h-7" />}
+                    {data.swipeButton && <ArrowRightCircle className="text-white w-7 h-7" />}
                 </div>
             </div>
 
             {data.showEditingDiv && (
                 <div className="mt-6 bg-white shadow-lg rounded-lg p-6 space-y-6 z-10 transition-all relative">
                     <Button className="absolute top-2 right-2" onClick={() => setData({ ...data, showEditingDiv: false })} type="primary" size="small">X</Button>
+                    <div className="z-30 absolute top-0 left-0 m-4">
+                        <Button size="small"
+                            className="mr-2 bg-red-600"
+                            type="primary"
+                        >Delete</Button>
+                        <Button size="small" type="primary" onClick={() => {
+                            setData({ ...data, showEditingDiv: false });
+                            timeout(() => exportImage(), 1000);
+                        }}>Export as image</Button>
+                    </div>
+
                     <Tabs defaultActiveKey="1" items={tabs} />
                 </div>
             )}

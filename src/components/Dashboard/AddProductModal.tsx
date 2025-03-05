@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Modal, Input, Switch, Divider } from "antd";
@@ -10,10 +10,7 @@ interface AddProductModalProps {
   setModal: (value: boolean) => void;
 }
 
-export default function AddProduct({
-  modal,
-  setModal,
-}: AddProductModalProps) {
+export default function AddProduct({ modal, setModal }: AddProductModalProps) {
   const [formData, setFormData] = useState({
     productName: "",
     productLogo: null,
@@ -22,258 +19,68 @@ export default function AddProduct({
     productImages: [] as File[],
     productLink: "",
     loomVideoLink: "",
-    loomUsername: "",
-    loomPassword: "",
+    g2Link: "",
+    capterraLink: "",
+    additionalDetails: "",
+    productHunt: "",
   });
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSwitchChange = (checked) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      publicVisibility: checked,
-    }));
+    setFormData((prevData) => ({ ...prevData, publicVisibility: checked }));
   };
 
   const handleFileChange = (name: string, files: File[]) => {
-    if (name === "productImages") {
-
-      setFormData((prevData) => ({
-        ...prevData,
-        productImages: [...prevData.productImages, ...files.target.files],
-      }));
-      return;
-    }
     setFormData((prevData) => ({
       ...prevData,
-      [name]: files?.target?.files[0],
+      [name]: name === "productImages" ? [...prevData.productImages, ...files.target.files] : files?.target?.files[0],
     }));
   };
 
   return (
     <Modal
-      width="60%"
+      width="50%"
       centered
-      title={
-        <h2 className="text-text-large font-semibold text-neutral-800">
-          Add a New Product
-        </h2>
-      }
+      title={<h2 className="text-lg font-semibold text-neutral-800">Add a New Product</h2>}
       open={modal}
       onOk={() => setModal(false)}
       onCancel={() => setModal(false)}
     >
       <Divider />
-      {/* overflow */}
-      <div className="overflow-y-auto" style={{ maxHeight: "70vh" }}>
-        <h3 className="text-text-large font-medium mb-4 text-neutral-600">Basic Information</h3>
-        <div className="flex space-x-6">
-          <div className="w-1/2">
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="productName"
-              >
-                Product Name
-              </label>
-              <Input
-                id="productName"
-                name="productName"
-                value={formData.productName}
-                onChange={handleInputChange}
-                placeholder="Enter Product Name"
-                className="mt-1 p-2 border rounded-lg w-[80%]"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="productLogo"
-              >
-                Product Logo
-              </label>
-              <div className="w-[80%]">
-                <CustomInput
-                  type="file"
-                  onChange={(files) => handleFileChange("productLogo", files)}
-                  required
-                  name="coverPicture"
-                />
-              </div>
-
-              {formData.productLogo && (
-                <div className="mt-2">
-                  <img
-                    src={URL.createObjectURL(formData.productLogo)}
-                    alt="Product Logo"
-                    className="w-24 h-24 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Public Visibility
-              </label>
-              <Switch
-                checked={formData.publicVisibility}
-                onChange={handleSwitchChange}
-                className="mt-1"
-              />
-            </div>
+      <div className="grid grid-cols-2 gap-6 overflow-y-auto max-h-[70vh]">
+        {/* Left Section: Basic Info */}
+        <div className="space-y-4">
+          <h3 className="text-md font-medium text-neutral-600">Basic Information</h3>
+          <Input name="productName" value={formData.productName} onChange={handleInputChange} placeholder="Product Name" className="p-2 border rounded-lg w-full" />
+          <CustomInput type="file" onChange={(files) => handleFileChange("productLogo", files)} name="productLogo" />
+          <div className="flex">
+            <span className="text-neutral-600 mr-2">Public Visibility: </span>
+            <Switch checked={formData.publicVisibility} onChange={handleSwitchChange} />
           </div>
-
-          <div className="w-1/2">
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="productDescription"
-              >
-                Brief Description
-              </label>
-              <TextArea
-                id="productDescription"
-                name="productDescription"
-                value={formData.productDescription}
-                onChange={handleInputChange}
-                placeholder="Tell others about your product"
-                className="mt-1 p-2 border rounded-lg w-full"
-                style={{
-                  height: "150px",
-                }}
-              />
+          <TextArea name="productDescription" value={formData.productDescription} onChange={handleInputChange} placeholder="Brief Description" className="p-2 border rounded-lg w-full" />
+          <Input name="productLink" value={formData.productLink} onChange={handleInputChange} placeholder="Product Link" className="p-2 border rounded-lg w-full" />
+          <CustomInput type="file" multiple name="productImages" onChange={(files) => handleFileChange("productImages", files)} />
+          {formData.productImages.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {formData.productImages.map((file, index) => (
+                <img key={index} src={URL.createObjectURL(file)} alt="Product Image" className="w-full h-20 object-cover rounded-md" />
+              ))}
             </div>
-          </div>
-
-          <div className="w-1/2">
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="productLink"
-              >
-                Product Link
-              </label>
-              <Input
-                id="productLink"
-                name="productLink"
-                value={formData.productLink}
-                onChange={handleInputChange}
-                placeholder="Tell others about your product"
-                className="mt-1 p-2 border rounded-lg w-full"
-                style={{
-                  height: "150px",
-                }}
-              />
-            </div>
-          </div>
-
-
+          )}
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-200 my-6"></div>
-
-        <h3 className="text-xl font-semibold mb-4">Additional Media</h3>
-        <div className="flex space-x-6">
-          <div className="w-1/2">
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="productImages"
-              >
-                Product Image
-              </label>
-              <div className="w-full">
-                <CustomInput
-                  type="file"
-                  required
-                  name="productImages"
-                  multiple={true}
-                  onChange={(files) => handleFileChange("productImages", files)}
-                />
-              </div>
-            </div>
-
-            {/* Display uploaded product images */}
-            <div className="mt-4">
-              {formData.productImages.length > 0 && (
-                <div className="grid grid-cols-3 gap-4">
-                  {formData.productImages.map((file, index) => (
-                    <div key={index} className="w-full">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Uploaded Product Image ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-
-        <div className="w-1/2">
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="loomVideoLink"
-            >
-              Loom Video Link
-            </label>
-            <Input
-              id="loomVideoLink"
-              name="loomVideoLink"
-              value={formData.loomVideoLink}
-              onChange={handleInputChange}
-              placeholder="Enter Loom Video Link"
-              className="mt-1 p-2 border rounded-lg w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="loomUsername"
-            >
-              Loom Username
-            </label>
-            <Input
-              id="loomUsername"
-              name="loomUsername"
-              value={formData.loomUsername}
-              onChange={handleInputChange}
-              placeholder="Enter Loom Username"
-              className="mt-1 p-2 border rounded-lg w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="loomPassword"
-            >
-              Loom Password
-            </label>
-            <Input
-              id="loomPassword"
-              name="loomPassword"
-              value={formData.loomPassword}
-              onChange={handleInputChange}
-              placeholder="Enter Loom Password"
-              className="mt-1 p-2 border rounded-lg w-full"
-            />
-          </div>
+        {/* Right Section: Media & Additional Details */}
+        <div className="space-y-4">
+          <h3 className="text-md font-medium text-neutral-600">Media & Additional Details</h3>
+          <Input name="loomVideoLink" value={formData.loomVideoLink} onChange={handleInputChange} placeholder="Loom Video Link" className="p-2 border rounded-lg w-full" />
+          <Input name="g2Link" value={formData.g2Link} onChange={handleInputChange} placeholder="G2 Link (Optional)" className="p-2 border rounded-lg w-full" />
+          <Input name="capterraLink" value={formData.capterraLink} onChange={handleInputChange} placeholder="Capterra Link" className="p-2 border rounded-lg w-full" />
+          <Input.TextArea name="additionalDetails" value={formData.additionalDetails} onChange={handleInputChange} placeholder="Additional Details" className="p-2 border rounded-lg w-full" />
+          <Input.TextArea name="productHunt" value={formData.productHunt} onChange={handleInputChange} placeholder="Product Hunt" className="p-2 border rounded-lg w-full" />
         </div>
       </div>
     </Modal>
