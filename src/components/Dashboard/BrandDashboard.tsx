@@ -22,7 +22,8 @@ export default function BrandDashboard({
   isPreview
 }: BrandDashboardProps) {
 
-  const userType = localStorage.getItem("userType") || "brand";
+  const isBrowser = typeof window !== "undefined";
+  const userType = isBrowser ? localStorage.getItem("userType") : null;
 
   const tabs = [
     {

@@ -20,6 +20,7 @@ export default function AddProduct({
     publicVisibility: false,
     productDescription: "",
     productImages: [] as File[],
+    productLink: "",
     loomVideoLink: "",
     loomUsername: "",
     loomPassword: "",
@@ -143,6 +144,28 @@ export default function AddProduct({
                 id="productDescription"
                 name="productDescription"
                 value={formData.productDescription}
+                onChange={handleInputChange}
+                placeholder="Tell others about your product"
+                className="mt-1 p-2 border rounded-lg w-full"
+                style={{
+                  height: "150px",
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="w-1/2">
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="productLink"
+              >
+                Product Link
+              </label>
+              <Input
+                id="productLink"
+                name="productLink"
+                value={formData.productLink}
                 onChange={handleInputChange}
                 placeholder="Tell others about your product"
                 className="mt-1 p-2 border rounded-lg w-full"
