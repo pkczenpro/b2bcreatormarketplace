@@ -1,24 +1,22 @@
-import { Button, Dropdown, Input, Modal, Select } from "antd";
-import { useState } from "react";
+import { Button, Modal, Select } from "antd";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
 import Template_1 from "./TEMPLATES/Template_1";
-import Template_2 from "./TEMPLATES/Template_2";
-import Template_3 from "./TEMPLATES/Template_3";
-import Template_4 from "./TEMPLATES/Template_4";
-import { Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
 const TEMPLATES = [
-    { id: 1, name: "Template 1", size: "288x360", component: Template_1 },
-    { id: 2, name: "Template 2", size: "288x360", component: Template_2 },
-    { id: 3, name: "Template 3", size: "288x360", component: Template_3 },
-    { id: 4, name: "Template 4", size: "288x360", component: Template_4 },
+    { id: 1, name: "Template 1", size: "288x360", component: Template_1, bgColor: "#000" },
+    { id: 2, name: "Template 2", size: "288x360", component: null, bgColor: "#7CA3C2" },
+    { id: 3, name: "Template 3", size: "288x360", component: null, bgColor: "#BF8A5B" },
+    { id: 4, name: "Template 4", size: "288x360", component: null, bgColor: "#814EB3" },
 ];
 
 const CarouselEditor = () => {
     const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
     const [fontFamily, setFontFamily] = useState("Arial");
     const [posts, setPosts] = useState([0]);
+    const [backgroundColor, setBackgroundColor] = useState("#1677ff");
 
     const fontFamilies = ["Arial", "Courier New", "Georgia", "Lucida Console", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana"];
     const templateSizes = [
@@ -96,10 +94,27 @@ const CarouselEditor = () => {
         )
     }
 
+
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+    // Scroll left function
+    const scrollLeft = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: -300, behavior: "smooth" });
+        }
+    };
+
+    // Scroll right function
+    const scrollRight = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: 300, behavior: "smooth" });
+        }
+    };
+
     return (
         <div className="flex w-full min-h-[80vh]">
             {showTemplatesModal()}
-            <div className="min-w-[15vw] max-w-[15vw] border-r border-neutral-200 p-6 flex flex-col justify-between">
+            <div className="min-w-[15vw] max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
                 <div>
                     <h3 className="font-medium mb-2">Template Size</h3>
                     <Select className="w-full mb-2" value={selectedSize} onChange={(value) => setSelectedSize(value)}>
@@ -131,6 +146,8 @@ const CarouselEditor = () => {
                         ))}
                     </Select>
 
+
+
                     <div className="border-t border-neutral-200 my-4"></div>
                     <Button className="w-full mb-2" size="small" onClick={addPost}>Add Post</Button>
                 </div>
@@ -150,28 +167,43 @@ const CarouselEditor = () => {
                 </div>
             </div>
 
-            <motion.div key={selectedTemplate.id} initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -100 }} transition={{ duration: 0.5 }} className="mx-12 my-4">
-                <div className="max-w-[75vw] flex justify-start items-center overflow-x-auto p-4 scroll-smooth h-[100%]">
+            <motion.div key={selectedTemplate.id} initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -100 }} transition={{ duration: 0.5 }} className="w-full bg-white relative z-2">
+                {/* <CanvasBackground /> */}
+                {/* Scroll Buttons */}
+                <button
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow-md"
+                    onClick={scrollLeft}
+                >
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <button
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow-md"
+                    onClick={scrollRight}
+                >
+                    <ChevronRight className="w-6 h-6" />
+                </button>
+                <div className="min-w-[100%] max-w-[79vw] flex justify-start items-center overflow-x-hidden scroll-smooth h-[100%] px-24 py-12" ref={scrollContainerRef}>
                     <div className="flex space-x-6">
                         {posts.map((index) => {
-                            const TemplateComponent = selectedTemplate.component;
                             return (
-                                <div key={index} className="relative">
-                                    <Button className="z-30 absolute top-[-30px] right-0" size="small" onClick={() => deletePost(index)}>Delete</Button>
-                                    <Button className="z-30 absolute top-[-30px] left-0" size="small" onClick={() => exportPost(index)}>Export</Button>
-                                    <div id={`post-${index}`} className="flex justify-center items-center text-center" style={{ width: `${parseInt(selectedSize.split("x")[0]) * 1.5}px`, height: `${parseInt(selectedTemplate.size.split("x")[1]) * 1.5}px`, fontFamily: fontFamily }}>
-                                        <TemplateComponent
-                                            index={index}
-                                            isLastItem={index === posts.length - 1 && posts.length > 1}
-                                        />
-                                    </div>
+                                <div key={index} id={`post-${index}`} className="flex justify-center items-center text-center" >
+                                    <Template_1
+                                        selectedSize={selectedSize}
+                                        fontFamily={fontFamily}
+                                        index={index}
+                                        backgroundColor={selectedTemplate.bgColor || backgroundColor}
+                                        template={selectedTemplate.id}
+                                    />
                                 </div>
                             );
                         })}
                     </div>
                 </div>
-            </motion.div>
-        </div>
+            </motion.div >
+
+
+        </div >
     );
 };
 

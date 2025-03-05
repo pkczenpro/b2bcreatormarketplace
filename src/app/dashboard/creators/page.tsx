@@ -2,10 +2,11 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
-import { Badge, Button, Input } from "antd";
+import { Badge, Button, Input, Modal, Select } from "antd";
 import { Compass, Linkedin, Store, Globe, RefreshCwIcon, Search, LocateIcon, MapPin } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect } from "react";
+import { toast } from "sonner";
 
 const campaigns = [
     {
@@ -88,8 +89,58 @@ export default function Creators() {
         setFilterData(campaigns);
     }
 
+    const [addToCampaign, setAddToCampaign] = React.useState(false);
+
+    const addToCampaignModal = () => {
+        return (
+            <Modal
+                title="Add to Campaign"
+                open={addToCampaign}
+                onCancel={() => setAddToCampaign(false)}
+                footer={null}
+                width={400}
+                centered
+            >
+                <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
+                    <img src="/images/profile.png" alt="" />
+                    <h2 className="text-md font-bold text-neutral-600">
+                        Tony Dunbar
+                    </h2>
+                </div>
+                <div className="mt-4">
+                    <p className="text-neutral-900 text-md mb-2">
+                        Select Campaign</p>
+                    <Select
+                        placeholder="Select Campaign"
+                        className="w-full"
+                    >
+                        <Option value="1">Campaign 1</Option>
+                        <Option value="2">Campaign 2</Option>
+                        <Option value="3">Campaign 3</Option>
+                    </Select>
+                </div>
+                <div className="mt-4">
+                    <Button
+                        size="large"
+                        className="bg-primary-700 text-white w-full"
+                        onClick={() => {
+                            toast.success("Creator added to campaign successfully.", {
+                                position: "top-right",
+                                description: "Tony Dunbar has been added to Campaign 1.",
+                            })
+                        }}
+                    >
+                        Add to Campaign
+                    </Button>
+                </div>
+            </Modal>
+        );
+    }
+
+
     return (
         <div className="flex">
+            {addToCampaignModal()}
             <LeftMenu />
             <div className="flex flex-col w-full min-h-screen bg-neutral-50 px-4 py-12">
                 <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -130,6 +181,8 @@ export default function Creators() {
                                     }}
                                     key={index}
                                     className={`
+                                        flex items-center justify-center
+                                        text-center
                                         border border-neutral-200 text-sm px-3 py-1 rounded-full
                                         cursor-pointer ${activeTags.includes(tag) ? "bg-primary-700 text-white" : "bg-neutral-100 text-neutral-600"}
                                     `}
@@ -173,7 +226,7 @@ export default function Creators() {
                                         <Link href={creator.website} target="_blank" className="flex items-center gap-2 text-neutral-600 bg-neutral-50 rounded-full p-2">
                                             <Globe className="w-5 h-5" />
                                         </Link>
-                                        <Link href="/store-front" className="flex items-center gap-2 text-primary-600 bg-neutral-50 rounded-full p-2">
+                                        <Link href="/dashboard/user-front" className="flex items-center gap-2 text-primary-600 bg-neutral-50 rounded-full p-2">
                                             <Store className="w-5 h-5" />
                                         </Link>
                                     </div>
@@ -186,8 +239,12 @@ export default function Creators() {
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <Button className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Message</Button>
-                                <Button className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Add to Campaign</Button>
+                                <Link href="/dashboard/inbox" className="w-full">
+                                    <Button className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Message</Button>
+                                </Link>
+                                <Button
+                                    onClick={() => setAddToCampaign(true)}
+                                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Add to Campaign</Button>
                             </div>
                         </div>
                     ))}

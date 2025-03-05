@@ -1,28 +1,31 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
 import { Select } from "antd";
 import { MessageSquare, Plus } from "lucide-react";
-
 import React, { useState } from "react";
-
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-type CreatorDashboardProps = object;
 
-export default function CreatorDashboard({ }: CreatorDashboardProps) {
+type CreatorDashboardProps = {
+    isPreview?: boolean;
+};
+
+export default function CreatorDashboard({
+    isPreview
+}: CreatorDashboardProps) {
+
     const [showSections, setShowSections] = React.useState({
-        services: false,
-        partnerships: false,
-        work: false,
-        linkedin: false,
-        testimonials: false,
-        textBlock: false,
-        statBlock: false,
+        services: true,
+        partnerships: true,
+        work: true,
+        linkedin: true,
+        testimonials: true,
+        textBlock: true,
+        statBlock: true,
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -40,7 +43,7 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Available Services</h2>
 
-                {/* CARD ITEM */}
+                {/* Service Cards */}
                 <div className="bg-white p-6 flex flex-col rounded-md shadow-sm mb-4">
                     <div className="text-[16px] font-bold mb-2">Service Name #1</div>
                     <div className="flex flex-col sm:flex-row justify-between items-end">
@@ -56,29 +59,23 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
                         </span>
                     </div>
                 </div>
-                {/* CARD ITEM CLOSE */}
 
-                {/* ADD MODAL */}
-                <div className="bg-white p-6 flex flex-col rounded-md shadow-sm">
-                    <div className="text-[16px] font-bold mb-2">
-                        <Input
-                            placeholder="Add Service Name Here"
-                            className="w-full sm:w-[70%]"
-                        />
-                    </div>
-                    <div className="flex flex-col sm:flex-row justify-between items-end">
-                        <div className="text-[15px] text-neutral-700 sm:w-3/4">
-                            <Input
-                                placeholder="Add Service Description Here"
-                                className="w-full sm:w-[70%]"
-                            />
+                {/* Add Service Modal */}
+                {!isPreview && (
+                    <div className="bg-white p-6 flex flex-col rounded-md shadow-sm">
+                        <div className="text-[16px] font-bold mb-2">
+                            <Input placeholder="Add Service Name Here" className="w-full sm:w-[70%]" />
                         </div>
-                        <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-                            <div>
-                                <Input placeholder="Enter Amount" className="w-24" />
+                        <div className="flex flex-col sm:flex-row justify-between items-end">
+                            <div className="text-[15px] text-neutral-700 sm:w-3/4">
+                                <Input
+                                    placeholder="Add Service Description Here"
+                                    className="w-full sm:w-[70%]"
+                                />
                             </div>
-                            <span>per</span>
-                            <div>
+                            <div className="flex items-center space-x-2 mt-4 sm:mt-0">
+                                <Input placeholder="Enter Amount" className="w-24" />
+                                <span>per</span>
                                 <Select placeholder="Select Basis">
                                     <Select.Option value="hour">Hour</Select.Option>
                                     <Select.Option value="day">Day</Select.Option>
@@ -87,132 +84,143 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
                                 </Select>
                             </div>
                         </div>
+                        <Button size="small" variant="primary" className="text-sm mt-4 w-full sm:w-[30%] ml-auto">
+                            Add Service
+                        </Button>
                     </div>
-                    <Button
-                        size="small"
-                        variant="primary"
-                        className="text-sm mt-4 w-full sm:w-[30%] ml-auto"
-                    >
-                        Add Service
-                    </Button>
-                </div>
+                )}
             </div>
         );
     };
-
     const PartnershipsDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Previous Partnerships</h2>
-                {/* CARD ITEM */}
-                <div className="flex flex-wrap justify-start gap-4 mb-4">
+
+                {/* Responsive Grid Layout */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {Array.from({ length: 4 }).map((_, index) => (
-                        <div key={index} className="flex items-center justify-between mb-2">
-                            {/* White BOX */}
-                            <div className="bg-white w-52 h-36 rounded-md"></div>
-                            {/* White BOX CLOSE */}
+                        <div key={index} className="flex items-center justify-center">
+                            {/* Responsive Card */}
+                            <div className="bg-white w-full aspect-[4/3] rounded-md"></div>
                         </div>
                     ))}
+
                     {/* Last Box with Plus Icon */}
-                    <div className="flex items-center border border-dashed justify-center w-[18%] h-36 bg-transparent rounded-md cursor-pointer">
-                        <span className="text-3xl text-gray-600">+</span>
-                    </div>
+                    {!isPreview && (
+                        <div className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer">
+                            <span className="text-3xl text-gray-600">+</span>
+                        </div>
+                    )}
                 </div>
             </div>
         );
     };
-
     const WorkDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Featured Work</h2>
                 {/* CARD ITEM */}
-                <div className="flex flex-wrap justify-start gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {Array.from({ length: 4 }).map((_, index) => (
-                        <div key={index} className="flex items-center justify-between mb-2">
-                            {/* White BOX */}
-                            <div className="bg-white w-52 h-36 rounded-md"></div>
-                            {/* White BOX CLOSE */}
+                        <div key={index} className="flex items-center justify-center">
+                            {/* Responsive Card */}
+                            <div className="bg-white w-full aspect-[4/3] rounded-md"></div>
                         </div>
                     ))}
+
                     {/* Last Box with Plus Icon */}
-                    <div className="flex items-center border border-dashed justify-center w-[18%] h-36 bg-transparent rounded-md cursor-pointer">
-                        <span className="text-3xl text-gray-600">+</span>
-                    </div>
+                    {!isPreview && (
+                        <div className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer">
+                            <span className="text-3xl text-gray-600">+</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+    const LinkedInDiv = () => {
+        return (
+            <div className="w-full bg-neutral-50 p-6 rounded-sm">
+                {/* Header */}
+                <div className="flex items-center space-x-3 mb-4">
+                    <img src="/icons/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
+                    <h2 className="uppercase text-lg font-semibold">ANDREWS LINKEDIN</h2>
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-600 text-sm leading-relaxed">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
+                    veniam saepe officiis fugiat quidem maxime, laudantium eligendi
+                    pariatur ex soluta animi aut nihil commodi ipsum quisquam perferendis
+                    aperiam. Facilis eligendi nisi ullam voluptates blanditiis sed rerum
+                    consectetur maiores rem hic.
+                </p>
+
+                {/* Audience Interests */}
+                <div className="w-full sm:w-1/3 mt-3">
+                    <h1 className="text-sm font-bold text-left mb-1">Audience Interests:</h1>
+                    {!isPreview && (
+                        <>
+                            <Input
+                                value={tagText}
+                                onChange={(e) => setTagText(e.target.value)}
+                                onKeyPress={handleAddTag}
+                                placeholder="Press Enter to add tags"
+                                className="w-full"
+                            />
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {tags.map((tag, index) => (
+                                    <div
+                                        key={index}
+                                        className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
+                                    >
+                                        {tag}
+                                        <span
+                                            className="ml-2 text-red-500 cursor-pointer"
+                                            onClick={() => setTags(tags.filter((item) => item !== tag))}
+                                        >
+                                            ✕
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Stats */}
+                <div className="flex flex-wrap md:flex-nowrap sm:flex-nowrap gap-4 mt-4">
+                    {Array(4).fill(null).map((_, index) => (
+                        <div key={index} className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
+                            <h1 className="text-lg font-semibold">1,200</h1>
+                            <p className="text-gray-600">#Jobs Completed</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
     };
 
-    const LinkedInDiv = () => {
+
+    const StatCard = ({ number, label }: { number: number; label: string }) => {
         return (
-            <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <div className="flex items-center space-x-3 mb-4">
-                    <img src="/icons/linkedin.svg" alt="LinkedIn" />
-                    <h2 className="uppercase">ANDREWS LINKEDIN</h2>
-                </div>
-                {/* CARD ITEM */}
-                <p className="text-gray-600 text-sm">
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptates
-                    veniam saepe officiis fugiat quidem maxime, laudantium eligendi
-                    pariatur ex soluta animi aut nihil commodi ipsum quisquam perferendis
-                    aperiam. Facilis eligendi nisi ullam voluptates blanditiis sed rerum
-                    consectetur maiores rem hic, soluta quisquam, facere numquam aliquam
-                    repellat doloremque delectus? Cum fugit voluptatibus quod, animi
-                    repellat amet obcaecati beatae excepturi corrupti esse vel neque quis,
-                    magni, odit distinctio? Ducimus perspiciatis molestias quam id rerum,
-                    placeat exercitationem assumenda, distinctio, hic illo laborum.
-                    Impedit totam odit rem at esse magnam saepe velit, aperiam molestias
-                    quas natus delectus et itaque, labore ipsum ad aspernatur. Facere!
-                </p>
+            <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
+                <h1 className="text-lg font-semibold">{number.toLocaleString()}</h1>
+                <p className="text-gray-600">{label}</p>
+            </div>
+        );
+    };
 
-                <div className="w-full sm:w-1/3 mt-3">
-                    <h1 className="text-sm font-bold text-left mb-1">
-                        Audience Interests:
-                    </h1>
-                    <Input
-                        value={tagText}
-                        onChange={(e) => setTagText(e.target.value)}
-                        onKeyPress={handleAddTag}
-                        placeholder="Press Enter to add tags"
-                        className="w-full"
-                    />
-
-                    <div className="mt-2">
-                        {tags.map((tag, index) => (
-                            <div
-                                key={index}
-                                className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm mr-2 mb-2"
-                            >
-                                {tag}{" "}
-                                <span
-                                    className="ml-2 cursor-pointer"
-                                    onClick={() => setTags(tags.filter((item) => item !== tag))}
-                                >
-                                    x
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* STATS */}
-                <div className="flex flex-wrap gap-4 mt-4">
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
+    const TestimonialCard = ({ text, name, position }: { text: string; name: string; position: string }) => {
+        return (
+            <div className="flex flex-col bg-white shadow-sm p-4 rounded-md">
+                <p>&quot;{text}&quot;</p>
+                <div className="flex items-center mt-6 ml-auto">
+                    <img src="/images/profile.png" alt={name} className="w-12 h-12 rounded-full" />
+                    <div className="flex flex-col ml-4">
+                        <h1 className="font-semibold">{name}</h1>
+                        <p className="text-sm text-gray-500">{position}</p>
                     </div>
                 </div>
             </div>
@@ -220,75 +228,46 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
     };
 
     const TestimonialsDiv = () => {
+        const testimonials = [
+            {
+                text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit.",
+                name: "John Doe",
+                position: "CEO, Company Name",
+            },
+            {
+                text: "Cum tempora iusto officia nulla omnis aspernatur fugit minima nesciunt.",
+                name: "Jane Smith",
+                position: "CTO, Another Company",
+            },
+        ];
+
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Testimonials</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                    {/* Testimonial 1 */}
-                    <div className="flex flex-col bg-white shadow-sm p-4 rounded-md">
-                        <p>
-                            &quot;Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                            Cum tempora iusto officia nulla omnis aspernatur fugit minima
-                            nesciunt, nemo quod ipsa alias optio qui quo?&quot;
-                        </p>
-                        <div className="flex items-center mt-6 ml-auto">
-                            <img
-                                src="/images/profile.png"
-                                alt=""
-                                className="w-12 h-12 rounded-full"
-                            />
-                            <div className="flex flex-col ml-4">
-                                <h1 className="font-semibold">John Doe</h1>
-                                <p className="text-sm text-gray-500">CEO, Company Name</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Testimonial 2 */}
-                    <div className="flex flex-col bg-white shadow-sm p-4 rounded-md">
-                        <p>
-                            &quot;Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                            Cum tempora iusto officia nulla omnis aspernatur fugit minima
-                            nesciunt, nemo quod ipsa alias optio qui quo?&quot;
-                        </p>
-                        <div className="flex items-center mt-6 ml-auto">
-                            <img
-                                src="/images/profile.png"
-                                alt=""
-                                className="w-12 h-12 rounded-full"
-                            />
-                            <div className="flex flex-col ml-4">
-                                <h1 className="font-semibold">John Doe</h1>
-                                <p className="text-sm text-gray-500">CEO, Company Name</p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {testimonials.map((item, index) => (
+                        <TestimonialCard key={index} {...item} />
+                    ))}
                 </div>
-                {/* Testimonial 3 (Empty but could be used for future) */}
-                <div className="mt-4 flex flex-col bg-white shadow-sm p-4 rounded-md">
-                    <p>Add a testimonial here</p>
-                    <div className="flex items-center mt-6 ml-auto">
-                        <div>
-                            <input
-                                type="file"
-                                className="hidden"
-                                id="file-upload"
-                                accept="image/*"
-                            />
-                            <label
-                                htmlFor="file-upload"
-                                className="cursor-pointer flex items-center"
-                            >
-                                <div className="w-12 h-12 bg-neutral-100 border border-dashed border-neutral-500 rounded-full flex items-center justify-center">
-                                    <Plus size={24} className="text-neutral-500" />
-                                </div>
-                            </label>
-                        </div>
-                        <div className="flex flex-col ml-4">
-                            <h1 className="font-semibold">Add Name</h1>
-                            <p className="text-sm text-gray-500">Add Company</p>
-                        </div>
-                    </div>
+            </div>
+        );
+    };
+
+    const StatBlockDiv = () => {
+        const stats = [
+            { number: 1200, label: "#Jobs Completed" },
+            { number: 500, label: "Happy Clients" },
+            { number: 300, label: "Projects Delivered" },
+            { number: 50, label: "Awards Won" },
+        ];
+
+        return (
+            <div className="w-full bg-neutral-50 p-6 rounded-sm">
+                <h2 className="uppercase mb-4">Statistics</h2>
+                <div className="flex gap-4 mt-4">
+                    {stats.map((stat, index) => (
+                        <StatCard key={index} {...stat} />
+                    ))}
                 </div>
             </div>
         );
@@ -297,46 +276,28 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
     const TextBlockDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <h2 className="uppercase mb-4">Simple Text Block</h2>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Cum tempora
-                    iusto officia nulla omnis aspernatur fugit minima nesciunt, nemo quod
-                    ipsa alias optio qui quo?
+                <h2 className="uppercase mb-4">About Me</h2>
+                <p className="text-gray-600 text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
+                    veniam saepe officiis fugiat quidem maxime, laudantium eligendi pariatur
+                    ex soluta animi aut nihil commodi ipsum quisquam perferendis aperiam.
+                    Facilis eligendi nisi ullam voluptates blanditiis sed rerum consectetur
+                    maiores rem hic, soluta quisquam, facere numquam aliquam repellat
+                    doloremque delectus? Cum fugit voluptatibus quod, animi repellat amet
+                    obcaecati beatae excepturi corrupti esse vel neque quis, magni, odit
+                    distinctio? Ducimus perspiciatis molestias quam id rerum, placeat
+                    exercitationem assumenda, distinctio, hic illo laborum. Impedit totam
+                    odit rem at esse magnam saepe velit, aperiam molestias quas natus
+                    delectus et itaque, labore ipsum ad aspernatur. Facere!
                 </p>
             </div>
         );
     };
 
-    const StatBlockDiv = () => {
-        return (
-            <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <h2 className="uppercase mb-4">Simple Text Block</h2>
-                <div className="flex flex-wrap gap-4 mt-4">
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                    <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                        <h1 className="text-lg font-semibold">1,200</h1>
-                        <p className="text-gray-600">#Jobs Completed</p>
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
-        <div className="flex flex-col items-center justify-start h-full py-12">
-
-            <div className="flex flex-col w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">
+        <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16">
+            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -439,16 +400,15 @@ export default function CreatorDashboard({ }: CreatorDashboardProps) {
 
                     {/* Add a section */}
 
-                    <div className="mt-8">
+                    {!isPreview && <div className="mt-8">
                         <PopupDropdown
                             showSections={showSections}
                             setShowSections={setShowSections}
                         />
-                    </div>
+                    </div>}
 
                 </motion.div>
             </div>
-
         </div>
     );
 }

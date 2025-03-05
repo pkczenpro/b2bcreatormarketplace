@@ -18,7 +18,7 @@ export default function CarouselMaker({ }: CarouselMakerProps) {
                 <p className="text-xl text-neutral-900 font-bold">Carousel Maker</p>
             </Link>
 
-            <div className="flex flex-col md:flex-row mt-4 space-x-0 md:space-x-4 space-y-4 md:space-y-0 bg-white p-6 rounded-md shadow-md">
+            <div className="flex flex-col md:flex-row mt-4 space-x-0 md:space-x-4 space-y-4 md:space-y-0 rounded-md">
                 <CarouselEditor />
             </div>
         </div>

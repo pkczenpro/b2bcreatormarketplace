@@ -69,12 +69,12 @@ export function CreatorTable() {
     }
 
     const creators = [
-        { key: "1", name: "Tony Dunbar", status: "Prospect", amount: 200, action: null },
-        { key: "2", name: "Myron Simmons", status: "Lead", amount: 200, action: null },
-        { key: "3", name: "Charlie Thirston", status: "Partner", amount: 200, action: "Make Payment" },
-        { key: "4", name: "Charlie Thirston", status: "Partner", amount: 200, action: "Make Payment" },
-        { key: "5", name: "Charlie Thirston", status: "Partner", amount: 200, action: "Make Payment" },
-        { key: "6", name: "Charlie Thirston", status: "Partner", amount: 200, action: "Make Payment" },
+        { key: "1", name: "Tony Dunbar", status: "Prospect", amount: 200 },
+        { key: "2", name: "Myron Simmons", status: "Lead", amount: 200 },
+        { key: "3", name: "Charlie Thirston", status: "Partner", amount: 200 },
+        { key: "4", name: "Charlie Thirston", status: "Partner", amount: 200 },
+        { key: "5", name: "Charlie Thirston", status: "Partner", amount: 200 },
+        { key: "6", name: "Charlie Thirston", status: "Partner", amount: 200 },
     ];
 
 
@@ -98,19 +98,26 @@ export function CreatorTable() {
             title: "Actions",
             key: "action",
             render: (_, record) => (
-                <div className="flex items-center gap-2">
-                    {record.action ? (
-                        <Link
-                            href={`/dashboard/pay-creator/${record.key}`}
+                <div className="flex items-center">
+                    <Button
+                        type="primary"
+                        size="small"
+                        className="mr-4"
+                    >
+                        View Post
+                    </Button>
+
+                    <Link href={`/dashboard/pay-creator/${record.key}`}>
+                        <Button
+                            type="primary"
+                            size="small"
+                            className={`${record.key % 2 !== 0 ? "bg-green-500" : ""}`}
                         >
-                            <Button type="primary" size="small">
-                                {record.action}
-                            </Button>
-                        </Link>
-                    ) : (
-                        "-"
-                    )}
+                            {record.key % 2 === 0 ? "Approve Content" : "Make Payment"}
+                        </Button>
+                    </Link>
                 </div>
+
             ),
         },
         {

@@ -10,8 +10,7 @@ import Link from "next/link";
 type ProfileSetupProps = object;
 
 export default function ProfileSetup({ }: ProfileSetupProps) {
-  const userType: "brand" | "creator" = "creator";
-  // const userType = "creator";
+  const userType = localStorage.getItem("userType");
 
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
   const [location, setLocation] = useState<string>("Location");

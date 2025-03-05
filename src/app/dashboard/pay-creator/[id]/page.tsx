@@ -12,12 +12,8 @@ import Input from "@/components/Input/Input";
 
 type CampaignDetailsProps = object;
 
-type UserType = "brand" | "creator";
 
 export default function PayCreator({ }: CampaignDetailsProps) {
-    const userType: UserType = "brand";
-
-
     return (
         <div className="flex">
             <LeftMenu />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Table } from "antd";
+import { Button, Table } from "antd";
 
 export function ContentTable() {
     const columns = [
@@ -40,6 +40,29 @@ export function ContentTable() {
             title: "Reach",
             dataIndex: "reach",
             key: "reach",
+        },
+        {
+            title: "Actions",
+            key: "action",
+            render: (_, record) => (
+                <div className="flex items-center">
+                    <Button
+                        type="primary"
+                        size="small"
+                        className="mr-4"
+                    >
+                        View Post
+                    </Button>
+                    <Button
+                        type="primary"
+                        size="small"
+                        danger
+                    // onClick={() => deleteCampaign(record.key)}
+                    >
+                        Delete
+                    </Button>
+                </div>
+            )
         }
     ];
 

@@ -138,6 +138,7 @@ export default function StoreFront({ }: DashboardProps) {
       ),
     },
   ];
+
   return (
     <div className="flex">
       <LeftMenu />

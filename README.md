@@ -37,3 +37,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 LinkedIn POSTING:
 https://chatgpt.com/share/67c57c61-9550-8007-99a9-23709dfb92b0
+
+user profile page 
+
+products add modal - loom video field
+link of product hunt 
+
+show the content in a modal
+campaign table add approve button  after approved make payment will come
+
+change overview to about and overview after it
+
+Follow will be fixed to Add Category

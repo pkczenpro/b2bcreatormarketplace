@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react";
 import { Modal, Input, Switch, Divider } from "antd";
 import CustomInput from "@/components/Input/Input";
@@ -8,7 +10,7 @@ interface AddProductModalProps {
   setModal: (value: boolean) => void;
 }
 
-export default function CreatorDashboard({
+export default function AddProduct({
   modal,
   setModal,
 }: AddProductModalProps) {
@@ -18,9 +20,11 @@ export default function CreatorDashboard({
     publicVisibility: false,
     productDescription: "",
     productImages: [] as File[],
+    loomVideoLink: "",
+    loomUsername: "",
+    loomPassword: "",
   });
 
-  console.log(formData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -148,6 +152,8 @@ export default function CreatorDashboard({
               />
             </div>
           </div>
+
+
         </div>
 
         {/* Divider */}
@@ -190,6 +196,60 @@ export default function CreatorDashboard({
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+
+        <div className="w-1/2">
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="loomVideoLink"
+            >
+              Loom Video Link
+            </label>
+            <Input
+              id="loomVideoLink"
+              name="loomVideoLink"
+              value={formData.loomVideoLink}
+              onChange={handleInputChange}
+              placeholder="Enter Loom Video Link"
+              className="mt-1 p-2 border rounded-lg w-full"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="loomUsername"
+            >
+              Loom Username
+            </label>
+            <Input
+              id="loomUsername"
+              name="loomUsername"
+              value={formData.loomUsername}
+              onChange={handleInputChange}
+              placeholder="Enter Loom Username"
+              className="mt-1 p-2 border rounded-lg w-full"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="loomPassword"
+            >
+              Loom Password
+            </label>
+            <Input
+              id="loomPassword"
+              name="loomPassword"
+              value={formData.loomPassword}
+              onChange={handleInputChange}
+              placeholder="Enter Loom Password"
+              className="mt-1 p-2 border rounded-lg w-full"
+            />
           </div>
         </div>
       </div>

@@ -15,13 +15,13 @@ import { BarChartComponent } from "@/components/Charts/BarChart";
 import { InteractiveBarChart } from "@/components/Charts/InteractiveBarChart";
 import { CreatorTable } from "@/components/BrandTables/Creators";
 import { ContentTable } from "@/components/BrandTables/Content";
+import Link from "next/link";
+import { toast } from "sonner";
 
 type CampaignDetailsProps = object;
 
-type UserType = "brand" | "creator";
-
 export default function CampaignDetails({ }: CampaignDetailsProps) {
-    const userType: UserType = "brand";
+    const userType = localStorage.getItem("userType");
 
     const campaignOverview = () => {
         return (
@@ -175,11 +175,9 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                     items={[
                         {
                             title: "Campaigns", // todo: replace with actual brand name
-                            href: "/dashboard/campaigns"
                         },
                         {
                             title: 'Campaign Name', // todo: replace with actual campaign name
-                            href: "/dashboard/campaigns-details/1"
                         }
                     ]}
                 />
@@ -195,13 +193,25 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             <h1 className="text-2xl font-bold">
                                 Campaign Name
                             </h1>
-                            <Button
+                            <Link
                                 className="ml-auto max-w-[200px]"
-                                variant="primary"
-                                size="small"
+                                href={userType === "brand" ? "/dashboard/creators" : ""}
                             >
-                                {userType === "creator" ? "Apply for Campaign" : "Find Creators"}
-                            </Button>
+                                <Button
+                                    className="ml-auto max-w-[200px]"
+                                    variant="primary"
+                                    size="small"
+                                    onClick={() => {
+                                        if (userType === "creator")
+                                            toast.success("Campaign applied successfully", {
+                                                position: "top-right",
+                                                description: "You have successfully applied for the campaign",
+                                            });
+                                    }}
+                                >
+                                    {userType === "creator" ? "Apply for Campaign" : "Find Creators"}
+                                </Button>
+                            </Link>
                         </div>
                         <p className="text-md mt-2">
                             06th August 2024 - 18th August 2020
@@ -209,21 +219,22 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                         <div className="mt-4">
                             {userType === "creator" ? campaignAbout() :
                                 <Tabs
+                                    localStorageKey="campaignDetails"
                                     tabs={[
                                         {
                                             id: 1,
+                                            label: "About",
+                                            content: campaignAbout()
+                                        },
+                                        {
+                                            id: 2,
                                             label: "Overview",
                                             content: campaignOverview()
                                         },
                                         {
-                                            id: 2,
+                                            id: 3,
                                             label: "Creators",
                                             content: campaignCreators()
-                                        },
-                                        {
-                                            id: 3,
-                                            label: "About",
-                                            content: campaignAbout()
                                         },
                                         {
                                             id: 4,

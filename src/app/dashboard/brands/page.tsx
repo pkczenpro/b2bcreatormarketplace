@@ -3,7 +3,7 @@
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { Badge, Input, Table, Checkbox, Button } from "antd";
-import { Linkedin, Globe, Search, Compass, Earth } from "lucide-react";
+import { Search, Compass, Earth } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
@@ -150,8 +150,16 @@ export default function Dashboard() {
                                         key: "actions",
                                         render: () => (
                                             <div className="flex flex-col gap-2">
-                                                <Button className="bg-black text-white">View Campaigns</Button>
-                                                <Button className="border border-gray-500 text-black">I'm Interested</Button>
+                                                <Link
+                                                    href={`/dashboard/store-front`}
+                                                    className="w-full"
+                                                ><Button className="bg-black text-white w-full">View Campaigns</Button></Link>
+                                                <Link
+                                                    href={`/dashboard/store-front`}
+                                                    className="w-full"
+                                                >
+                                                    <Button className="border border-gray-500 text-black w-full">I'm Interested</Button>
+                                                </Link>
                                             </div>
                                         )
                                     }

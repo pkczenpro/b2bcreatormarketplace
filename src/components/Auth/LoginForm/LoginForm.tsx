@@ -1,10 +1,12 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
 import { useState } from "react";
 
 interface LoginFormProps {
@@ -12,6 +14,7 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
+    const router = useRouter();
     const paragraph =
         userType === "creator"
             ? "Grow together with your favorite brands."
@@ -34,6 +37,8 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
     const submitData = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log(inputs);
+        router.push('/dashboard');
+        localStorage.setItem('userType', userType);
     };
 
     return (
@@ -60,7 +65,9 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
                     placeholder="********"
                     required
                 />
-                <Button type="submit" variant="primary" icon={<ArrowRight size={16} />}>Sign in</Button>
+                <Button
+
+                    type="submit" variant="primary" icon={<ArrowRight size={16} />}>Sign in</Button>
             </form>
 
             <div className="mt-6 space-y-3">
