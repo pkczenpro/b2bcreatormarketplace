@@ -87,6 +87,10 @@ export default function PostMaker({ }: PostMakerProps) {
         )
     }
 
+    const handleTextFormatting = (format) => {
+        document.execCommand(format, false, null); // Executes the formatting command
+    };
+
     return (
         <div className="w-full bg-neutral-50 flex flex-col items-center justify-start min-h-screen">
             <Link
@@ -97,7 +101,6 @@ export default function PostMaker({ }: PostMakerProps) {
             </Link>
 
             <div className="flex flex-col md:flex-row w-[90%] mt-4 space-x-0 md:space-x-4 space-y-4 md:space-y-0 sm:h-[80vh] bg-white p-6 rounded-md shadow-md">
-                {/* Left Side - Post Input */}
                 <div className="flex flex-col w-full md:w-1/2 px-4 py-4">
                     <Select
                         className="mb-4"
@@ -110,18 +113,26 @@ export default function PostMaker({ }: PostMakerProps) {
                     </Select>
 
                     <label htmlFor="post-content" className="font-medium mb-2">Write a post</label>
-                    <textarea
+
+                    <div
                         id="post-content"
+                        contentEditable
                         className="w-full p-2 mb-4 border border-neutral-200 rounded-md min-h-[30vh] flex-grow"
                         placeholder="Tell us what’s on your mind"
-                        value={postContent}
-                        onChange={(e) => setPostContent(e.target.value)}
+                        onInput={(e) => setPostContent(e.target.innerHTML)}
+                        dangerouslySetInnerHTML={{ __html: postContent }}
                     />
 
                     <div className="flex space-x-4 mb-4">
-                        <Bold size={20} />
-                        <Italic size={20} />
-                        <LinkIcon size={20} />
+                        <button onClick={() => handleTextFormatting("bold")}>
+                            <Bold size={20} />
+                        </button>
+                        <button onClick={() => handleTextFormatting("italic")}>
+                            <Italic size={20} />
+                        </button>
+                        <button onClick={() => handleTextFormatting("createLink")}>
+                            <LinkIcon size={20} />
+                        </button>
                         <label className="cursor-pointer">
                             <Image size={20} />
                             <input
@@ -137,7 +148,6 @@ export default function PostMaker({ }: PostMakerProps) {
                         <span className="text-sm text-neutral-500">Saved at 12:48 PM</span>
                         <div className="flex space-x-2">
                             <Button
-
                                 socialMediaIcon={<Clock size={12} />}
                                 onClick={() => setIsModalVisible(true)}
                             >

@@ -1,19 +1,25 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import api from "@/utils/axiosInstance";
 import { Table, Button, Dropdown, Space, Input, Modal, Rate } from "antd";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner"
 
 
 
 
-export function CreatorTable() {
+export function CreatorTable({ campaign }) {
     const [reviewModal, setReviewModal] = useState(false);
-
-
+    const dt = campaign?.selectedCreators || [];
+    const creators = dt.map((creator) => ({
+        key: creator?.creatorId._id,
+        name: creator?.creatorId.name,
+        status: creator?.status,
+        amount: creator?.amount,
+    }));
     const reviewModalComponent = (
         <Modal
             title="Rate and Review"
@@ -59,25 +65,12 @@ export function CreatorTable() {
             </div>
         </Modal>
     );
-
-
     const deleteCampaign = (id: string) => {
         toast.error("Creator can’t be removed", {
             position: "top-right",
             description: "Creator can’t be removed until completed work are paid.",
         })
     }
-
-    const creators = [
-        { key: "1", name: "Tony Dunbar", status: "Prospect", amount: 200 },
-        { key: "2", name: "Myron Simmons", status: "Lead", amount: 200 },
-        { key: "3", name: "Charlie Thirston", status: "Partner", amount: 200 },
-        { key: "4", name: "Charlie Thirston", status: "Partner", amount: 200 },
-        { key: "5", name: "Charlie Thirston", status: "Partner", amount: 200 },
-        { key: "6", name: "Charlie Thirston", status: "Partner", amount: 200 },
-    ];
-
-
     const columns = [
         {
             title: "Creator Name",

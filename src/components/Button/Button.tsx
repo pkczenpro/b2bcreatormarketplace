@@ -12,6 +12,7 @@ interface ButtonProps {
     className?: string;
     variant?: "primary" | "secondary" | "outline";
     size?: "xs" | "small" | "medium" | "large"; // New size prop
+    loading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -24,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     icon,
     variant = "primary",
     size = "medium",
+    loading = false,
 }) => {
     // Base Tailwind CSS classes
     const baseClasses =
@@ -51,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
         <button
             type={type}
             onClick={onClick}
-            disabled={disabled}
+            disabled={disabled || loading}
             className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabled ? disabledClasses : ""} ${className}`}
         >
             {socialMediaIcon && <span className="mr-2">{socialMediaIcon}</span>}

@@ -1,23 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
 import ProfileCardPreview from "@/components/ProfileCardPreview/ProfileCardPreview";
-import Link from "next/link";
 import React from "react";
+import api from "@/utils/axiosInstance";
+import { useRouter } from "next/navigation";
 
 type ProfileSetupProps = object;
 
-export default function ProfileSetup({ }: ProfileSetupProps) {
-  const [userType, setUserType] = React.useState<string | null>(null);
+type UserData = {
+  name: string;
+  location: string;
+  profileImage: string | null;
+  coverImage: string | null;
+  socialMediaLinks: { platform: string; link: string }[];
+  bio: string;
+  tags: string[];
+};
 
-  React.useEffect(() => {
+export default function ProfileSetup({ }: ProfileSetupProps) {
+  const router = useRouter();
+  const [userType, setUserType] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       setUserType(localStorage.getItem("userType"));
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUserData(JSON.parse(storedUser));
+      }
     }
   }, []);
+
+  console.log(userData)
+
 
   const [profileName, setProfileName] = useState<string>("Andrew Bishop");
   const [location, setLocation] = useState<string>("Location");
@@ -34,6 +54,40 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [shortIntroduction, setShortIntroduction] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagText, setTagText] = useState("");
+
+
+  useEffect(() => {
+    if (userData) {
+      setProfileName(userData.name);
+      setLocation(userData.location);
+      setProfilePicture(userData.profileImage);
+      setCoverPicture(userData.coverImage);
+      setLinkedin(
+        userData.socialMediaLinks.find(
+          (item) => item.platform === "linkedin"
+        )?.link || ""
+      );
+      setMedium(
+        userData.socialMediaLinks.find((item) => item.platform === "medium")
+          ?.link || ""
+      );
+      setSpotify(
+        userData.socialMediaLinks.find((item) => item.platform === "spotify")
+          ?.link || ""
+      );
+      setWebsite(
+        userData.socialMediaLinks.find((item) => item.platform === "website")
+          ?.link || ""
+      );
+      setOtherLinks(
+        userData.socialMediaLinks.find((item) => item.platform === "otherLinks")
+          ?.link || ""
+      );
+      setShortIntroduction(userData.bio);
+      setTags(userData.tags);
+    }
+  }, [userData]);
+
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && e.currentTarget.value.trim() !== "") {
@@ -247,7 +301,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
             value={tagText}
             onChange={(e) => setTagText(e.target.value)}
             onKeyDown={handleAddTag}
-            placeholder="Add Tags"
+            placeholder="Enter tag and press enter"
             required
             name="tags"
             size="medium"
@@ -289,27 +343,72 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     },
   ];
 
+  const [loading, setLoading] = useState(false);
+  const finishSetup = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post("/users/complete-onboarding", {
+        profileName,
+        location,
+        profileImage: profilePicture,
+        coverImage: coverPicture,
+        socialMediaLinks: [
+          {
+            platform: "linkedin",
+            link: linkedin,
+          },
+          {
+            platform: "medium",
+            link: medium,
+          },
+          {
+            platform: "spotify",
+            link: spotify,
+          },
+          {
+            platform: "website",
+            link: website,
+          },
+          {
+            platform: "otherLinks",
+            link: otherLinks,
+          },
+        ],
+        bio: shortIntroduction,
+        tags,
+        isCompletedOnboarding: true,
+      });
+      if (res.status === 200) {
+        localStorage.setItem("user", JSON.stringify(res.data));
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Profile setup error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
-    <div className="max-h-screen flex items-center justify-center bg-white p-6">
-      <div className="ml-24 w-[40vw]">
+    <div className="flex flex-col-reverse items-center justify-center bg-white p-4 md:flex-row md:p-6">
+      <div className="w-full max-w-lg md:w-[40vw] ml-0 md:ml-24">
         <h1 className="text-h3 font-bold text-left mb-1">Setup Your Profile</h1>
-        <p className="text-neutral-600 text-left mb-10">
+        <p className="text-neutral-600 text-left mb-6 md:mb-10">
           Welcome to B2B Creator! Let’s get a head start on your profile.
         </p>
 
         {sections
           .filter((item) => item.id === activeId)
           .map((section) => (
-            <div key={section.id} className="mb-10">
+            <div key={section.id} className="mb-6 md:mb-10">
               {section.content}
             </div>
           ))}
 
-        <div className="flex items-end justify-end flex-row">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
           {sections[activeId - 1]?.skip && (
             <Button
               variant="secondary"
-              className="mt-8 underline text-primary-700 w-full"
+              className="underline text-primary-700 w-full md:w-auto"
               onClick={() => { }}
               size="small"
             >
@@ -320,7 +419,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId > 1 && (
             <Button
               variant="outline"
-              className="px-4 w-full" // Adjust padding for consistency
+              className="px-4 w-full md:w-auto"
               socialMediaIcon={<ArrowLeft />}
               size="small"
               onClick={() => {
@@ -334,7 +433,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           {activeId < sections.length ? (
             <Button
               variant="primary"
-              className="px-4 ml-4 w-full" // Adjust padding for consistency
+              className="px-4 ml-0 md:ml-4 w-full md:w-auto"
               icon={<ArrowRight />}
               onClick={() => setActiveId(activeId + 1)}
               size="small"
@@ -342,18 +441,18 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               Continue
             </Button>
           ) : (
-            <Link href="/dashboard" className="mt-8 ml-4 w-full">
-              {" "}
-              {/* Adjust padding for consistency */}
-              <Button
-                size="small"
-                className="w-full"
-                variant="primary"
-                icon={<ArrowRight />}
-              >
-                Finish Setting Up
-              </Button>
-            </Link>
+            <Button
+              size="small"
+              className="w-full mt-4 md:mt-0 md:ml-4"
+              variant="primary"
+              icon={<ArrowRight />}
+              loading={loading}
+              onClick={() => {
+                finishSetup();
+              }}
+            >
+              Finish Setting Up
+            </Button>
           )}
         </div>
       </div>
@@ -370,5 +469,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
         shortIntroduction={shortIntroduction}
       />
     </div>
+
   );
 }

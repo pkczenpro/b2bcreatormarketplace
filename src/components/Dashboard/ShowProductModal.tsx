@@ -6,21 +6,15 @@ const { TextArea } = Input;
 interface ShowProductModalProps {
     modal: boolean;
     setModal: (value: boolean) => void;
-    // product: any;
+    product: any;
 }
 
 export default function ShowProductModal({
     modal,
     setModal,
-    // product,
+    product,
 }: ShowProductModalProps) {
-    const product = {
-        productName: "Product Name",
-        productDescription: "Product DescriptionProduct DeProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionscriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct DescriptionProduct Description",
-        productLogo: null,
-        productImages: [] as File[],
-        publicVisibility: false,
-    }
+    if (!product) return null;
     return (
         <Modal
             width="60%"
@@ -36,36 +30,45 @@ export default function ShowProductModal({
             footer={null}
         >
             <div className="flex flex-row items-start">
-                <img src="/images/product.png" alt="" />
+                <img
+                    src={process.env.NEXT_PUBLIC_SERVER_URL + "/uploads/" + product?.productLogo}
+                    alt=""
+                    className="w-48 h-48 object-cover rounded-md"
+                />
                 <p className="text-text-medium font-normal text-neutral-800 ml-4">
                     {product.productDescription}
                 </p>
             </div>
 
             <Divider />
-
-            <div className="flex items-center justify-between">
-                <Image
-                    src="/images/prod1.png"
-                    alt="Product Logo"
-                    className="w-1/4"
-                />
-                <Image
-                    src="/images/prod2.png"
-                    alt="Product Logo"
-                    className="w-1/4"
-                />
-                <Image
-                    src="/images/prod3.png"
-                    alt="Product Logo"
-                    className="w-1/4"
-                />
-                <Image
-                    src="/images/prod4.png"
-                    alt="Product Logo"
-                    className="w-1/4"
-                />
+            <div className="flex items-center justify-between mb-4 space-x-4">
+                {product.productImages.map((image: string, index: number) => (
+                    <div key={index}
+                        className="flex items-center justify-center w-1/4 h-1/4 bg-neutral-100 rounded-md"
+                    >{renderFileType(image)}</div>
+                ))}
             </div>
+
         </Modal>
     );
 }
+
+
+const renderFileType = (file: string) => {
+    const fileExt = file.split('.').pop()?.toLowerCase();
+
+    if (fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'png') {
+        return (
+            <Image
+                src={`${process.env.NEXT_PUBLIC_SERVER_URL}/uploads/${file}`}
+                alt="Product Image"
+                className="w-1/4"
+            />
+        );
+    }
+    return (
+        <p className="text-text-medium font-normal text-neutral-800">
+            {file}
+        </p>
+    );
+};

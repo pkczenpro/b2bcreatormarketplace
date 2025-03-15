@@ -2,16 +2,17 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+import api from "@/utils/axiosInstance";
 import { Badge, Input, Table, Checkbox, Button } from "antd";
 import { Search, Compass, Earth } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
-const categories = [
-    { name: "Technology", sub: ["AI", "Blockchain", "SaaS"] },
-    { name: "Marketing", sub: ["SEO", "Social Media", "Branding"] },
-    { name: "Finance", sub: ["Investment", "Banking", "Insurance"] }
-];
+// const categories = [
+//     { name: "Technology", sub: ["AI", "Blockchain", "SaaS"] },
+//     { name: "Marketing", sub: ["SEO", "Social Media", "Branding"] },
+//     { name: "Finance", sub: ["Investment", "Banking", "Insurance"] }
+// ];
 
 const companies = [
     {
@@ -39,8 +40,22 @@ const companies = [
 ];
 
 export default function Dashboard() {
-    const [filteredData, setFilteredData] = useState(companies);
+    const [filteredData, setFilteredData] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    // const [categories, setCategories] = useState([]);
+    const getBrands = async () => {
+        api.get("/users/brands").then(res => {
+            setFilteredData(res.data);
+            // "tags": ["developer", "startup"]
+
+        }).catch(err => {
+            console.error(err);
+        });
+    }
+
+    useEffect(() => {
+        getBrands();
+    }, []);
 
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
@@ -85,18 +100,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex gap-2 mt-2 h-full">
-                    <div className="bg-white p-4 rounded-lg w-[20%]">
-                        {categories.map((cat, idx) => (
-                            <div key={idx} className="mb-2">
-                                <h3 className="font-medium text-gray-700">{cat.name}</h3>
-                                <div className="flex flex-col m-4">
-                                    {cat.sub.map((sub, i) => (
-                                        <Checkbox key={i} onChange={() => handleCategoryFilter(sub)}>{sub}</Checkbox>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+
 
                     <div className="col-span-3 bg-white p-6 rounded-lg w-full">
                         <h3 className="text-xl font-semibold mb-4">Featured Brands</h3>
@@ -108,13 +112,12 @@ export default function Dashboard() {
                                 rowKey="id"
                                 size="small"
                                 columns={[
-
                                     {
                                         title: "Name",
                                         dataIndex: "name",
                                         render: (name, record) => (
                                             <div className="flex items-center">
-                                                <img src={record.logo} alt="logo" className="w-12 h-12 mr-2" />
+                                                <img src={record.image} alt="logo" className="w-12 h-12 mr-2" />
                                                 <div>
                                                     <div className="flex items-center">
                                                         <Link href={`/dashboard/brands/${record.id}`} className="mr-2">
@@ -133,25 +136,23 @@ export default function Dashboard() {
                                         dataIndex: "region",
                                         render: (region) => <p className="text-gray-800">{region}</p>
                                     },
-                                    {
-                                        title: "Size",
-                                        dataIndex: "size",
-                                        render: (size) => <p
-                                            className="bg-blue-100 text-blue-500 px-2 py-1 rounded-md text-center"
-                                        >{size}</p>
-                                    },
-                                    {
-                                        title: "Category",
-                                        dataIndex: "category",
-                                        render: (category) => <Badge className="text-center">{category}</Badge>
-                                    },
+                                    // {
+                                    //     title: "Size",
+                                    //     dataIndex: "size",
+                                    //     render: (size) => <p
+                                    //         className="bg-blue-100 text-blue-500 px-2 py-1 rounded-md text-center"
+                                    //     >{size}</p>
+
                                     {
                                         title: "Actions",
                                         key: "actions",
-                                        render: () => (
+                                        render: (
+                                            text,
+                                            record
+                                        ) => (
                                             <div className="flex flex-col gap-2">
                                                 <Link
-                                                    href={`/dashboard/store-front`}
+                                                    href={`/dashboard/brand-preview/${record._id}`}
                                                     className="w-full"
                                                 ><Button className="bg-black text-white w-full">View Campaigns</Button></Link>
                                                 <Link

@@ -7,65 +7,122 @@ import Tabs from "@/components/Tabs/Tabs";
 import { ArrowRight, Image, Mic, Plus, Text, Video } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { Divider, Modal, Select, Switch } from "antd";
+import { Divider, Modal, Select, Switch, Button as AntdButton } from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
 import ShowProductModal from "./ShowProductModal";
 import Link from "next/link";
+import api from "@/utils/axiosInstance";
 
 type BrandDashboardProps = {
   isPreview: boolean;
 };
+
+// userData;
+// {"_id":"67cec00dad8af47ea2b85247","name":"Omar Dakelbab","email":"omar.frontend@gmail.com","password":"$2b$10$6AJmPYVJvwXZd0Q4qxooUe6ZszC0w8s2FaSejzjpPZCx4n.Awa70K","userType":"creator","tags":["tech","instagram"],"socialMediaLinks":[{"platform":"linkedin","link":"linkedin.com/in/johndoe","_id":"67cecd317ef28615840899e7"},{"platform":"medium","link":"medium.com/@johndoe","_id":"67cecd317ef28615840899e8"},{"platform":"spotify","link":"open.spotify.com/user/johndoe","_id":"67cecd317ef28615840899e9"},{"platform":"website","link":"johndoe.com","_id":"67cecd317ef28615840899ea"},{"platform":"otherLinks","link":"","_id":"67cecd317ef28615840899eb"}],"reviews":[],"services":[],"previousWork":[],"featuredWork":[],"testimonials":[],"textBlock":[],"stats":[],"calendar":[],"createdAt":"2025-03-10T10:33:49.104Z","updatedAt":"2025-03-10T11:29:53.545Z","__v":0,"isCompletedOnboarding":true,"bio":"oosmadomsodmasofmngndgflndslgds","coverImage":null,"location":"Turkey","profileImage":null,"profileName":"Omar Dakelbab"}
+
 
 export default function BrandDashboard({
   isPreview
 }: BrandDashboardProps) {
 
   const [userType, setUserType] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<any>(null);
+  const [partnerships, setPartnerships] = useState<any>(null);
+  const [products, setProducts] = useState<any>(null);
+
+  const getCampaigns = async () => {
+    try {
+      const res = await api.get("/campaigns/related-cg");
+      setCampaigns(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const getPartnerships = async () => {
+    try {
+      const res = await api.get("/partnerships");
+      setPartnerships(res.data);
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const getProducts = async () => {
+    try {
+      const res = await api.get("/products/brand" + userData._id);
+      setProducts(res.data);
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       setUserType(localStorage.getItem("userType"));
     }
+
+    if (typeof window !== "undefined") {
+      setUserData(JSON.parse(localStorage.getItem("user") || "{}"));
+    }
+
+    getCampaigns();
+    getProducts();
   }, []);
+
+  console.log(userData);
 
   const tabs = [
     {
       id: 1,
       label: "Campaigns",
       content: (
-        <Link href="/dashboard/campaigns-details/1">
-          <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
-            {/* Date or status if going on */}
-            <span className="text-md font-bold text-success-500 rounded-sm">
-              Ongoing
-            </span>
-            <h3 className="text-h5 font-bold text-left mb-1">Campaign Name</h3>
-            <p className="text-neutral-600 text-left mb-6">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt
-              aspernatur voluptates ad, officiis commodi laborum!
-            </p>
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                {["Tech", "Design", "Marketing"].map((tag, index) => (
-                  <span
-                    key={index}
-                    className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
+        <>
+          {campaigns?.map((campaign: any, index: number) => (
+            <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
+              <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
+                {/* Date or status if going on */}
+                <span className="text-md font-bold text-success-500 rounded-sm">
+                  {campaign.status}
+                </span>
+                <h3 className="text-h5 font-bold text-left mb-1">
+                  {campaign.title}
+                </h3>
+                <p className="text-neutral-600 text-left mb-6">
+                  {campaign.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-2">
+                    {campaign?.tags?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex space-x-2">
+                    {campaign.contentType.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="flex space-x-2">
-                <Image className="text-neutral-600" />
-                <Video className="text-neutral-600" />
-                <Mic className="text-neutral-600" />
-                <Text className="text-neutral-600" />
-              </div>
-            </div>
-          </div>
-        </Link>
+            </Link>
+          ))}
+        </>
       ),
     },
     {
@@ -128,7 +185,7 @@ export default function BrandDashboard({
         <div className="mt-6">
           <div className="flex justify-between items-center">
             <h3 className="text-h5 font-bold text-left">
-              Product Catalogue of Omega Web
+              Product Catalogue of {userData?.profileName}
             </h3>
             {!isPreview && <Button
               onClick={() => setModal(true)}
@@ -140,29 +197,27 @@ export default function BrandDashboard({
               Add Product
             </Button>}
           </div>
-          <div className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer" onClick={() => {
-            setShowProductModal(true);
-            setSelectedProduct({
-              productName: "Product Name",
-              productDescription: "Product Description",
-              productLogo: null,
-              productImages: [] as File[],
-              publicVisibility: false,
-            });
-          }}>
-            <img src="/images/product.png" alt="" />
-            <div className="flex flex-col">
-              <h2 className="text-h5 font-bold mb-2">Lorem, ipsum.</h2>
-              <p className="text-neutral-600">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Hic
-                quis reprehenderit pariatur non illum voluptatum reiciendis
-                nostrum libero rem temporibus ad nisi odit earum praesentium
-                amet aliquid fugiat quo ducimus quos, magnam officiis nobis
-                tenetur aperiam atque. Quo cupiditate aspernatur accusamus
-                similique, necessitatibus neque quam?
-              </p>
+
+          {products?.filter((item) => item.publicVisibility).map((product: any, index: number) => (
+            <div key={index} className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer" onClick={() => {
+              setShowProductModal(true);
+              setSelectedProduct(product);
+            }}>
+              <img
+                src={product?.productLogo}
+                alt=""
+                className="w-48 h-48 object-cover rounded-md"
+              />
+              <div className="flex flex-col">
+                <h2 className="text-h5 font-bold mb-2">
+                  {product.productName}
+                </h2>
+                <p className="text-neutral-600">
+                  {product.productDescription}
+                </p>
+              </div>
             </div>
-          </div>
+          ))}
 
         </div>
       ),
@@ -171,12 +226,15 @@ export default function BrandDashboard({
 
   const [visible, setVisible] = React.useState(false);
   const [formData, setFormData] = useState({
-    targetAudience: "",
-    contentType: "1",
+    tags: [],
+    contentType: "",
     description: "",
-    ongoingCampaign: false,
+    status: false,
     startDate: "",
+    endDate: "",
     budget: "",
+    goalsAndDeliverables: "",
+    title: "",
   });
 
   const handleInputChange = (e) => {
@@ -197,9 +255,29 @@ export default function BrandDashboard({
   const handleSwitchChange = (checked) => {
     setFormData((prevData) => ({
       ...prevData,
-      ongoingCampaign: checked,
+      status: checked,
     }));
   };
+  const handleAddCampaign = async () => {
+    try {
+      const res = await api.post("/campaigns", formData);
+      console.log(res.data);
+      setVisible(false);
+      getCampaigns();
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const [tempTags, setTempTags] = useState("");
+  const handleAddTags = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      tags: [...prevData.tags, tempTags],
+    }));
+    setTempTags("");
+  }
 
   const createCampaign = () => {
     return (
@@ -208,7 +286,10 @@ export default function BrandDashboard({
         centered
         title="Create Campaign"
         open={visible}
-        onOk={() => setVisible(false)}
+        okText="Create Campaign"
+        onOk={() => {
+          handleAddCampaign();
+        }}
         onCancel={() => setVisible(false)}
       >
         <Divider />
@@ -217,18 +298,54 @@ export default function BrandDashboard({
             <div>
               <label
                 className="block text-sm font-medium text-gray-700"
-                htmlFor="targetAudience"
+                htmlFor="description"
               >
-                Target Audience
+                Title
               </label>
-              <Input
-                name="targetAudience"
-                value={formData.targetAudience}
+              <TextArea
+                name="title"
+                value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Enter keywords"
+                placeholder="Enter Title"
                 className="mt-1 p-2 border rounded-lg w-full"
               />
             </div>
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700" htmlFor="tags">
+                  Target Audience
+                </label>
+                <Input
+                  name="tempTags"
+                  value={tempTags}
+                  onChange={(e) => {
+                    setTempTags(e.target.value);
+                  }}
+                  placeholder="Enter keywords"
+                  className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
+                />
+              </div>
+              <AntdButton
+                onClick={handleAddTags}
+                className="h-10 px-3 rounded-lg bg-primary-700 text-white">
+                +
+              </AntdButton>
+            </div>
+
+            <div>
+              <div className="flex space-x-2">
+                {formData?.tags?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -240,12 +357,13 @@ export default function BrandDashboard({
                 style={{ width: "100%" }}
                 className="mt-1"
                 placeholder="Select Content Type"
+                mode="multiple"
               >
-                <Select.Option value="1">Event Speaker</Select.Option>
-                <Select.Option value="2">Social Media Posts</Select.Option>
-                <Select.Option value="3">Video Content</Select.Option>
-                <Select.Option value="4">Blog Writing</Select.Option>
-                <Select.Option value="5">Podcasts</Select.Option>
+                <Select.Option value="Event Speaker">Event Speaker</Select.Option>
+                <Select.Option value="Social Media Posts">Social Media Posts</Select.Option>
+                <Select.Option value="Video Content">Video Content</Select.Option>
+                <Select.Option value="Blog Writing">Blog Writing</Select.Option>
+                <Select.Option value="Podcasts">Podcasts</Select.Option>
               </Select>
             </div>
 
@@ -264,6 +382,22 @@ export default function BrandDashboard({
                 className="mt-1 p-2 border rounded-lg w-full"
               />
             </div>
+
+            <div>
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="description"
+              >
+                Goals & Deliverables
+              </label>
+              <TextArea
+                name="goalsAndDeliverables"
+                value={formData.goalsAndDeliverables}
+                onChange={handleInputChange}
+                placeholder="Enter Goals & Deliverables"
+                className="mt-1 p-2 border rounded-lg w-full"
+              />
+            </div>
           </div>
 
           <div className="w-1/2 space-y-4">
@@ -272,27 +406,45 @@ export default function BrandDashboard({
                 Ongoing Campaign
               </label>
               <Switch
-                checked={formData.ongoingCampaign}
+                checked={formData.status}
                 onChange={handleSwitchChange}
                 className="mt-1"
               />
             </div>
 
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="startDate"
-              >
-                Start Date
-              </label>
-              <Input
-                name="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                placeholder="Enter Start Date"
-                className="mt-1 p-2 border rounded-lg w-full"
-              />
+            <div className="flex justify-between w-full">
+              <div className="w-full">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="startDate"
+                >
+                  Start Date
+                </label>
+                <Input
+                  name="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={handleInputChange}
+                  placeholder="Enter Start Date"
+                  className="mt-1 p-2 border rounded-lg w-full"
+                />
+              </div>
+              <div className="w-full ml-4">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="endDate"
+                >
+                  End Date
+                </label>
+                <Input
+                  name="endDate"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={handleInputChange}
+                  placeholder="Enter End Date"
+                  className="mt-1 p-2 border rounded-lg w-full"
+                />
+              </div>
             </div>
 
             <div>
@@ -332,24 +484,34 @@ export default function BrandDashboard({
           <div className="relative">
             {/* Cover Image */}
             <div className="relative w-full h-48 sm:h-72">
-              <img src="/images/wallpaper.png" alt="Cover" className="w-full h-full object-cover rounded-md" />
+              <img src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
             </div>
 
             {/* Profile Section */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full mt-4 absolute bottom-[-50px] sm:bottom-[-80px] px-4 sm:px-12">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
               <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                 <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                  <img src="/images/linkedin.png" alt="Profile" className="w-full h-full object-cover" />
+                  <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Name and Socials */}
                 <div className="mt-3 sm:mt-0">
-                  <h2 className="text-xl sm:text-2xl font-semibold">LinkedIn</h2>
-                  <h4 className="text-gray-500 text-sm">CA, USA</h4>
+                  <h2 className="text-xl sm:text-2xl font-semibold">
+                    {userData?.profileName}
+                  </h2>
+                  <h4 className="text-gray-500 text-sm">
+                    {userData?.location}
+                  </h4>
                   <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
-                    <a target="_blank" rel="noreferrer" href="https://linkedin.com" className="hover:text-gray-700">🔗</a>
-                    <a href="#" className="hover:text-gray-700">🎙</a>
-                    <a href="#" className="hover:text-gray-700">🌎</a>
+                    {userData?.socialMediaLinks.map((link: any, index: number) => (
+                      <a key={index} href={link.link} target="_blank" rel="noreferrer">
+                        <img
+                          src={`/icons/${link.platform}.svg`}
+                          alt={link.platform}
+                          className="w-6 h-6"
+                        />
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -362,15 +524,17 @@ export default function BrandDashboard({
           </div>
 
           {/* Bio */}
-          <p className="mt-20 sm:mt-24 text-gray-600 text-sm px-2 sm:px-0">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates veniam saepe officiis fugiat quidem...
+          <p className="mt-20 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
+            {userData?.bio}
           </p>
 
           {/* Tags */}
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">#Marketing</span>
-            <span className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">#Design</span>
-            <span className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">#Tech</span>
+            {userData?.tags.map((tag: string, index: number) => (
+              <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                {tag}
+              </span>
+            ))}
           </div>
 
           {/* STATS */}

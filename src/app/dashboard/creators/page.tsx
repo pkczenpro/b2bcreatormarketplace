@@ -2,6 +2,7 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+import api from "@/utils/axiosInstance";
 import { Badge, Button, Input, Modal, Select } from "antd";
 import { Compass, Linkedin, Store, Globe, RefreshCwIcon, Search, LocateIcon, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -10,57 +11,19 @@ import { toast } from "sonner";
 
 const { Option } = Select;
 
-const campaigns = [
-    {
-        id: 1,
-        name: "Dave Kline",
-        location: "Norwalk, CT, USA",
-        followers: "61k",
-        engagement: "94k",
-        linkedin: "https://linkedin.com/in/davekline",
-        website: "https://davekline.com",
-        image: "/images/profile_2.png",
-        description: "Training leaders on the playbook for leading high-performance teams. Entrepreneur | Writer | Speaker | Coach | 175K+ Social Media followers.",
-        tags: ["Leadership", "Sales Management", "Coaching", "Entrepreneurship"]
-    },
-    {
-        id: 2,
-        name: "Brianna Doe",
-        location: "United States",
-        followers: "237k",
-        engagement: "100k",
-        linkedin: "https://linkedin.com/in/briannadoe",
-        website: "https://briannadoe.com",
-        image: "/images/profile_2.png",
-        description: "I built a thriving, engaged audience of 225k+ professionals, marketers, and recruiters. My content focuses on entrepreneurship, marketing, leadership...",
-        tags: ["Social Selling", "Content Marketing", "Management & Leadership"]
-    },
-    {
-        id: 3,
-        name: "Mark Kosoglow",
-        location: "State College, Pennsylvania",
-        followers: "56k",
-        engagement: "112k",
-        linkedin: "https://linkedin.com/in/markkosoglow",
-        website: "https://markkosoglow.com",
-        image: "/images/profile_2.png",
-        description: "Are your customers your growth engine? They should be. I’ve been a GTM executive for 9+ years achieving revenue and sales team on GTM motions.",
-        tags: ["Sales", "Leadership", "Business Growth"]
-    }
-];
-
 export default function Creators() {
+    const [creators, setCreators] = React.useState([]);
 
-    const [filterData, setFilterData] = React.useState(campaigns);
+    const [filterData, setFilterData] = React.useState([]);
 
     const handleFiltering = (e) => {
         if (e.target.value === "" || e.target.value === null) {
-            setFilterData(campaigns);
+            setFilterData(creators);
             return;
         }
 
         const searchQuery = e.target.value;
-        const filteredData = campaigns.filter((campaign) => {
+        const filteredData = creators.filter((campaign) => {
             return campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 campaign.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 campaign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,13 +37,13 @@ export default function Creators() {
 
     useEffect(() => {
         if (activeTags.length > 0) {
-            const filteredData = campaigns.filter((campaign) => {
+            const filteredData = creators.filter((campaign) => {
                 return activeTags.every((tag) => campaign.tags.includes(tag));
             });
             setFilterData(filteredData);
         }
         else {
-            setFilterData(campaigns);
+            setFilterData(creators);
         }
     }, [activeTags])
 
@@ -88,11 +51,11 @@ export default function Creators() {
 
     const resetTags = () => {
         setActiveTags([]);
-        setFilterData(campaigns);
+        setFilterData(creators);
     }
 
     const [addToCampaign, setAddToCampaign] = React.useState(false);
-
+    const [selectedCampaign, setSelectedCampaign] = React.useState(null);
     const addToCampaignModal = () => {
         return (
             <Modal
@@ -104,9 +67,11 @@ export default function Creators() {
                 centered
             >
                 <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
-                    <img src="/images/profile.png" alt="" />
+                    <img src={
+                        process.env.NEXT_PUBLIC_SERVER_URL + creator.profileImage
+                    } alt="" />
                     <h2 className="text-md font-bold text-neutral-600">
-                        Tony Dunbar
+                        {creator.name}
                     </h2>
                 </div>
                 <div className="mt-4">
@@ -115,10 +80,13 @@ export default function Creators() {
                     <Select
                         placeholder="Select Campaign"
                         className="w-full"
+                        size="large"
+                        onChange={(value) => setSelectedCampaign(value)}
+                        value={selectedCampaign}
                     >
-                        <Option value="1">Campaign 1</Option>
-                        <Option value="2">Campaign 2</Option>
-                        <Option value="3">Campaign 3</Option>
+                        {campaigns.map((campaign, index) => (
+                            <Option key={index} value={campaign._id}>{campaign.title}</Option>
+                        ))}
                     </Select>
                 </div>
                 <div className="mt-4">
@@ -126,10 +94,9 @@ export default function Creators() {
                         size="large"
                         className="bg-primary-700 text-white w-full"
                         onClick={() => {
-                            toast.success("Creator added to campaign successfully.", {
-                                position: "top-right",
-                                description: "Tony Dunbar has been added to Campaign 1.",
-                            })
+                            AddToCampaign({
+                                campaignId: selectedCampaign
+                            });
                         }}
                     >
                         Add to Campaign
@@ -138,6 +105,60 @@ export default function Creators() {
             </Modal>
         );
     }
+
+    const getCreators = async () => {
+        try {
+            const res = await api.get("/users/creators");
+            setCreators(res.data);
+            setFilterData(res.data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    useEffect(() => {
+        getCreators();
+    }, []);
+
+    const [creator, setCreator] = React.useState({});
+    const AddToCampaign = async ({
+        campaignId,
+    }) => {
+        if (creator) {
+            try {
+                const res = await api.post(`/campaigns/${campaignId}/add`, {
+                    creatorId: creator._id
+                });
+                toast.success("Creator added to campaign successfully.", {
+                    position: "top-right",
+                    description: "Tony Dunbar has been added to Campaign 1.",
+                })
+            }
+            catch (ex) {
+                console.log(ex)
+            }
+        } else {
+            toast.error("Error", {
+                position: "top-right",
+                description: "Please select a creator to add to the campaign.",
+            })
+        }
+    }
+
+    const [campaigns, setCampaigns] = React.useState([]);
+    const getCampaigns = async () => {
+        try {
+            const res = await api.get("/campaigns/related-cg")
+            setCampaigns(res.data)
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getCampaigns();
+    }, []);
 
 
     return (
@@ -163,7 +184,7 @@ export default function Creators() {
                 {/* Tags */}
                 <div className="flex gap-2 mt-4">
                     {
-                        campaigns.reduce((acc, campaign) => {
+                        creators.reduce((acc, campaign) => {
                             campaign.tags.forEach((tag) => {
                                 if (!acc.includes(tag)) {
                                     acc.push(tag);
@@ -201,13 +222,13 @@ export default function Creators() {
                     Featured Creators
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {filterData.map((creator) => (
-                        <div key={creator.id} className="bg-white rounded-2xl shadow-lg p-6 space-y-4 flex flex-col justify-between">
+                    {filterData.map((creator, index) => (
+                        <div key={index} className="bg-white rounded-2xl shadow-lg p-6 space-y-4 flex flex-col justify-between">
                             <div>
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center space-x-4">
                                         <div className="relative w-14 h-14">
-                                            <img src={creator.image} alt={creator.name} className="w-14 h-14 rounded-full" />
+                                            <img src={process.env.NEXT_PUBLIC_SERVER_URL + creator.image} alt={creator.name} className="w-14 h-14 rounded-full" />
                                             <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
                                         </div>
 
@@ -225,17 +246,17 @@ export default function Creators() {
                                         </div>
                                     </div>
                                     <div className="flex items-start justify-between space-x-2">
-                                        <Link href={creator.website} target="_blank" className="flex items-center gap-2 text-neutral-600 bg-neutral-50 rounded-full p-2">
+                                        {/* <Link href={creator?.website} target="_blank" className="flex items-center gap-2 text-neutral-600 bg-neutral-50 rounded-full p-2">
                                             <Globe className="w-5 h-5" />
-                                        </Link>
-                                        <Link href="/dashboard/user-front" className="flex items-center gap-2 text-primary-600 bg-neutral-50 rounded-full p-2">
+                                        </Link> */}
+                                        <Link href={`/dashboard/user-preview/${creator._id}`} className="flex items-center gap-2 text-primary-600 bg-neutral-50 rounded-full p-2">
                                             <Store className="w-5 h-5" />
                                         </Link>
                                     </div>
                                 </div>
-                                <p className="text-sm text-neutral-700 mt-4">{creator.description}</p>
+                                <p className="text-sm text-neutral-700 mt-4">{creator?.description}</p>
                                 <div className="flex flex-wrap gap-2 mt-4">
-                                    {creator.tags.map((tag, index) => (
+                                    {creator?.tags.map((tag, index) => (
                                         <span key={index} className="text-neutral-600  text-sm px-3 py-1 rounded-full border border-neutral-200 bg-neutral-50">{tag}</span>
                                     ))}
                                 </div>
@@ -245,8 +266,12 @@ export default function Creators() {
                                     <Button className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Message</Button>
                                 </Link>
                                 <Button
-                                    onClick={() => setAddToCampaign(true)}
-                                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Add to Campaign</Button>
+                                    onClick={() => {
+                                        setAddToCampaign(true)
+                                        setCreator(creator);
+                                    }}
+                                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg"
+                                >Add to Campaign</Button>
                             </div>
                         </div>
                     ))}

@@ -1,13 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+
 import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
-import { Select } from "antd";
-import { MessageSquare, Plus } from "lucide-react";
+import { Select, Input, Spin, Card } from "antd";
+import { MessageSquare, Plus, Trash } from "lucide-react";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import api from "@/utils/axiosInstance";
+import { toast } from "sonner";
 
 
 type CreatorDashboardProps = {
@@ -17,6 +19,26 @@ type CreatorDashboardProps = {
 export default function CreatorDashboard({
     isPreview
 }: CreatorDashboardProps) {
+    const [userData, setUserData] = useState<any>(null);
+
+    const getUserDetails = async () => {
+        const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
+        if (!userId) return;
+        let res = null;
+
+        try {
+            res = await api.get(`/users/${userId}`);
+            setUserData(res.data);
+            console.log(res);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    React.useEffect(() => {
+        getUserDetails();
+    }, []);
 
     const [showSections, setShowSections] = React.useState({
         services: true,
@@ -28,6 +50,8 @@ export default function CreatorDashboard({
         statBlock: true,
     });
 
+    const [data, setData] = useState({});
+
     const [tags, setTags] = useState<string[]>([]);
     const [tagText, setTagText] = useState("");
 
@@ -38,45 +62,116 @@ export default function CreatorDashboard({
         }
     };
 
+    const handleChange = (field: string, value: string) => {
+        setData({ ...data, [field]: value });
+    }
+
+    const handleUserData = async (field: string, operation: string, itemId: string, data: unknown) => {
+        const userId = userData?._id;
+        if (!userId) return;
+
+        let res = null;
+        let url = `/users/${userId}/${field}/${operation}`;
+        if (operation !== "add") url += `/${itemId}`;
+
+        try {
+            const headers = data instanceof FormData ? { "Content-Type": "multipart/form-data" } : {};
+
+            res = await api.post(url, data, { headers });
+
+            if (res.data.success) {
+                toast.success(res.data.message, { position: "top-center" });
+            }
+
+            setData(prev => ({ ...prev })); // Prevent unnecessary state clearing
+            getUserDetails();
+        } catch (err) {
+            console.error("Error in handleUserData:", err.response?.data || err.message);
+        } finally {
+            setUploadLoading(false);
+        }
+    };
+
+
+    //done
     const ServicesDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <h2 className="uppercase mb-4">Available Services</h2>
+                <div className="flex justify-between mb-2">
+                    <h2 className="uppercase mb-4">Available Services</h2>
+                </div>
 
                 {/* Service Cards */}
-                <div className="bg-white p-6 flex flex-col rounded-md shadow-sm mb-4">
-                    <div className="text-[16px] font-bold mb-2">Service Name #1</div>
-                    <div className="flex flex-col sm:flex-row justify-between items-end">
-                        <p className="text-[14px] text-neutral-700 sm:w-3/4">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione,
-                            quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                            Repellat, odio dignissimos officia molestias placeat dolor
-                            doloremque libero quasi quis temporibus, magni exercitationem
-                            facere culpa qui?
-                        </p>
-                        <span className="text-text-large font-medium text-neutral-900 mt-4 sm:mt-0">
-                            $18/hour
-                        </span>
+                {userData?.services.map((service: any, index: number) => (
+                    <div key={index} className="bg-white p-6 flex flex-col rounded-md shadow-sm mb-4">
+                        <button
+                            onClick={() => {
+                                handleUserData("services", "delete", service._id, {})
+                            }}
+                        >
+                            delete
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleUserData("services", "update", service._id, { title: "Updated Web Development", price: 120 })
+                            }}
+                        >
+                            update
+                        </button>
+                        <div className="text-[16px] font-bold mb-2">
+                            {service.title}
+                        </div>
+                        <div className="flex flex-col sm:flex-row justify-between items-end">
+                            <p className="text-[14px] text-neutral-700 sm:w-3/4">
+                                {service.description}
+                            </p>
+                            <span className="text-text-medium font-medium text-neutral-900 mt-4 sm:mt-0">
+                                ${service.price} / {service.basis}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                ))}
 
                 {/* Add Service Modal */}
                 {!isPreview && (
                     <div className="bg-white p-6 flex flex-col rounded-md shadow-sm">
                         <div className="text-[16px] font-bold mb-2">
-                            <Input placeholder="Add Service Name Here" className="w-full sm:w-[70%]" />
+                            <Input
+                                name="title"
+                                value={data.title || ""}
+                                onChange={(e) => {
+                                    handleChange("title", e.target.value);
+                                }}
+                                placeholder="Add Service Name Here"
+                                className="w-full sm:w-[70%]" />
                         </div>
                         <div className="flex flex-col sm:flex-row justify-between items-end">
                             <div className="text-[15px] text-neutral-700 sm:w-3/4">
                                 <Input
                                     placeholder="Add Service Description Here"
                                     className="w-full sm:w-[70%]"
+                                    value={data.description || ""}
+                                    onChange={(e) => {
+                                        handleChange("description", e.target.value);
+                                    }}
                                 />
                             </div>
                             <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-                                <Input placeholder="Enter Amount" className="w-24" />
+                                <Input placeholder="Enter Amount" className="w-24"
+                                    value={data.price || ""}
+                                    onChange={(e) => {
+                                        handleChange("price", e.target.value);
+                                    }}
+                                />
                                 <span>per</span>
-                                <Select placeholder="Select Basis">
+                                <Select
+                                    placeholder="Select Basis"
+                                    className="w-24"
+                                    value={data.basis || ""}
+                                    onChange={(value) => {
+                                        handleChange("basis", value);
+                                    }}
+                                >
                                     <Select.Option value="hour">Hour</Select.Option>
                                     <Select.Option value="day">Day</Select.Option>
                                     <Select.Option value="week">Week</Select.Option>
@@ -84,13 +179,31 @@ export default function CreatorDashboard({
                                 </Select>
                             </div>
                         </div>
-                        <Button size="small" variant="primary" className="text-sm mt-4 w-full sm:w-[30%] ml-auto">
+                        <Button
+                            onClick={() => {
+                                handleUserData("services", "add", "", data)
+                            }}
+                            size="small" variant="primary" className="text-sm mt-4 w-full sm:w-[30%] ml-auto" >
                             Add Service
                         </Button>
                     </div>
-                )}
-            </div>
+                )
+                }
+            </div >
         );
+    };
+
+    const fileInputRef = React.useRef(null);
+    const fileInputRef2 = React.useRef(null);
+    const [uploadLoading, setUploadLoading] = React.useState(false);
+    const handleFileChange = (event, key) => {
+        setUploadLoading(true);
+        const file = event.target.files;
+        if (file) {
+            const formData = new FormData();
+            formData.append("image", file[0]);
+            handleUserData(key, "add", "", formData);
+        }
     };
     const PartnershipsDiv = () => {
         return (
@@ -99,16 +212,48 @@ export default function CreatorDashboard({
 
                 {/* Responsive Grid Layout */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                        <div key={index} className="flex items-center justify-center">
+                    {userData?.previousWork?.map((_, index) => (
+                        <div key={index} className="flex items-center justify-center relative group">
                             {/* Responsive Card */}
-                            <div className="bg-white w-full aspect-[4/3] rounded-md"></div>
+                            <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
+                                <img
+                                    src={process.env.NEXT_PUBLIC_SERVER_URL + userData?.previousWork[index].image}
+                                    alt="Previous Work"
+                                    className="w-full h-full object-cover rounded-md"
+                                />
+
+                                {/* Hover Effect: Delete Icon with Black Opacity */}
+                                <div className="absolute inset-0 bg-red-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => {
+                                            handleUserData("previousWork", "delete", userData?.previousWork[index]._id, {})
+                                        }}
+                                        className="text-white text-3xl cursor-pointer"
+                                    >
+                                        <Trash
+                                            className="text-red-500"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     ))}
 
                     {/* Last Box with Plus Icon */}
                     {!isPreview && (
-                        <div className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer">
+                        <div
+                            className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer"
+                            onClick={() => fileInputRef.current.click()} // Click trigger
+                        >
+                            <input
+                                type="file"
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={(e) => {
+                                    handleFileChange(e, "previousWork");
+                                }} // Handle file selection
+                                disabled={uploadLoading}
+                            />
                             <span className="text-3xl text-gray-600">+</span>
                         </div>
                     )}
@@ -119,19 +264,54 @@ export default function CreatorDashboard({
     const WorkDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <h2 className="uppercase mb-4">Featured Work</h2>
-                {/* CARD ITEM */}
+                <h2 className="uppercase mb-4">
+                    Feautered Work
+                </h2>
+
+                {/* Responsive Grid Layout */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                        <div key={index} className="flex items-center justify-center">
+                    {userData?.featuredWork?.map((_, index) => (
+                        <div key={index} className="flex items-center justify-center relative group">
                             {/* Responsive Card */}
-                            <div className="bg-white w-full aspect-[4/3] rounded-md"></div>
+                            <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
+                                <img
+                                    src={process.env.NEXT_PUBLIC_SERVER_URL + userData?.featuredWork[index].image}
+                                    alt="Previous Work"
+                                    className="w-full h-full object-cover rounded-md"
+                                />
+
+                                {/* Hover Effect: Delete Icon with Black Opacity */}
+                                <div className="absolute inset-0 bg-red-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => {
+                                            handleUserData("featuredWork", "delete", userData?.featuredWork[index]._id, {})
+                                        }}
+                                        className="text-white text-3xl cursor-pointer"
+                                    >
+                                        <Trash
+                                            className="text-red-500"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     ))}
 
                     {/* Last Box with Plus Icon */}
                     {!isPreview && (
-                        <div className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer">
+                        <div
+                            className="flex items-center justify-center border border-dashed w-full aspect-[4/3] bg-transparent rounded-md cursor-pointer"
+                            onClick={() => fileInputRef2.current.click()} // Click trigger
+                        >
+                            <input
+                                type="file"
+                                className="hidden"
+                                ref={fileInputRef2}
+                                onChange={(e) => {
+                                    handleFileChange(e, "featuredWork");
+                                }} // Handle file selection
+                                disabled={uploadLoading}
+                            />
                             <span className="text-3xl text-gray-600">+</span>
                         </div>
                     )}
@@ -201,23 +381,38 @@ export default function CreatorDashboard({
             </div>
         );
     };
-
-
-    const StatCard = ({ number, label }: { number: number; label: string }) => {
+    const StatCard = ({ value, title, _id }: { value: number; title: string; _id: string }) => {
         return (
-            <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                <h1 className="text-lg font-semibold">{number.toLocaleString()}</h1>
-                <p className="text-gray-600">{label}</p>
+            <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md relative">
+                <button
+                    onClick={() => {
+                        handleUserData("stats", "delete", _id, {})
+                    }}
+                    className="absolute top-2 right-2"
+                >
+                    <Trash size={16} />
+                </button>
+                <h1 className="text-lg font-semibold">{value?.toLocaleString()}</h1>
+                <p className="text-gray-600">{title}</p>
             </div>
         );
     };
-
-    const TestimonialCard = ({ text, name, position }: { text: string; name: string; position: string }) => {
+    const TestimonialCard = ({ text, name, position, image, _id }: { text: string; name: string; position: string; image: string, _id: string }) => {
         return (
-            <div className="flex flex-col bg-white shadow-sm p-4 rounded-md">
+            <div className="flex flex-col bg-white shadow-sm p-4 rounded-md relative">
+                <button
+                    onClick={() => {
+                        handleUserData("testimonials", "delete", _id, {})
+                    }}
+                    className="absolute top-2 right-2"
+                >
+                    <Trash size={16} />
+                </button>
                 <p>&quot;{text}&quot;</p>
                 <div className="flex items-center mt-6 ml-auto">
-                    <img src="/images/profile.png" alt={name} className="w-12 h-12 rounded-full" />
+                    <img alt={name} className="w-12 h-12 rounded-full"
+                        src={process.env.NEXT_PUBLIC_SERVER_URL + image}
+                    />
                     <div className="flex flex-col ml-4">
                         <h1 className="font-semibold">{name}</h1>
                         <p className="text-sm text-gray-500">{position}</p>
@@ -226,20 +421,24 @@ export default function CreatorDashboard({
             </div>
         );
     };
+    const testRef = React.useRef(null);
+    const [testimProfile, setTestimProfile] = React.useState(null);
+    const [testimName, setTestimName] = React.useState("");
+    const [testimPosition, setTestimPosition] = React.useState("");
+    const [testimText, setTestimText] = React.useState("");
+
+    const handleTestimonial = () => {
+        const formData = new FormData();
+        formData.append("image", testimProfile);
+        formData.append("name", testimName);
+        formData.append("position", testimPosition);
+        formData.append("text", testimText);
+
+        handleUserData("testimonials", "add", "", formData);
+    }
 
     const TestimonialsDiv = () => {
-        const testimonials = [
-            {
-                text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit.",
-                name: "John Doe",
-                position: "CEO, Company Name",
-            },
-            {
-                text: "Cum tempora iusto officia nulla omnis aspernatur fugit minima nesciunt.",
-                name: "Jane Smith",
-                position: "CTO, Another Company",
-            },
-        ];
+        const testimonials = userData?.testimonials || [];
 
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
@@ -248,48 +447,172 @@ export default function CreatorDashboard({
                     {testimonials.map((item, index) => (
                         <TestimonialCard key={index} {...item} />
                     ))}
+
+                    {!isPreview && <div className="flex flex-col bg-white shadow-sm p-4 rounded-md">
+                        <Input.TextArea
+                            placeholder="Enter Testimonial"
+                            className="w-full"
+                            size="small"
+                            value={testimText}
+                            onChange={(e) => setTestimText(e.target.value)}
+                        />
+                        <div className="flex items-center mt-6 ml-auto">
+                            <div
+                                className="rounded-full w-12 h-12 flex items-center justify-center cursor-pointer border border-dashed"
+                                onClick={() => testRef.current.click()}
+                            >
+                                <input
+                                    type="file" className="hidden"
+                                    ref={testRef}
+                                    onChange={(e) => {
+                                        setTestimProfile(e.target.files[0]);
+                                    }}
+                                />
+                                {testimProfile ? (
+                                    <img
+                                        src={URL.createObjectURL(testimProfile)}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                ) : <Plus
+                                    size={24}
+                                    className="text-gray-400"
+                                />}
+                            </div>
+                            <div className="flex flex-col ml-2">
+                                <Input
+                                    placeholder="Enter Name"
+                                    className="w-full"
+                                    size="small"
+                                    value={testimName}
+                                    onChange={(e) => setTestimName(e.target.value)}
+                                />
+                                <Input
+                                    placeholder="Enter Position"
+                                    className="w-full"
+                                    size="small"
+                                    value={testimPosition}
+                                    onChange={(e) => setTestimPosition(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div
+                            className="max-w-[150px] ml-auto mt-4"
+                        >
+                            <Button
+                                size="xs"
+                                onClick={handleTestimonial}
+                                className="bg-primary-700 text-white hover:bg-primary-800 active:bg-primary-900">
+                                Add Testimonial
+                            </Button>
+                        </div>
+                    </div>}
                 </div>
             </div>
         );
     };
 
+    const [statNumber, setStatNumber] = useState(0);
+    const [statLabel, setStatLabel] = useState("");
+
+    const handleState = () => {
+        handleUserData("stats", "add", "", {
+            value: statNumber,
+            title: statLabel
+        });
+
+        setStatNumber(0);
+        setStatLabel("");
+    }
+
     const StatBlockDiv = () => {
-        const stats = [
-            { number: 1200, label: "#Jobs Completed" },
-            { number: 500, label: "Happy Clients" },
-            { number: 300, label: "Projects Delivered" },
-            { number: 50, label: "Awards Won" },
-        ];
+        const stats = userData?.stats || [];
 
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Statistics</h2>
                 <div className="flex gap-4 mt-4">
-                    {stats.map((stat, index) => (
+                    {stats?.map((stat, index) => (
                         <StatCard key={index} {...stat} />
                     ))}
+
+                    {!isPreview && <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
+                        <Input
+                            placeholder="Enter Number"
+                            className="w-full"
+                            size="small"
+                            value={statNumber}
+                            onChange={(e) => setStatNumber(e.target.value)}
+                        />
+                        <Input
+                            placeholder="Enter Label"
+                            className="w-full"
+                            size="small"
+                            value={statLabel}
+                            onChange={(e) => setStatLabel(e.target.value)}
+                        />
+                        <div
+                            className="max-w-[150px] ml-auto mt-4"
+                        >
+                            <Button
+                                size="xs"
+                                onClick={handleState}
+                                className="bg-primary-700 text-white hover:bg-primary-800 active:bg-primary-900">
+                                Add Stat
+                            </Button>
+                        </div>
+                    </div>}
                 </div>
             </div>
         );
     };
 
+    const [content, setContent] = useState("");
+    const [eye, setEye] = useState(false);
     const TextBlockDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                <h2 className="uppercase mb-4">About Me</h2>
-                <p className="text-gray-600 text-sm">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
-                    veniam saepe officiis fugiat quidem maxime, laudantium eligendi pariatur
-                    ex soluta animi aut nihil commodi ipsum quisquam perferendis aperiam.
-                    Facilis eligendi nisi ullam voluptates blanditiis sed rerum consectetur
-                    maiores rem hic, soluta quisquam, facere numquam aliquam repellat
-                    doloremque delectus? Cum fugit voluptatibus quod, animi repellat amet
-                    obcaecati beatae excepturi corrupti esse vel neque quis, magni, odit
-                    distinctio? Ducimus perspiciatis molestias quam id rerum, placeat
-                    exercitationem assumenda, distinctio, hic illo laborum. Impedit totam
-                    odit rem at esse magnam saepe velit, aperiam molestias quas natus
-                    delectus et itaque, labore ipsum ad aspernatur. Facere!
-                </p>
+                <div className="flex justify-between">
+                    <h2 className="uppercase mb-4">About Me</h2>
+                    <button
+                        onClick={() => {
+                            setEye(!eye)
+                            setContent(userData?.textBlock[0]?.description)
+                        }}
+                        className="text-gray-600 text-sm"
+                    >
+                        {eye ? "Preview" : "Edit"}
+                    </button>
+                </div>
+                {
+                    (isPreview || !eye) ? <p className="text-gray-600 text-sm">
+                        {userData?.textBlock[0]?.description}
+                    </p> :
+                        <>
+                            <Input.TextArea
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                className="text-gray-600 text-sm"
+                                autoSize={{ minRows: 4, maxRows: 10 }}
+                            />
+                            <div className="max-w-[200px] ml-auto">
+                                <Button
+                                    size="small"
+                                    variant="primary"
+                                    className="text-sm mt-2"
+                                    onClick={() => {
+                                        if (userData?.textBlock.length === 0) {
+                                            handleUserData("textBlock", "add", '', { description: content })
+                                        } else {
+                                            handleUserData("textBlock", "update", userData?.textBlock[0]?._id, { description: content })
+                                        }
+                                    }}
+                                >
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </>
+                }
             </div>
         );
     };
@@ -307,39 +630,34 @@ export default function CreatorDashboard({
                     <div>
                         <div className="relative">
                             {/* Cover Image */}
-                            <div className="relative w-full h-60">
-                                <img
-                                    src="/images/wallpaper.png"
-                                    alt="Cover"
-                                    className="w-full h-full object-cover rounded-md"
-                                />
+                            <div className="relative w-full h-48 sm:h-72">
+                                <img src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
                             </div>
 
                             {/* Profile Section */}
                             <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
                                 {/* Profile Picture and Info */}
                                 <div className="flex items-end space-x-4">
-                                    <div className="rounded-sm overflow-hidden">
-                                        <img
-                                            src="/images/profile_2.png"
-                                            alt="Profile"
-                                            className="w-full h-full object-cover"
-                                        />
+                                    <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
+                                        <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
-
                                     {/* Name and Socials */}
                                     <div className="flex flex-col">
-                                        <h2 className="text-2xl font-semibold">Andrew Bishop</h2>
+                                        <h2 className="text-2xl font-semibold">
+                                            {userData?.name || "Creator Name"}
+                                        </h2>
                                         <div className="flex space-x-3 mt-1 text-gray-500">
-                                            <a href="#" className="hover:text-gray-700">
-                                                🔗
-                                            </a>
-                                            <a href="#" className="hover:text-gray-700">
-                                                🎙
-                                            </a>
-                                            <a href="#" className="hover:text-gray-700">
-                                                🌎
-                                            </a>
+                                            {
+                                                userData?.socialMediaLinks.map((link: any, index: number) => (
+                                                    <a key={index} href={link.link} target="_blank" rel="noreferrer">
+                                                        <img
+                                                            src={`/icons/${link.platform}.svg`}
+                                                            alt={link.platform}
+                                                            className="w-6 h-6"
+                                                        />
+                                                    </a>
+                                                ))
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -360,42 +678,27 @@ export default function CreatorDashboard({
 
                     {/* Bio */}
                     <p className="mt-24 text-gray-600 text-sm">
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                        Voluptates veniam saepe officiis fugiat quidem maxime, laudantium
-                        eligendi pariatur ex soluta animi aut nihil commodi ipsum quisquam
-                        perferendis aperiam. Facilis eligendi nisi ullam voluptates
-                        blanditiis sed rerum consectetur maiores rem hic, soluta quisquam,
-                        facere numquam aliquam repellat doloremque delectus? Cum fugit
-                        voluptatibus quod, animi repellat amet obcaecati beatae excepturi
-                        corrupti esse vel neque quis, magni, odit distinctio? Ducimus
-                        perspiciatis molestias quam id rerum, placeat exercitationem
-                        assumenda, distinctio, hic illo laborum. Impedit totam odit rem at
-                        esse magnam saepe velit, aperiam molestias quas natus delectus et
-                        itaque, labore ipsum ad aspernatur. Facere!{" "}
+                        {userData?.bio || "Creator Bio"}
                     </p>
 
                     {/* Tags */}
                     <div className="mt-4 flex space-x-2">
-                        <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                            #Marketing
-                        </span>
-                        <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                            #Design
-                        </span>
-                        <span className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                            #Tech
-                        </span>
+                        {userData?.tags.map((tag: string, index: number) => (
+                            <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
+                                {tag}
+                            </span>
+                        ))}
                     </div>
 
                     {/* Sections */}
                     <div className="mt-12 space-y-6">
-                        {showSections.services && <ServicesDiv />}
-                        {showSections.partnerships && <PartnershipsDiv />}
-                        {showSections.work && <WorkDiv />}
-                        {showSections.linkedin && <LinkedInDiv />}
-                        {showSections.testimonials && <TestimonialsDiv />}
-                        {showSections.textBlock && <TextBlockDiv />}
-                        {showSections.statBlock && <StatBlockDiv />}
+                        {showSections.services && ServicesDiv()}
+                        {showSections.partnerships && PartnershipsDiv()}
+                        {showSections.work && WorkDiv()}
+                        {showSections.linkedin && LinkedInDiv()}
+                        {showSections.testimonials && TestimonialsDiv()}
+                        {showSections.textBlock && TextBlockDiv()}
+                        {showSections.statBlock && StatBlockDiv()}
                     </div>
 
                     {/* Add a section */}

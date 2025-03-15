@@ -3,10 +3,14 @@
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import api from "@/utils/axiosInstance";
+import { toast } from "sonner";
+import { Spin } from "antd";
+
 
 interface SignupFormProps {
     userType?: "creator" | "brand";
@@ -25,6 +29,8 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
         password: '',
     });
 
+    const [loading, setLoading] = useState(false);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setInputs({
@@ -33,10 +39,31 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
         });
     };
 
-    const submitData = () => {
-        router.push('/profile-setup');
-        console.log(inputs);
+    const submitData = async (e: React.FormEvent) => {
+        e.preventDefault(); // Prevent form from reloading the page
+        setLoading(true);
+        try {
+            const response = await api.post("/users/register", {
+                email: inputs.email,
+                password: inputs.password,
+                name: inputs.fullName,
+                userType,
+            });
+            if (response.status === 201) {
+                toast.success(response.data.message, {
+                    position: "top-center",
+                });
+                router.push("/profile-setup");
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
     return (
         <div>
@@ -62,16 +89,26 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
                     placeholder="john.doe@example.com"
                     required
                 />
-                <Input
-                    name="password"
-                    label="Password"
-                    type="password"
-                    value={inputs.password}
-                    onChange={handleChange}
-                    placeholder="********"
-                    required
-                />
+                <div className="relative">
+                    <Input
+                        name="password"
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        value={inputs.password}
+                        onChange={handleChange}
+                        placeholder="********"
+                        required
+                    />
+                    <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute top-1/3 inset-y-0 right-3 flex items-center text-gray-500"
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
                 <Button
+                    loading={loading}
                     onClick={submitData}
                     type="submit" variant="primary" icon={<ArrowRight size={16} />}
                 >
@@ -83,6 +120,8 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
                 <Button variant="outline" socialMediaIcon={<Image src="/icons/google.svg" alt="Google" width={24} height={24} />}>Sign up with Google</Button>
                 <Button variant="outline" socialMediaIcon={<Image src="/icons/linkedin.svg" alt="LinkedIn" width={24} height={24} />}>Sign up with LinkedIn</Button>
             </div>
+
+            <center>{loading && <Spin size="large" />}</center>
 
             <p className="text-neutral-600 text-center mt-12">
                 Already have an account? <Link href={'/login'} className="text-primary-700 font-bold">Sign in</Link>

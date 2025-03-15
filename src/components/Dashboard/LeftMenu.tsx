@@ -1,204 +1,93 @@
 /* eslint-disable @next/next/no-img-element */
 import {
-  Inbox,
-  Store,
-  Flag,
-  Calendar,
-  AlignCenter,
-  GalleryHorizontal,
-  User,
-  BriefcaseBusiness,
-  Bell,
-  LogOut,
-  Menu as BurgerIcon,
-  X as CloseIcon,
+  Inbox, Store, Flag, Calendar, AlignCenter, GalleryHorizontal, User,
+  BriefcaseBusiness, Bell, LogOut, Menu as BurgerIcon
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
-import { Drawer, Button } from "antd"; // Importing Ant Design Drawer and Button
+import { useState, useEffect } from "react";
+import { Drawer } from "antd";
 
 export const LeftMenu = () => {
   const pathname = usePathname();
-  const [userType, setUserType] = React.useState<string | null>(null);
+  const [userData, setUserData] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
+      setUserData(JSON.parse(localStorage.getItem("user") || "{}"));
       setUserType(localStorage.getItem("userType"));
     }
   }, []);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false); // For controlling Drawer visibility
-
   const menuItems = [
-    {
-      name: "Inbox",
-      icon: <Inbox size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard/inbox",
-    },
-    {
-      name: userType === "brand" ? "Brandfront" : "Storefront",
-      icon: <Store size={20} className="mr-2" />,
-      underline: true,
-      link: "/dashboard",
-    },
-    {
-      name: "Campaigns",
-      icon: <Flag size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard/campaigns",
-    },
-    {
-      name: "Calendar",
-      icon: <Calendar size={20} className="mr-2" />,
-      underline: true,
-      link: "/dashboard/calendar",
-    },
-    {
-      name: "Text Post Maker",
-      icon: <AlignCenter size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard/post-maker",
-    },
-    {
-      name: "Carousel Maker",
-      icon: <GalleryHorizontal size={20} className="mr-2" />,
-      underline: true,
-      link: "/dashboard/carousel-maker",
-    },
-    userType === "brand" && {
-      name: "Creators",
-      icon: <User size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard/creators",
-    },
-    userType === "creator" && {
-      name: "Brands",
-      icon: <BriefcaseBusiness size={20} className="mr-2" />,
-      underline: false,
-      link: "/dashboard/brands",
-    },
-  ];
+    { name: "Inbox", icon: Inbox, link: "/dashboard/inbox" },
+    { name: userType === "brand" ? "Brandfront" : "Storefront", icon: Store, link: "/dashboard", underline: true },
+    { name: "Campaigns", icon: Flag, link: "/dashboard/campaigns" },
+    { name: "Calendar", icon: Calendar, link: "/dashboard/calendar", underline: true },
+    { name: "Text Post Maker", icon: AlignCenter, link: "/dashboard/post-maker" },
+    { name: "Carousel Maker", icon: GalleryHorizontal, link: "/dashboard/carousel-maker", underline: true },
+    { name: "Creators", icon: User, link: "/dashboard/creators" },
+    { name: "Brands", icon: BriefcaseBusiness, link: "/dashboard/brands" },
+  ]
 
   const logout = () => {
     localStorage.removeItem("userType");
     window.location.href = "/login";
   };
 
-  // Function to show the Drawer (Mobile)
-  const showDrawer = () => {
-    setDrawerVisible(true);
-  };
-
-  // Function to close the Drawer (Mobile)
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-  };
+  const renderMenuItems = () => menuItems.map(({ name, icon: Icon, link, underline }, index) => (
+    <div key={index}>
+      <Link href={link} className="w-full">
+        <li className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === link ? "bg-neutral-50" : ""}`}>
+          <Icon size={20} className="mr-2" />
+          {name}
+        </li>
+      </Link>
+      {underline && <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>}
+    </div>
+  ));
 
   return (
     <>
-      {/* Mobile Hamburger Menu */}
-      <div className="sm:hidden bg-white border-b flex p-8 justify-between items-center">
-        <BurgerIcon
-          size={24}
-          className="cursor-pointer"
-          onClick={showDrawer} // Show Drawer on click
-        />
-        <Bell size={20} />
+      {/* Mobile Menu */}
+      <div className="sm:hidden bg-white border-b flex p-8 justify-between items-start">
+        <BurgerIcon size={24} className="cursor-pointer" onClick={() => setDrawerVisible(true)} />
       </div>
 
-      {/* Drawer for Mobile Version */}
-      <Drawer
-        title="Menu"
-        placement="left"
-        visible={drawerVisible}
-        onClose={closeDrawer} // Close Drawer
-        width={250} // You can adjust the width of the Drawer
-        closable={false} // Prevent the close button
-        bodyStyle={{ padding: 0 }} // Remove inner padding
-      >
-        <ul className="w-full">
-          {menuItems.map(
-            (item, index) =>
-              item && ( // Check if item exists (for conditional rendering)
-                <div key={index}>
-                  <Link href={item.link || ""} key={index} className="w-full">
-                    <li
-                      key={index}
-                      className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === item.link ? "bg-neutral-50" : ""
-                        }`}
-                    >
-                      {item.icon && item.icon}
-                      {item.name}
-                    </li>
-                  </Link>
-                  {item.underline && (
-                    <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
-                  )}
-                </div>
-              )
-          )}
-        </ul>
-
-        {/* Logout */}
+      {/* Drawer for Mobile */}
+      <Drawer title={
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold">B2B Creator</h1>
+          <Bell size={16} />
+        </div>
+      } placement="left" open={drawerVisible} onClose={() => setDrawerVisible(false)} width={300} closable={false} bodyStyle={{ padding: 0 }}>
+        <ul className="w-full">{renderMenuItems()}</ul>
         <div className="flex items-center justify-around mt-auto py-8">
-          <img src="/images/profile.png" alt="" />
+          <img src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
           <div className="flex flex-col">
-            <span className="font-bold">Andrew Bishop</span>
-            <span className="text-xs text-neutral-500">test@example.com</span>
+            <span className="font-bold">{userData?.name}</span>
+            <span className="text-xs text-neutral-500">{userData?.email}</span>
           </div>
-          <LogOut
-            size={20}
-            className="cursor-pointer"
-            onClick={logout}
-          />
+          <LogOut size={20} className="cursor-pointer" onClick={logout} />
         </div>
       </Drawer>
 
-      {/* Regular Sidebar (Desktop Version) */}
-      <div className="sm:flex flex-col w-[20%] px-[16px] max-h-screen bg-white border-r border-gray-200 hidden sm:block">
+      {/* Desktop Sidebar */}
+      <div className="sm:flex flex-col  min-w-[20%] max-w-[20%] w-[20%] px-[16px] max-h-screen bg-white border-r border-gray-200 hidden sm:block">
         <div className="py-6 flex items-center justify-between mt-6">
           <h1 className="text-lg font-bold">B2B Creator</h1>
         </div>
         <div className="flex flex-col items-start h-full">
-          <ul className="w-full">
-            {menuItems.map((item, index) => {
-              const isActive = pathname === item.link;
-
-              return (
-                <div key={index}>
-                  <Link href={item.link || ""} key={index} className="w-full">
-                    <li
-                      key={index}
-                      className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${isActive ? "bg-neutral-50" : ""
-                        }`}
-                    >
-                      {item.icon && item.icon}
-                      {item.name}
-                    </li>
-                  </Link>
-                  {item.underline && (
-                    <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
-                  )}
-                </div>
-              );
-            })}
-          </ul>
+          <ul className="w-full">{renderMenuItems()}</ul>
         </div>
-
         <div className="flex items-center justify-around mt-auto py-8">
-          <img src="/images/profile.png" alt="" />
+          <img src={userData?.profileImage} alt="Profile" className="w-10 h-10 rounded-full" />
           <div className="flex flex-col">
-            <span className="font-bold">Andrew Bishop</span>
-            <span className="text-xs text-neutral-500">test@example.com</span>
+            <span className="font-bold text-sm">{userData?.name}</span>
           </div>
-          <LogOut
-            size={20}
-            className="cursor-pointer"
-            onClick={logout}
-          />
+          <LogOut size={20} className="cursor-pointer" onClick={logout} />
         </div>
       </div>
     </>

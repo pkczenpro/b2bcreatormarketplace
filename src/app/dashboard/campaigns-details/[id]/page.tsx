@@ -1,12 +1,9 @@
-/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { Breadcrumb } from "antd";
-import { DotIcon } from "lucide-react";
 import React from "react";
-import { Image, Mic, Text, Video } from "lucide-react";
 import Button from "@/components/Button/Button";
 import { motion } from "framer-motion";
 import Tabs from "@/components/Tabs/Tabs";
@@ -17,17 +14,37 @@ import { CreatorTable } from "@/components/BrandTables/Creators";
 import { ContentTable } from "@/components/BrandTables/Content";
 import Link from "next/link";
 import { toast } from "sonner";
+import api from "@/utils/axiosInstance";
+import { useParams } from "next/navigation";
+import moment from "moment";
 
 type CampaignDetailsProps = object;
 
 export default function CampaignDetails({ }: CampaignDetailsProps) {
     const [userType, setUserType] = React.useState<string | null>(null);
+    const { id } = useParams();
+    React.useEffect(() => {
+        if (typeof window !== "undefined") {
+            setUserType(localStorage.getItem("userType"));
+        }
+    }, []);
+
+    const [campaign, setCampaign] = React.useState(null);
+    const getCampaign = async () => {
+        try {
+            const res = await api.get("/campaigns/" + id);
+            console.log(res.data); // Log the data to ensure it's being fetched correctly
+            setCampaign(res.data);
+        } catch (e) {
+            console.log("Error fetching campaign:", e);
+            toast.error("Failed to load campaign data");
+        }
+    };
+
 
     React.useEffect(() => {
-      if (typeof window !== "undefined") {
-        setUserType(localStorage.getItem("userType"));
-      }
-    }, []);
+        getCampaign();
+    }, [id]);
 
     const campaignOverview = () => {
         return (
@@ -114,53 +131,47 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
         return (
             <>
                 <p className="text-md mt-4 text-neutral-600 font-regular">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt vel temporibus illo! Maxime doloribus deleniti nulla id nisi perspiciatis voluptate libero! Odio ipsum sed tempore.
+                    {campaign?.description}
                 </p>
 
                 <h3 className="text-h6 font-bold mt-8">
                     Goals and Deliverables
                 </h3>
 
-                <ul>
-                    <li className="flex items-center mt-2">
-                        <DotIcon className="w-6 h-6 " />
-                        <p className="text-md ml-2">Goal 1</p>
-                    </li>
-                    <li className="flex items-center mt-2">
-                        <DotIcon className="w-6 h-6 " />
-                        <p className="text-md ml-2">Goal 2</p>
-                    </li>
-                    <li className="flex items-center mt-2">
-                        <DotIcon className="w-6 h-6 " />
-                        <p className="text-md ml-2">Goal 3</p>
-                    </li>
-                </ul>
+                <p>
+                    {campaign?.goalsAndDeliverables}
+                </p>
 
                 <div className="flex mt-8">
                     <h3>Target Audience</h3>
                     <div className="flex space-x-2 ml-4">
-                        <Image className="text-neutral-600" />
-                        <Video className="text-neutral-600" />
-                        <Mic className="text-neutral-600" />
-                        <Text className="text-neutral-600" />
+                        {campaign?.contentTypes?.map((type: string, index: number) => (
+                            <span key={index} className="bg-neutral-50 text-neutral-600 border px-4 py-1 border-neutral-600 rounded-full text-text-small">
+                                {type}
+                            </span>
+                        ))}
                     </div>
                 </div>
 
                 {/* tags */}
                 <div className="flex mt-4">
                     <div className="flex space-x-2">
-                        <span className="bg-neutral-50 text-neutral-600 border px-4 py-1 border-neutral-600 rounded-full text-text-small">Tag 1</span>
-                        <span className="bg-neutral-50 text-neutral-600 border px-4 py-1 border-neutral-600 rounded-full text-text-small">Tag 2</span>
-                        <span className="bg-neutral-50 text-neutral-600 border px-4 py-1 border-neutral-600 rounded-full text-text-small">Tag 3</span>
+                        {campaign?.tags.map((tag: string, index: number) => (
+                            <span key={index} className="bg-neutral-50 text-neutral-600 border px-4 py-1 border-neutral-600 rounded-full text-text-small">
+                                {tag}
+                            </span>
+                        ))}
                     </div>
-                </div></>
+                </div>
+
+            </>
         )
     }
 
     const campaignCreators = () => {
         return (
             <div className="mt-4">
-                <CreatorTable />
+                <CreatorTable campaign={campaign} />
             </div>
         )
     }
@@ -180,24 +191,27 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 <Breadcrumb
                     items={[
                         {
-                            title: "Campaigns", // todo: replace with actual brand name
+                            title: campaign?.brandId.name,
+                            href: "/dashboard/brand-preview/" + campaign?.brandId._id
                         },
                         {
-                            title: 'Campaign Name', // todo: replace with actual campaign name
+                            title: campaign?.title,
                         }
                     ]}
                 />
                 <div className="mt-4 flex flex-col w-full px-8 py-8 bg-white rounded-lg shadow-sm">
-                    <motion.div
+                    {campaign ? <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        <img src="/images/campaign.png" alt="campaign" />
+                        {campaign?.coverImage && <img src={campaign?.coverImage} alt="campaign"
+                            className="w-full h-[200px] object-cover rounded-md"
+                        />}
                         <div className="flex items-center mt-4">
                             <h1 className="text-2xl font-bold">
-                                Campaign Name
+                                {campaign?.title}
                             </h1>
                             <Link
                                 className="ml-auto max-w-[200px]"
@@ -220,10 +234,12 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             </Link>
                         </div>
                         <p className="text-md mt-2">
-                            06th August 2024 - 18th August 2020
+                            {moment(campaign?.startDate).format("MM/DD/YYYY")} - {moment(campaign?.endDate).format("MM/DD/YYYY")}
                         </p>
                         <div className="mt-4">
-                            {userType === "creator" ? campaignAbout() :
+                            {(userType === "creator" || !campaign?.isOwner) ? (
+                                campaignAbout()
+                            ) : (
                                 <Tabs
                                     localStorageKey="campaignDetails"
                                     tabs={[
@@ -248,11 +264,11 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                             content: campaignContent()
                                         },
                                     ]}
-
                                 />
-                            }
+                            )}
+
                         </div>
-                    </motion.div>
+                    </motion.div> : <div>Loading...</div>}
                 </div>
             </div>
         </div>

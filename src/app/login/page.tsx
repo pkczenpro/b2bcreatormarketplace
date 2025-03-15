@@ -26,8 +26,11 @@ export default function Login() {
     return (
         <div className="p-6 flex md:flex-row sm:flex-col flex-col justify-between items-center min-h-[100vh]">
             {/* Tabs Section */}
-            <div className="w-screen px-32">
-                <Tabs tabs={tabs} />
+            <div className="w-full px-8 md:px-16 lg:px-32 mb-8 sm:mb-0">
+                <Tabs
+                    tabs={tabs}
+                    localStorageKey="authTab"
+                />
             </div>
 
             {/* Image Section */}

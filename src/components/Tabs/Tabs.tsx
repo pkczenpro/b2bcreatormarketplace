@@ -19,8 +19,10 @@ const Tabs: React.FC<TabsProps> = ({ tabs, localStorageKey }) => {
   // Retrieve the last active tab from localStorage or default to the first tab
   const [activeTab, setActiveTab] = useState<number>(() => {
     if (!localStorageKey) return tabs[0].id;
+
     const storedTab = localStorage.getItem(LOCAL_STORAGE_KEY);
     return storedTab ? parseInt(storedTab, 10) : tabs[0].id;
+
   });
 
   // Update localStorage when activeTab changes

@@ -13,6 +13,7 @@ interface ProfileCardPreviewProps {
   website: string | null;
   tags?: string[];
   shortIntroduction?: string;
+
 }
 
 const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
@@ -27,9 +28,13 @@ const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
   shortIntroduction,
 }) => {
   return (
-    <div className="bg-neutral-50 w-[60vw] h-[95vh] ml-12 rounded-lg flex items-center justify-center">
+    <div className={
+      `bg-neutral-50 w-full h-[45vh] ml-0 sm:ml-12 rounded-lg flex items-center justify-center
+      mb-6 sm:mt-0 sm:h-[95vh]
+      `
+    }>
       {/* Main Card */}
-      <div className="bg-white w-[80%] rounded-md flex flex-col relative p-4 shadow-md">
+      <div className="bg-white w-[80%] rounded-md flex flex-col relative p-4 shadow-md m-8">
         <div className="relative">
           {/* Cover Image */}
           <div
