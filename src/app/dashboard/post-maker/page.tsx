@@ -106,7 +106,8 @@ export default function PostMaker({ }: PostMakerProps) {
     };
 
     const linkedInClientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-    const redirectUri = "http://localhost:3000/auth/linkedin/access_token_callback"; // Change in production
+    const domain = NEXT_PUBLIC_SERVER_URL;
+    const redirectUri = "https://b2bcreatormarketplace.vercel.app/auth/linkedin/access_token_callback"; // Change in production
 
     const handleLogin = () => {
         const scopes = [

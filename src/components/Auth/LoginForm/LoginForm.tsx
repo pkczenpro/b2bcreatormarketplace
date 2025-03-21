@@ -68,7 +68,7 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
     const linkedInClientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-    const redirectUri = "http://localhost:3000/auth/linkedin/callback"; // Change in production
+    const redirectUri = "https://b2bcreatormarketplace.vercel.app/auth/linkedin/callback"; // Change in production
 
     const handleLogin = () => {
         const scopes = [
@@ -84,7 +84,7 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
 
     const handleGoogleAuth = () => {
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        const redirectUri = "http://localhost:3000/auth/google/callback"; // Update for production
+        const redirectUri = "https://b2bcreatormarketplace.vercel.app/auth/google/callback"; // Update for production
         const scope = "openid email profile";
         const responseType = "code";
 
