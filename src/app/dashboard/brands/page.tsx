@@ -3,7 +3,7 @@
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import api from "@/utils/axiosInstance";
-import { Badge, Input, Table, Checkbox, Button } from "antd";
+import { Input, Table, Button } from "antd";
 import { Search, Compass, Earth } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
@@ -117,13 +117,13 @@ export default function Dashboard() {
                                         dataIndex: "name",
                                         render: (name, record) => (
                                             <div className="flex items-center">
-                                                <img src={record.image} alt="logo" className="w-12 h-12 mr-2" />
+                                                <img loading="lazy" src={record.image} alt="logo" className="w-12 h-12 mr-2" />
                                                 <div>
                                                     <div className="flex items-center">
                                                         <Link href={`/dashboard/brands/${record.id}`} className="mr-2">
                                                             <span className="font-semibold text-gray-800">{name}</span>
                                                         </Link>
-                                                        <img src="/icons/linkedin.svg" alt="" className="w-5 h-5 mr-2" />
+                                                        <img loading="lazy" src="/icons/linkedin.svg" alt="" className="w-5 h-5 mr-2" />
                                                         <Earth className="w-5 h-5 text-neutral-500" />
                                                     </div>
                                                     <p className="text-sm text-gray-500">{record.description}</p>

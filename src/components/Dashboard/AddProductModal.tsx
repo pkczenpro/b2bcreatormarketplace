@@ -127,7 +127,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
           {formData.productImages.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {formData.productImages.map((file, index) => (
-                <img key={index} src={URL.createObjectURL(file)} alt="Product Image" className="w-full h-20 object-cover rounded-md" />
+                <img loading="lazy" key={index} src={URL.createObjectURL(file)} alt="Product Image" className="w-full h-20 object-cover rounded-md" />
               ))}
             </div>
           )}

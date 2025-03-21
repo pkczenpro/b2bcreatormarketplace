@@ -20,14 +20,16 @@ const Tabs: React.FC<TabsProps> = ({ tabs, localStorageKey }) => {
   const [activeTab, setActiveTab] = useState<number>(() => {
     if (!localStorageKey) return tabs[0].id;
 
-    const storedTab = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return storedTab ? parseInt(storedTab, 10) : tabs[0].id;
-
+    if (typeof window !== "undefined") { // Ensure we're in a browser environment
+      const storedTab = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return storedTab ? parseInt(storedTab, 10) : tabs[0].id;
+    }
+    return tabs[0].id;
   });
 
   // Update localStorage when activeTab changes
   useEffect(() => {
-    if (localStorageKey) {
+    if (localStorageKey && typeof window !== "undefined") {
       localStorage.setItem(LOCAL_STORAGE_KEY, activeTab.toString());
     }
   }, [activeTab]);

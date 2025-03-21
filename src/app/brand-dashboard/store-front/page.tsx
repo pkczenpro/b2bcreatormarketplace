@@ -55,7 +55,7 @@ export default function StoreFront({ }: DashboardProps) {
           <div className="border border-neutral-100 mt-6 rounded-md p-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-4 mb-4">
-                <img src="/images/profile.png" alt="" />
+                <img loading="lazy" src="/images/profile.png" alt="" />
                 <span className="text-xl font-bold">Andrew Bishop</span>
               </div>
               <div className="flex items-center space-x-2 text-primary-700 font-medium">
@@ -107,7 +107,7 @@ export default function StoreFront({ }: DashboardProps) {
             Product Catalogue of Omega Web
           </h3>
           <div className="border border-neutral-100 mt-6 p-6 rounded-md flex space-x-4 mb-4">
-            <img src="/images/profile_2.png" alt="" />
+            <img loading="lazy" src="/images/profile_2.png" alt="" />
             <div className="flex flex-col">
               <h2 className="text-h5 font-bold mb-2">Lorem, ipsum.</h2>
               <p className="text-neutral-600">
@@ -121,7 +121,7 @@ export default function StoreFront({ }: DashboardProps) {
             </div>
           </div>
           <div className="border border-neutral-100 mt-6 p-6 rounded-md flex space-x-4">
-            <img src="/images/profile_2.png" alt="" />
+            <img loading="lazy" src="/images/profile_2.png" alt="" />
             <div className="flex flex-col">
               <h2 className="text-h5 font-bold mb-2">Lorem, ipsum.</h2>
               <p className="text-neutral-600">
@@ -156,7 +156,7 @@ export default function StoreFront({ }: DashboardProps) {
                 <div className="relative">
                   {/* Cover Image */}
                   <div className="relative w-full h-60">
-                    <img
+                    <img loading="lazy"
                       src="/images/wallpaper.png"
                       alt="Cover"
                       className="w-full h-full object-cover rounded-md"
@@ -168,7 +168,7 @@ export default function StoreFront({ }: DashboardProps) {
                     {/* Profile Picture and Info */}
                     <div className="flex items-end space-x-4">
                       <div className="rounded-sm overflow-hidden">
-                        <img
+                        <img loading="lazy"
                           src="/images/profile_2.png"
                           alt="Profile"
                           className="w-full h-full object-cover"

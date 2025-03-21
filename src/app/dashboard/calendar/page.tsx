@@ -22,7 +22,7 @@ export default function CalendarApp() {
             const userId = JSON.parse(user)._id;
             if (!userId) return;
 
-            const res = await api.get(`/users/${userId}`);
+            const res = await api.get(`/users/user`);
             setUserData(res.data);
             setEvents(res.data.calendar.map((item) => {
                 return {

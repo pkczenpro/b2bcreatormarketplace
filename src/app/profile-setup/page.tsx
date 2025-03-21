@@ -8,6 +8,7 @@ import ProfileCardPreview from "@/components/ProfileCardPreview/ProfileCardPrevi
 import React from "react";
 import api from "@/utils/axiosInstance";
 import { useRouter } from "next/navigation";
+import { Spin } from "antd";
 
 type ProfileSetupProps = object;
 
@@ -43,6 +44,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [location, setLocation] = useState<string>("Location");
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [coverPicture, setCoverPicture] = useState<string | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [linkedin, setLinkedin] = useState<string>("linkedin.com/in/johndoe");
   const [medium, setMedium] = useState<string>("medium.com/@johndoe");
   const [spotify, setSpotify] = useState<string>(
@@ -83,8 +86,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
         userData.socialMediaLinks.find((item) => item.platform === "otherLinks")
           ?.link || ""
       );
-      setShortIntroduction(userData.bio);
-      setTags(userData.tags);
+      setShortIntroduction(userData.bio === "undefined" ? "" : userData.bio || "");
+      setTags(userData.tags || []);
     }
   }, [userData]);
 
@@ -100,6 +103,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   ) => {
     if (event.target.files) {
       setProfilePicture(URL.createObjectURL(event.target.files[0]));
+      setProfileFile(event.target.files[0]);
     }
   };
 
@@ -108,6 +112,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   ) => {
     if (event.target.files) {
       setCoverPicture(URL.createObjectURL(event.target.files[0]));
+      setCoverFile(event.target.files[0]);
     }
   };
   const [activeId, setActiveId] = useState(1);
@@ -346,38 +351,49 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [loading, setLoading] = useState(false);
   const finishSetup = async () => {
     setLoading(true);
+
     try {
-      const res = await api.post("/users/complete-onboarding", {
-        profileName,
-        location,
-        profileImage: profilePicture,
-        coverImage: coverPicture,
-        socialMediaLinks: [
-          {
-            platform: "linkedin",
-            link: linkedin,
-          },
-          {
-            platform: "medium",
-            link: medium,
-          },
-          {
-            platform: "spotify",
-            link: spotify,
-          },
-          {
-            platform: "website",
-            link: website,
-          },
-          {
-            platform: "otherLinks",
-            link: otherLinks,
-          },
-        ],
-        bio: shortIntroduction,
-        tags,
-        isCompletedOnboarding: true,
+      const formData = new FormData();
+
+      // Append text fields
+      formData.append("profileName", profileName);
+      formData.append("location", location);
+      formData.append("bio", shortIntroduction);
+      formData.append("tags", JSON.stringify(tags)); // For array data, you might need to stringify it
+      formData.append("isCompletedOnboarding", "true");
+
+      // Append social media links as JSON (stringified array)
+      formData.append(
+        "socialMediaLinks",
+        JSON.stringify([
+          { platform: "linkedin", link: linkedin || "" },
+          { platform: "medium", link: medium || "" },
+          { platform: "spotify", link: spotify || "" },
+          { platform: "website", link: website || "" },
+          { platform: "otherLinks", link: otherLinks || "" },
+        ])
+      );
+      console.log(profileFile)
+      console.log(coverFile)
+      // Append files
+      if (profileFile) {
+        formData.append("profileImage",
+          profileFile
+        );
+      }
+      if (coverFile) {
+        formData.append("coverImage",
+          coverFile
+        );
+      }
+
+      // Make the POST request with FormData
+      const res = await api.post("/users/complete-onboarding", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+
       if (res.status === 200) {
         localStorage.setItem("user", JSON.stringify(res.data));
         router.push("/dashboard");
@@ -387,7 +403,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   return (
     <div className="flex flex-col-reverse items-center justify-center bg-white p-4 md:flex-row md:p-6">
       <div className="w-full max-w-lg md:w-[40vw] ml-0 md:ml-24">
@@ -412,7 +429,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               onClick={() => { }}
               size="small"
             >
-              Skip this step
+              Skip this step {loading && <Spin />}
             </Button>
           )}
 
@@ -426,7 +443,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 if (activeId > 1) setActiveId(activeId - 1);
               }}
             >
-              Go Back
+              Go Back {loading && <Spin />}
             </Button>
           )}
 
@@ -438,7 +455,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
               onClick={() => setActiveId(activeId + 1)}
               size="small"
             >
-              Continue
+              Continue {loading && <Spin />}
             </Button>
           ) : (
             <Button
@@ -451,7 +468,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 finishSetup();
               }}
             >
-              Finish Setting Up
+              Finish Setting Up {loading && <Spin />}
             </Button>
           )}
         </div>

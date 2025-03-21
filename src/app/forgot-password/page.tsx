@@ -74,7 +74,7 @@ const ForgotPassword: NextPage = () => {
 
             {/* Image Section */}
             <div className="w-full h-full flex justify-center">
-                <img
+                <img loading="lazy"
                     src="/images/wallpaper.png"
                     alt="Forgot Password"
                     className="object-cover w-screen h-auto sm:h-[95vh] rounded-lg"

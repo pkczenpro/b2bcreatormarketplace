@@ -27,9 +27,19 @@ export default function CreatorDashboard({
         let res = null;
 
         try {
-            res = await api.get(`/users/${userId}`);
+            res = await api.get(`/users/user`);
             setUserData(res.data);
-            console.log(res);
+
+
+            setShowSections({
+                services: res.data.services.length > 0,
+                partnerships: res.data.previousWork.length > 0,
+                work: res.data.featuredWork.length > 0,
+                // linkedin: res.data.linkedin.length > 0,
+                testimonials: res.data.testimonials.length > 0,
+                textBlock: res.data.textBlock.length > 0,
+                statBlock: res.data.stats.length > 0,
+            });
         }
         catch (err) {
             console.log(err);
@@ -41,13 +51,13 @@ export default function CreatorDashboard({
     }, []);
 
     const [showSections, setShowSections] = React.useState({
-        services: true,
-        partnerships: true,
-        work: true,
-        linkedin: true,
-        testimonials: true,
-        textBlock: true,
-        statBlock: true,
+        services: false,
+        partnerships: false,
+        work: false,
+        linkedin: false,
+        testimonials: false,
+        textBlock: false,
+        statBlock: false,
     });
 
     const [data, setData] = useState({});
@@ -103,21 +113,23 @@ export default function CreatorDashboard({
 
                 {/* Service Cards */}
                 {userData?.services.map((service: any, index: number) => (
-                    <div key={index} className="bg-white p-6 flex flex-col rounded-md shadow-sm mb-4">
+                    <div key={index} className="bg-white p-6 flex flex-col rounded-md shadow-sm mb-4 relative">
                         <button
                             onClick={() => {
                                 handleUserData("services", "delete", service._id, {})
                             }}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
                         >
-                            delete
+                            <Trash size={16} />
                         </button>
-                        <button
+                        {/* <button
                             onClick={() => {
                                 handleUserData("services", "update", service._id, { title: "Updated Web Development", price: 120 })
                             }}
+                            className="absolute top-2 right-14"
                         >
-                            update
-                        </button>
+                            <Trash size={16} />
+                        </button> */}
                         <div className="text-[16px] font-bold mb-2">
                             {service.title}
                         </div>
@@ -216,11 +228,16 @@ export default function CreatorDashboard({
                         <div key={index} className="flex items-center justify-center relative group">
                             {/* Responsive Card */}
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
-                                <img
-                                    src={process.env.NEXT_PUBLIC_SERVER_URL + userData?.previousWork[index].image}
+                                <img loading="lazy"
+                                    src={
+                                        userData?.previousWork[index].image?.startsWith("http")
+                                            ? userData?.previousWork[index].image
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.previousWork[index].image
+                                    }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
                                 />
+
 
                                 {/* Hover Effect: Delete Icon with Black Opacity */}
                                 <div className="absolute inset-0 bg-red-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -274,8 +291,12 @@ export default function CreatorDashboard({
                         <div key={index} className="flex items-center justify-center relative group">
                             {/* Responsive Card */}
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
-                                <img
-                                    src={process.env.NEXT_PUBLIC_SERVER_URL + userData?.featuredWork[index].image}
+                                <img loading="lazy"
+                                    src={
+                                        userData?.featuredWork[index].image?.startsWith("http")
+                                            ? userData?.featuredWork[index].image
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.featuredWork[index].image
+                                    }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
                                 />
@@ -324,7 +345,7 @@ export default function CreatorDashboard({
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 {/* Header */}
                 <div className="flex items-center space-x-3 mb-4">
-                    <img src="/icons/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
+                    <img loading="lazy" src="/icons/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
                     <h2 className="uppercase text-lg font-semibold">ANDREWS LINKEDIN</h2>
                 </div>
 
@@ -388,7 +409,7 @@ export default function CreatorDashboard({
                     onClick={() => {
                         handleUserData("stats", "delete", _id, {})
                     }}
-                    className="absolute top-2 right-2"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
                 >
                     <Trash size={16} />
                 </button>
@@ -404,14 +425,14 @@ export default function CreatorDashboard({
                     onClick={() => {
                         handleUserData("testimonials", "delete", _id, {})
                     }}
-                    className="absolute top-2 right-2"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
                 >
                     <Trash size={16} />
                 </button>
                 <p>&quot;{text}&quot;</p>
                 <div className="flex items-center mt-6 ml-auto">
-                    <img alt={name} className="w-12 h-12 rounded-full"
-                        src={process.env.NEXT_PUBLIC_SERVER_URL + image}
+                    <img loading="lazy" alt={name} className="w-12 h-12 rounded-full"
+                        src={image.startsWith("http") ? image : process.env.NEXT_PUBLIC_SERVER_URL + image}
                     />
                     <div className="flex flex-col ml-4">
                         <h1 className="font-semibold">{name}</h1>
@@ -469,7 +490,7 @@ export default function CreatorDashboard({
                                     }}
                                 />
                                 {testimProfile ? (
-                                    <img
+                                    <img loading="lazy"
                                         src={URL.createObjectURL(testimProfile)}
                                         alt="Profile"
                                         className="w-full h-full object-cover rounded-full"
@@ -619,8 +640,8 @@ export default function CreatorDashboard({
 
 
     return (
-        <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16">
-            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16">
+        <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16 w-full">
+            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16 w-full">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -631,7 +652,11 @@ export default function CreatorDashboard({
                         <div className="relative">
                             {/* Cover Image */}
                             <div className="relative w-full h-48 sm:h-72">
-                                <img src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
+                                <img loading="lazy" src={
+                                    userData?.coverImage?.startsWith("http")
+                                        ? userData?.coverImage
+                                        : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
+                                } alt="Cover" className="w-full h-full object-cover rounded-md" />
                             </div>
 
                             {/* Profile Section */}
@@ -639,7 +664,11 @@ export default function CreatorDashboard({
                                 {/* Profile Picture and Info */}
                                 <div className="flex items-end space-x-4">
                                     <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                        <img loading="lazy" src={
+                                            userData?.profileImage?.startsWith("http")
+                                                ? userData?.profileImage
+                                                : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+                                        } alt="Profile" className="w-full h-full object-cover" />
                                     </div>
                                     {/* Name and Socials */}
                                     <div className="flex flex-col">
@@ -650,7 +679,7 @@ export default function CreatorDashboard({
                                             {
                                                 userData?.socialMediaLinks.map((link: any, index: number) => (
                                                     <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                        <img
+                                                        <img loading="lazy"
                                                             src={`/icons/${link.platform}.svg`}
                                                             alt={link.platform}
                                                             className="w-6 h-6"
@@ -678,7 +707,7 @@ export default function CreatorDashboard({
 
                     {/* Bio */}
                     <p className="mt-24 text-gray-600 text-sm">
-                        {userData?.bio || "Creator Bio"}
+                        {userData?.bio}
                     </p>
 
                     {/* Tags */}
@@ -689,6 +718,13 @@ export default function CreatorDashboard({
                             </span>
                         ))}
                     </div>
+
+                    {!isPreview && <div className="mt-8">
+                        <PopupDropdown
+                            showSections={showSections}
+                            setShowSections={setShowSections}
+                        />
+                    </div>}
 
                     {/* Sections */}
                     <div className="mt-12 space-y-6">
@@ -703,12 +739,7 @@ export default function CreatorDashboard({
 
                     {/* Add a section */}
 
-                    {!isPreview && <div className="mt-8">
-                        <PopupDropdown
-                            showSections={showSections}
-                            setShowSections={setShowSections}
-                        />
-                    </div>}
+
 
                 </motion.div>
             </div>

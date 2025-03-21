@@ -6,7 +6,6 @@ import Input from "@/components/Input/Input";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { useState } from "react";
 import api from "@/utils/axiosInstance";
 import { Spin } from "antd";
@@ -72,14 +71,32 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
     const redirectUri = "http://localhost:3000/auth/linkedin/callback"; // Change in production
 
     const handleLogin = () => {
-        const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${linkedInClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${userType}&scope=openid%20profile%20email`;
-        window.location.href = linkedInAuthUrl; // Redirect to LinkedIn login
-    };
+        const scopes = [
+            "openid",
+            "profile",
+            "email",
+            "w_member_social",
+        ].join(" ");
 
+        const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${linkedInClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${userType}&scope=${encodeURIComponent(scopes)}`;
+        window.location.href = linkedInAuthUrl; // Redirect to LinkedIn login };
+    }
+
+    const handleGoogleAuth = () => {
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        const redirectUri = "http://localhost:3000/auth/google/callback"; // Update for production
+        const scope = "openid email profile";
+        const responseType = "code";
+
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+
+        window.open(googleAuthUrl, "_blank", "noopener,noreferrer");
+    };
 
     return (
         <div>
             <h1 className="text-h4 font-bold mb-2 mt-12">Sign in</h1>
+
             <p className="mb-8 text-neutral-600">{paragraph}</p>
 
             <form onSubmit={submitData} className="space-y-6">
@@ -120,10 +137,11 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
                 Forgot password?
             </Link>
 
+
             <div className="mt-6 space-y-3 mb-4">
-                <Button variant="outline"
-                    // onClick={handleLogin}
-                    socialMediaIcon={<Image src="/icons/google.svg" alt="Google" width={24} height={24} />}>Sign in with Google</Button>
+                <Button variant="outline" onClick={handleGoogleAuth} socialMediaIcon={<Image src="/icons/google.svg" alt="Google" width={24} height={24} />}>
+                    Sign in with Google
+                </Button>
                 <Button
                     onClick={handleLogin}
                     variant="outline" socialMediaIcon={<Image src="/icons/linkedin.svg" alt="LinkedIn" width={24} height={24} />}>Sign in with LinkedIn</Button>
@@ -139,3 +157,5 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
 };
 
 export default LoginForm;
+
+

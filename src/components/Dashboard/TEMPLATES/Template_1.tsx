@@ -296,7 +296,7 @@ const Template_1: React.FC<Template1Props> = ({
 
                     <div className="px-12">
                         {data.isHeadImage &&
-                            <img
+                            <img loading="lazy"
                                 src={data.profileImage.image}
                                 alt="Profile"
                                 className="rounded-full w-28 h-28 mb-3"
@@ -345,7 +345,7 @@ const Template_1: React.FC<Template1Props> = ({
                 <div className="flex justify-between items-center w-full z-10 absolute px-8 bottom-8">
                     {data.showProfileImage && (
                         <div className="flex items-center space-x-4">
-                            {!data.isHeadImage && <img
+                            {!data.isHeadImage && <img loading="lazy"
                                 src={data.profileImage.image}
                                 alt="Profile"
                                 className="w-12 h-12 rounded-full"

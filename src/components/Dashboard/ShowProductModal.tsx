@@ -30,8 +30,12 @@ export default function ShowProductModal({
             footer={null}
         >
             <div className="flex flex-row items-start">
-                <img
-                    src={process.env.NEXT_PUBLIC_SERVER_URL + "/uploads/" + product?.productLogo}
+                <img loading="lazy"
+                    src={
+                        product?.productLogo?.startsWith("http")
+                            ? product?.productLogo
+                            : process.env.NEXT_PUBLIC_SERVER_URL + "/uploads/" + product?.productLogo
+                    }
                     alt=""
                     className="w-48 h-48 object-cover rounded-md"
                 />
@@ -55,20 +59,9 @@ export default function ShowProductModal({
 
 
 const renderFileType = (file: string) => {
-    const fileExt = file.split('.').pop()?.toLowerCase();
+    const fileUrl = file.startsWith("http")
+        ? file
+        : `${process.env.NEXT_PUBLIC_SERVER_URL}/uploads/${file}`;
 
-    if (fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'png') {
-        return (
-            <Image
-                src={`${process.env.NEXT_PUBLIC_SERVER_URL}/uploads/${file}`}
-                alt="Product Image"
-                className="w-1/4"
-            />
-        );
-    }
-    return (
-        <p className="text-text-medium font-normal text-neutral-800">
-            {file}
-        </p>
-    );
+    return <Image src={fileUrl} alt="Product Image" className="w-1/4" />;
 };

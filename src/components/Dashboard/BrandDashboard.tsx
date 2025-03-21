@@ -133,7 +133,7 @@ export default function BrandDashboard({
           <div className="border border-neutral-100 mt-6 rounded-md p-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-4 mb-4">
-                <img src="/images/profile.png" alt="" />
+                <img loading="lazy" src="/images/profile.png" alt="" />
                 <span className="text-xl font-bold">Andrew Bishop</span>
               </div>
               <Link href="/dashboard/user-front" target="_blank">
@@ -178,7 +178,7 @@ export default function BrandDashboard({
         </>
       ),
     },
-    {
+    products.length > 0 && {
       id: 3,
       label: "Products",
       content: (
@@ -199,11 +199,16 @@ export default function BrandDashboard({
           </div>
 
           {products?.filter((item) => item.publicVisibility).map((product: any, index: number) => (
-            <div key={index} className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer" onClick={() => {
-              setShowProductModal(true);
-              setSelectedProduct(product);
-            }}>
+            <div
+              key={index}
+              className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer"
+              onClick={() => {
+                setShowProductModal(true);
+                setSelectedProduct(product);
+              }}
+            >
               <img
+                loading="lazy"
                 src={product?.productLogo}
                 alt=""
                 className="w-48 h-48 object-cover rounded-md"
@@ -222,7 +227,7 @@ export default function BrandDashboard({
         </div>
       ),
     },
-  ];
+  ].filter(Boolean);
 
   const [visible, setVisible] = React.useState(false);
   const [formData, setFormData] = useState({
@@ -484,14 +489,22 @@ export default function BrandDashboard({
           <div className="relative">
             {/* Cover Image */}
             <div className="relative w-full h-48 sm:h-72">
-              <img src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
+              <img loading="lazy" src={
+                userData?.coverImage?.startsWith("http")
+                  ? userData?.coverImage
+                  : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
+              } alt="Cover" className="w-full h-full object-cover rounded-md" />
             </div>
 
             {/* Profile Section */}
             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
               <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                 <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                  <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  <img loading="lazy" src={
+                    userData?.profileImage?.startsWith("http")
+                      ? userData?.profileImage
+                      : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+                  } alt="Profile" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Name and Socials */}
@@ -505,7 +518,7 @@ export default function BrandDashboard({
                   <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
                     {userData?.socialMediaLinks.map((link: any, index: number) => (
                       <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                        <img
+                        <img loading="lazy"
                           src={`/icons/${link.platform}.svg`}
                           alt={link.platform}
                           className="w-6 h-6"

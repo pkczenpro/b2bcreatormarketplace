@@ -28,9 +28,10 @@ export const LeftMenu = () => {
     { name: "Calendar", icon: Calendar, link: "/dashboard/calendar", underline: true },
     { name: "Text Post Maker", icon: AlignCenter, link: "/dashboard/post-maker" },
     { name: "Carousel Maker", icon: GalleryHorizontal, link: "/dashboard/carousel-maker", underline: true },
-    { name: "Creators", icon: User, link: "/dashboard/creators" },
-    { name: "Brands", icon: BriefcaseBusiness, link: "/dashboard/brands" },
-  ]
+
+    userType === "brand" && { name: "Creators", icon: User, link: "/dashboard/creators" },
+    userType === "creator" && { name: "Brands", icon: BriefcaseBusiness, link: "/dashboard/brands" },
+  ].filter(Boolean);
 
   const logout = () => {
     localStorage.removeItem("userType");
@@ -65,7 +66,7 @@ export const LeftMenu = () => {
       } placement="left" open={drawerVisible} onClose={() => setDrawerVisible(false)} width={300} closable={false} bodyStyle={{ padding: 0 }}>
         <ul className="w-full">{renderMenuItems()}</ul>
         <div className="flex items-center justify-around mt-auto py-8">
-          <img src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
+          <img loading="lazy" src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
           <div className="flex flex-col">
             <span className="font-bold">{userData?.name}</span>
             <span className="text-xs text-neutral-500">{userData?.email}</span>
@@ -83,7 +84,11 @@ export const LeftMenu = () => {
           <ul className="w-full">{renderMenuItems()}</ul>
         </div>
         <div className="flex items-center justify-around mt-auto py-8">
-          <img src={userData?.profileImage} alt="Profile" className="w-10 h-10 rounded-full" />
+          <img loading="lazy" src={
+            userData?.profileImage.startsWith("http") ?
+              userData?.profileImage :
+              process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+          } alt="Profile" className="w-10 h-10 rounded-full object-cover" />
           <div className="flex flex-col">
             <span className="font-bold text-sm">{userData?.name}</span>
           </div>

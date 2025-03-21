@@ -93,8 +93,12 @@ export default function Campaign() {
                 className="bg-white rounded-lg p-6 border border-1 shadow-sm cursor-pointer transition-all duration-300 hover:shadow-md hover:border-neutral-100"
               >
                 <div className="flex items-center">
-                  <img
-                    src={process.env.NEXT_PUBLIC_SERVER_URL + campaign.image}
+                  <img loading="lazy"
+                    src={
+                      campaign?.image?.startsWith("http")
+                        ? campaign?.image
+                        : process.env.NEXT_PUBLIC_SERVER_URL + campaign?.image
+                    }
                     alt="campaign"
                     className="w-14 h-14 object-cover rounded-full"
                   />

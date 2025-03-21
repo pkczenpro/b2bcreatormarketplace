@@ -14,16 +14,12 @@ const LinkedInCallback = () => {
 
         if (code) {
             api
-                .post("/users/login/linkedin", { code, userType })
+                .post("/users/login/linkedin?authtype=1", { code, userType })
                 .then((response) => {
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
                     localStorage.setItem('userType', response.data.user.userType); // temp
-                    if (response.data.user.isCompletedOnboarding) {
-                        navigate.push('/dashboard');
-                    } else {
-                        navigate.push('/profile-setup');
-                    }
+                    navigate.push("/dashboard/post-maker")
                 })
                 .catch((error) => {
                     console.error("Login failed", error);
@@ -53,7 +49,7 @@ const LinkedInCallback = () => {
                 d="M4 12a8 8 0 0116 0h-2a6 6 0 00-12 0H4z"
             ></path>
         </svg>
-        <p className="font-medium">Logging in with LinkedIn...</p>
+        <p className="font-medium">Authenticating...</p>
     </div>;
 };
 

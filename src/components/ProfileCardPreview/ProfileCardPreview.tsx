@@ -27,6 +27,9 @@ const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
   tags = [],
   shortIntroduction,
 }) => {
+
+  console.log(profilePicture)
+  console.log(coverPicture)
   return (
     <div className={
       `bg-neutral-50 w-full h-[45vh] ml-0 sm:ml-12 rounded-lg flex items-center justify-center
@@ -92,7 +95,6 @@ const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
 
         <div>
           <p className="text-[11px] text-neutral-600">{shortIntroduction}</p>
-
           {/* Tags Section */}
           <div className="mt-4 flex flex-wrap gap-2">
             {tags.map((tag, index) => (

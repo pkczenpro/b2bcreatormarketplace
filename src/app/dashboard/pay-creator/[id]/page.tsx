@@ -43,7 +43,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                         <div>
                             <div className="flex items-center justify-between gap-4 bg-neutral-50 p-4 rounded-xl">
                                 <div className="flex items-center gap-4">
-                                    <img src="/images/profile.png" alt="" />
+                                    <img loading="lazy" src="/images/profile.png" alt="" />
                                     <h2 className="text-md font-bold text-neutral-600">
                                         Tony Dunbar
                                     </h2>

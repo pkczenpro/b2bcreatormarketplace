@@ -59,7 +59,7 @@ const PopupDropdown: React.FC<{
     },
     {
       key: "linkedin",
-      icon: <img src="/icons/linked.svg" alt="linked" className="mr-2" />,
+      icon: <img loading="lazy" src="/icons/linked.svg" alt="linked" className="mr-2" />,
       label: "Your LinkedIn",
       onClick: () => handleMenuClick("linkedin"),
       style: {

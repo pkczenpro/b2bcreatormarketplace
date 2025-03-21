@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import api from "@/utils/axiosInstance";
 import { useParams } from "next/navigation";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 type CampaignDetailsProps = object;
 
@@ -184,6 +185,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
         )
     }
 
+    const navigation = useRouter();
+
     return (
         <div className="flex">
             <LeftMenu />
@@ -191,8 +194,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 <Breadcrumb
                     items={[
                         {
-                            title: campaign?.brandId.name,
-                            href: "/dashboard/brand-preview/" + campaign?.brandId._id
+                            title: campaign?.brandId?.name,
+                            href: "/dashboard/brand-preview/" + campaign?.brandId?._id
                         },
                         {
                             title: campaign?.title,
@@ -206,7 +209,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        {campaign?.coverImage && <img src={campaign?.coverImage} alt="campaign"
+                        {campaign?.coverImage && <img loading="lazy" src={campaign?.coverImage} alt="campaign"
                             className="w-full h-[200px] object-cover rounded-md"
                         />}
                         <div className="flex items-center mt-4">
@@ -222,11 +225,16 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                     variant="primary"
                                     size="small"
                                     onClick={() => {
-                                        if (userType === "creator")
+                                        if (userType === "creator") {
                                             toast.success("Campaign applied successfully", {
                                                 position: "top-right",
                                                 description: "You have successfully applied for the campaign",
                                             });
+                                        }
+                                        else {
+                                            navigation.push("/dashboard/creators");
+                                            // Redirect to creators page
+                                        }
                                     }}
                                 >
                                     {userType === "creator" ? "Apply for Campaign" : "Find Creators"}

@@ -35,7 +35,7 @@ export default function Login() {
 
             {/* Image Section */}
             <div className="w-full h-full flex justify-center">
-                <img
+                <img loading="lazy"
                     src="/images/wallpaper.png"
                     alt="Signup"
                     className="object-cover w-screen h-auto sm:h-[95vh] rounded-lg"

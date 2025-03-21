@@ -35,7 +35,7 @@ export default function BrandDashboard() {
 
     React.useEffect(() => {
         getBrand();
-    }, []);
+    }, [params.id]);
 
 
     const tabs = [
@@ -93,10 +93,10 @@ export default function BrandDashboard() {
                     <div className="border border-neutral-100 mt-6 rounded-md p-6">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center space-x-4 mb-4">
-                                <img src="/images/profile.png" alt="" />
+                                <img loading="lazy" src="/images/profile.png" alt="" />
                                 <span className="text-xl font-bold">Andrew Bishop</span>
                             </div>
-                            <Link href="/dashboard/user-front" target="_blank">
+                            <Link href="/dashboard/user-preview/ID_USER" target="_blank">
                                 <div className="flex items-center space-x-2 text-primary-700 font-medium">
                                     View Storefront
                                     <ArrowRight size={18} />
@@ -138,7 +138,7 @@ export default function BrandDashboard() {
                 </>
             ),
         },
-        {
+        products?.length > 0 && {
             id: 3,
             label: "Products",
             content: (
@@ -155,7 +155,7 @@ export default function BrandDashboard() {
                             setShowProductModal(true);
                             setSelectedProduct(product);
                         }}>
-                            <img
+                            <img loading="lazy"
                                 src={product?.productLogo}
                                 alt=""
                                 className="w-48 h-48 object-cover rounded-md"
@@ -174,15 +174,17 @@ export default function BrandDashboard() {
                 </div>
             ),
         },
-    ];
+    ].filter(Boolean);
+
+    console.log(products)
 
     const [showProductModal, setShowProductModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
     return (
-        <div className="flex flex-col sm:flex-row">
+        <div className="flex flex-col sm:flex-row w-full">
             <LeftMenu />
-            <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8 w-full">
                 <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
 
                 <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
@@ -190,14 +192,14 @@ export default function BrandDashboard() {
                         <div className="relative">
                             {/* Cover Image */}
                             <div className="relative w-full h-48 sm:h-72">
-                                <img src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
+                                <img loading="lazy" src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
                             </div>
 
                             {/* Profile Section */}
                             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                                     <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                        <img loading="lazy" src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
 
                                     {/* Name and Socials */}
@@ -211,7 +213,7 @@ export default function BrandDashboard() {
                                         <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
                                             {userData?.socialMediaLinks.map((link: any, index: number) => (
                                                 <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                    <img
+                                                    <img loading="lazy"
                                                         src={`/icons/${link.platform}.svg`}
                                                         alt={link.platform}
                                                         className="w-6 h-6"

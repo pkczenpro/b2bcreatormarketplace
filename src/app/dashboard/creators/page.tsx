@@ -67,7 +67,7 @@ export default function Creators() {
                 centered
             >
                 <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
-                    <img src={
+                    <img loading="lazy" src={
                         process.env.NEXT_PUBLIC_SERVER_URL + creator.profileImage
                     } alt="" />
                     <h2 className="text-md font-bold text-neutral-600">
@@ -228,7 +228,11 @@ export default function Creators() {
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center space-x-4">
                                         <div className="relative w-14 h-14">
-                                            <img src={process.env.NEXT_PUBLIC_SERVER_URL + creator.image} alt={creator.name} className="w-14 h-14 rounded-full" />
+                                            <img loading="lazy" src={
+                                                creator.image?.startsWith("http")
+                                                    ? creator.image
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
+                                            } alt={creator.name} className="w-14 h-14 rounded-full" />
                                             <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
                                         </div>
 
@@ -240,7 +244,7 @@ export default function Creators() {
                                                 />
                                                 {creator.location}</p>
                                             <div className="flex items-center gap-2 mt-2 text-sm text-neutral-600">
-                                                <img src="/icons/linkedin.svg" alt="" />
+                                                <img loading="lazy" src="/icons/linkedin.svg" alt="" />
                                                 {creator.followers} LinkedIn Followers
                                             </div>
                                         </div>

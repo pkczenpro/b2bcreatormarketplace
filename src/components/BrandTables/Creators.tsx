@@ -30,7 +30,7 @@ export function CreatorTable({ campaign }) {
             centered
         >
             <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
-                <img src="/images/profile.png" alt="" />
+                <img loading="lazy" src="/images/profile.png" alt="" />
                 <h2 className="text-md font-bold text-neutral-600">
                     Tony Dunbar
                 </h2>
