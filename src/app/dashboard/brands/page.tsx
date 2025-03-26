@@ -2,13 +2,11 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
-import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 import api from "@/utils/axiosInstance";
 import { Input, Table, Button } from "antd";
 import { Search, Compass, Earth, Heart } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
 
 export default function Dashboard() {
     const [loggedUserId, setLoggedUserId] = useState("");

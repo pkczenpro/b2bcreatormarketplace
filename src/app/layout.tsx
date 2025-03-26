@@ -17,6 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+        <head>
+          <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+        </head>
         <body>
           {children}
           <Toaster richColors />
