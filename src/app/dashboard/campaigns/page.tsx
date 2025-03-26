@@ -3,6 +3,7 @@
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
+import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 import api from "@/utils/axiosInstance";
 import { Select } from "antd";
 import { EarthIcon, Shuffle } from "lucide-react";
@@ -14,15 +15,18 @@ export default function Campaign() {
   const [filteredCampaigns, setFilteredCampaigns] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("1"); // Default to "All"
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const getCampaigns = async () => {
+      setLoading(true);
       try {
         const res = await api.get("/campaigns");
         setCampaigns(res.data);
         setFilteredCampaigns(res.data); // Initialize filtered campaigns
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -85,7 +89,7 @@ export default function Campaign() {
         {/* Campaign List */}
         <h3 className="mt-8 text-xl font-regular mb-4">Featured</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredCampaigns.length > 0 ? (
+          {loading ? <LoadingOverlay loading={loading} /> : filteredCampaigns.length > 0 ? (
             filteredCampaigns.map((campaign) => (
               <Link
                 href={`/dashboard/campaigns-details/${campaign.id}`}
@@ -95,7 +99,7 @@ export default function Campaign() {
                 <div className="flex items-center">
                   <img loading="lazy"
                     src={
-                      campaign?.image?.startsWith("http")
+                      campaign?.image?.includes("http")
                         ? campaign?.image
                         : process.env.NEXT_PUBLIC_SERVER_URL + campaign?.image
                     }

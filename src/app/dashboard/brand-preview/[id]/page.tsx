@@ -12,31 +12,33 @@ import api from "@/utils/axiosInstance";
 import ShowProductModal from "@/components/Dashboard/ShowProductModal";
 import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+import { toast } from "sonner";
 
 
 export default function BrandDashboard() {
+    const loggedInUserId = JSON.parse(localStorage.getItem("user"))._id;
+
     const [userData, setUserData] = useState<any>(null);
     const [campaigns, setCampaigns] = useState<any>(null);
-    const [partnerships, setPartnerships] = useState<any>(null);
     const [products, setProducts] = useState<any>(null);
+    const [partnerships, setPartnerships] = useState(null);
+
     const params = useParams();
     const getBrand = async () => {
         try {
             const res = await api.get("/users/brand/" + params.id);
             setUserData(res.data);
             setCampaigns(res.data.campaigns);
-            // setPartnerships(res.data.partnerships);
             setProducts(res.data.products);
+            setPartnerships(res.data.partnerships);
         } catch (error) {
             console.log(error);
         }
     }
 
-
     React.useEffect(() => {
         getBrand();
     }, [params.id]);
-
 
     const tabs = [
         {
@@ -90,51 +92,66 @@ export default function BrandDashboard() {
             label: "Partnerships",
             content: (
                 <>
-                    <div className="border border-neutral-100 mt-6 rounded-md p-6">
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center space-x-4 mb-4">
-                                <img loading="lazy" src="/images/profile.png" alt="" />
-                                <span className="text-xl font-bold">Andrew Bishop</span>
-                            </div>
-                            <Link href="/dashboard/user-preview/ID_USER" target="_blank">
-                                <div className="flex items-center space-x-2 text-primary-700 font-medium">
-                                    View Storefront
-                                    <ArrowRight size={18} />
-                                </div>
-                            </Link>
-                        </div>
-
-                        <p className="text-neutral-600 text-left mb-6">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt
-                            aspernatur voluptates ad, officiis commodi laborum!
-                        </p>
-
-                        <div className="flex space-x-2">
-                            {["Tech", "Design", "Marketing"].map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="border-t border-gray-200 my-6"></div>
-
-                        <div className="flex space-x-2">
-                            {["Campaign Name 1", "Campaign Name 2", "Campaign Name 3"].map(
-                                (tag, index) => (
-                                    <span
-                                        key={index}
-                                        className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
-                                    >
-                                        {tag}
+                    {partnerships?.length > 0 && partnerships?.map((partnership: any, index: number) => (
+                        <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <img loading="lazy"
+                                        className="w-16 h-16 object-cover rounded-full"
+                                        src={
+                                            partnership?.profileImage?.includes("http")
+                                                ? partnership?.profileImage
+                                                : process.env.NEXT_PUBLIC_SERVER_URL + partnership?.profileImage
+                                        } alt="" />
+                                    <span className="text-xl font-bold">
+                                        {partnership?.name}
                                     </span>
-                                )
-                            )}
+                                </div>
+                                <Link href={`/dashboard/user-preview/${partnership?.user_id}`} target="_blank">
+                                    <div className="flex items-center space-x-2 text-primary-700 font-medium">
+                                        View Storefront
+                                        <ArrowRight size={18} />
+                                    </div>
+                                </Link>
+                            </div>
+
+                            {partnership.bio && <p className="text-neutral-600 text-left mb-6">
+                                {partnership?.bio}
+                            </p>}
+
+                            {partnership.tags.length > 0 && <div className="flex space-x-2">
+                                {
+                                    partnership?.tags?.map((tag, index) => (
+                                        <span
+                                            key={index}
+                                            className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                            </div>}
+
+                            <div className="border-t border-gray-200 my-6"></div>
+
+                            <div className="flex space-x-2">
+                                {partnership?.campaigns?.map(
+                                    (tag, index) => (
+                                        <Link
+                                            key={index}
+                                            href={`/dashboard/campaigns-details/${tag._id}`}
+                                            target="_blank"
+                                        >
+                                            <span
+                                                className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
+                                            >
+                                                {tag.title}
+                                            </span>
+                                        </Link>
+                                    )
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    ))}
                 </>
             ),
         },
@@ -176,10 +193,22 @@ export default function BrandDashboard() {
         },
     ].filter(Boolean);
 
-    console.log(products)
-
     const [showProductModal, setShowProductModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+
+
+    const followBrand = async () => {
+        try {
+            const res = await api.get("/users/follow-brand/" + params.id);
+            toast.success(res.data.message, {
+                position: "top-right",
+                description: "You are now following this brand",
+            });
+            getBrand();
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="flex flex-col sm:flex-row w-full">
@@ -192,14 +221,18 @@ export default function BrandDashboard() {
                         <div className="relative">
                             {/* Cover Image */}
                             <div className="relative w-full h-48 sm:h-72">
-                                <img loading="lazy" src={userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
+                                <img loading="lazy" src={userData?.coverImage?.includes("http")
+                                    ? userData?.coverImage
+                                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
                             </div>
 
                             {/* Profile Section */}
                             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                                     <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <img loading="lazy" src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                        <img loading="lazy" src={userData?.profileImage?.includes("http")
+                                            ? userData?.profileImage
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
 
                                     {/* Name and Socials */}
@@ -224,9 +257,12 @@ export default function BrandDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Chat Button */}
-                                <Button size="small" variant="primary" className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]">
-                                    Follow
+                                <Button
+                                    onClick={followBrand}
+                                    size="small"
+                                    variant={userData?.followers.includes(loggedInUserId) ? "outline" : "primary"}
+                                    className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]">
+                                    {userData?.followers.includes(loggedInUserId) ? "Following" : "Follow"}
                                 </Button>
                             </div>
                         </div>
@@ -246,13 +282,44 @@ export default function BrandDashboard() {
                         </div>
 
                         {/* STATS */}
+                        {/* STATS TODO */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-                            {Array(5).fill(0).map((_, index) => (
-                                <div key={index} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
-                                    <h1 className="text-lg font-semibold">1,200</h1>
-                                    <p className="text-gray-600">#Jobs Completed</p>
-                                </div>
-                            ))}
+                            <div key={1} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+                                <h1 className="text-lg font-semibold">
+                                    {campaigns?.length}
+                                </h1>
+                                <p className="text-gray-600">
+                                    Campaigns
+                                </p>
+                            </div>
+                            <div key={2} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+                                <h1 className="text-lg font-semibold">
+                                    {products?.length || 0}
+                                </h1>
+                                <p className="text-gray-600">
+                                    Products
+                                </p>
+                            </div>
+                            <div key={3} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+                                <h1 className="text-lg font-semibold">1,200</h1>
+                                <p className="text-gray-600">Campaigns Completed</p>
+                            </div>
+                            <div key={4} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+                                <h1 className="text-lg font-semibold">
+                                    {/* COMPANY SIZE */} 0
+                                </h1>
+                                <p className="text-gray-600">
+                                    Company Size
+                                </p>
+                            </div>
+                            <div key={5} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+                                <h1 className="text-lg font-semibold">
+                                    {userData?.followers?.length || 0}
+                                </h1>
+                                <p className="text-gray-600">
+                                    Followers
+                                </p>
+                            </div>
                         </div>
 
                         {/* Divider */}

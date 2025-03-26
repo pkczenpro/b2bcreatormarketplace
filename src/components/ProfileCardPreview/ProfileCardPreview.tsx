@@ -77,7 +77,7 @@ const ProfileCardPreview: React.FC<ProfileCardPreviewProps> = ({
               {linkedin && <img src="/icons/linked.svg" alt="LinkedIn" />}
               {medium && <img src="/icons/medium.svg" alt="Medium" />}
               {spotify && <img src="/icons/spotify.svg" alt="Spotify" />}
-              {website && <img src="/icons/web.svg" alt="Website" />}
+              {website && <img src="/icons/website.svg" alt="Website" />}
             </div>
           </div>
 

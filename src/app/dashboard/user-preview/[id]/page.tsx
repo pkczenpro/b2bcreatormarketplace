@@ -94,7 +94,7 @@ export default function CreatorDashboard() {
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
                                 <img loading="lazy"
                                     src={
-                                        userData?.previousWork[index].image?.startsWith("http")
+                                        userData?.previousWork[index].image?.includes("http")
                                             ? userData?.previousWork[index].image
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.previousWork[index].image
                                     }
@@ -124,7 +124,7 @@ export default function CreatorDashboard() {
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
                                 <img loading="lazy"
                                     src={
-                                        userData?.featuredWork[index].image?.startsWith("http")
+                                        userData?.featuredWork[index].image?.includes("http")
                                             ? userData?.featuredWork[index].image
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.featuredWork[index].image
                                     }
@@ -188,7 +188,7 @@ export default function CreatorDashboard() {
                 <div className="flex items-center mt-6 ml-auto">
                     <img loading="lazy" alt={name} className="w-12 h-12 rounded-full"
                         src={
-                            image?.startsWith("http")
+                            image?.includes("http")
                                 ? image
                                 : process.env.NEXT_PUBLIC_SERVER_URL + image
                         }
@@ -260,7 +260,7 @@ export default function CreatorDashboard() {
                                 {/* Cover Image */}
                                 <div className="relative w-full h-48 sm:h-72">
                                     <img loading="lazy" src={
-                                        userData?.coverImage?.startsWith("http")
+                                        userData?.coverImage?.includes("http")
                                             ? userData?.coverImage
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
                                     } alt="Cover" className="w-full h-full object-cover rounded-md" />
@@ -272,7 +272,7 @@ export default function CreatorDashboard() {
                                     <div className="flex items-end space-x-4">
                                         <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
                                             <img loading="lazy" src={
-                                                userData?.profileImage?.startsWith("http")
+                                                userData?.profileImage?.includes("http")
                                                     ? userData?.profileImage
                                                     : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
                                             } alt="Profile" className="w-full h-full object-cover" />

@@ -5,8 +5,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Drawer } from "antd";
+import React, { useState, useEffect } from "react";
+import { Drawer, Tooltip } from "antd";
+import { WandSparkles } from "lucide-react";
+import api from "@/utils/axiosInstance";
 
 export const LeftMenu = () => {
   const pathname = usePathname();
@@ -14,11 +16,22 @@ export const LeftMenu = () => {
   const [userType, setUserType] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setUserData(JSON.parse(localStorage.getItem("user") || "{}"));
-      setUserType(localStorage.getItem("userType"));
+  const getUserDetails = async () => {
+    const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
+    if (!userId) return;
+    let res = null;
+    try {
+      res = await api.get(`/users/user`);
+      setUserData(res.data);
+      setUserType(res.data.userType);
     }
+    catch (err) {
+      console.log(err);
+    }
+  }
+
+  React.useEffect(() => {
+    getUserDetails();
   }, []);
 
   const menuItems = [
@@ -26,7 +39,13 @@ export const LeftMenu = () => {
     { name: userType === "brand" ? "Brandfront" : "Storefront", icon: Store, link: "/dashboard", underline: true },
     { name: "Campaigns", icon: Flag, link: "/dashboard/campaigns" },
     { name: "Calendar", icon: Calendar, link: "/dashboard/calendar", underline: true },
-    { name: "Text Post Maker", icon: AlignCenter, link: "/dashboard/post-maker" },
+    {
+      name: "AI Text Creator",
+      icon: WandSparkles,
+      link: "/dashboard/post-maker",
+      tooltip: "Generate AI-powered text content effortlessly!",
+      color: "#F38509",
+    },
     { name: "Carousel Maker", icon: GalleryHorizontal, link: "/dashboard/carousel-maker", underline: true },
 
     userType === "brand" && { name: "Creators", icon: User, link: "/dashboard/creators" },
@@ -38,13 +57,19 @@ export const LeftMenu = () => {
     window.location.href = "/login";
   };
 
-  const renderMenuItems = () => menuItems.map(({ name, icon: Icon, link, underline }, index) => (
+  const renderMenuItems = () => menuItems.map(({ name, icon: Icon, link, underline, tooltip, color }, index) => (
     <div key={index}>
       <Link href={link} className="w-full">
-        <li className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === link ? "bg-neutral-50" : ""}`}>
-          <Icon size={20} className="mr-2" />
-          {name}
-        </li>
+        <Tooltip title={tooltip} placement="right" arrow={true}>
+          <li className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === link ? "bg-neutral-50" : ""}`}
+            style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+          >
+            <Icon size={20} className="mr-2"
+              style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+            />
+            {name}
+          </li>
+        </Tooltip>
       </Link>
       {underline && <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>}
     </div>
@@ -85,7 +110,7 @@ export const LeftMenu = () => {
         </div>
         <div className="flex items-center justify-around mt-auto py-8">
           <img loading="lazy" src={
-            userData?.profileImage.startsWith("http") ?
+            userData?.profileImage?.includes("http") ?
               userData?.profileImage :
               process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
           } alt="Profile" className="w-10 h-10 rounded-full object-cover" />

@@ -57,15 +57,15 @@ const PopupDropdown: React.FC<{
         backgroundColor: showSections.work ? "#f3f4f6" : "",
       }
     },
-    {
-      key: "linkedin",
-      icon: <img loading="lazy" src="/icons/linked.svg" alt="linked" className="mr-2" />,
-      label: "Your LinkedIn",
-      onClick: () => handleMenuClick("linkedin"),
-      style: {
-        backgroundColor: showSections.linkedin ? "#f3f4f6" : "",
-      }
-    },
+    // {
+    //   key: "linkedin",
+    //   icon: <img loading="lazy" src="/icons/linked.svg" alt="linked" className="mr-2" />,
+    //   label: "Your LinkedIn",
+    //   onClick: () => handleMenuClick("linkedin"),
+    //   style: {
+    //     backgroundColor: showSections.linkedin ? "#f3f4f6" : "",
+    //   }
+    // },
     {
       key: "testimonials",
       icon: <MessageSquareText size={16} className="mr-2" />,

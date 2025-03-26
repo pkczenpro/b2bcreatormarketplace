@@ -3,7 +3,7 @@ import catchErrors from './catchErrors.js';
 
 // Create an Axios instance
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL, // Ensure this is set in your .env file
+    baseURL: process.env.NEXT_PUBLIC_SERVER_URL + "/api", // Ensure this is set in your .env file
     headers: {
         "Content-Type": "application/json",
     },

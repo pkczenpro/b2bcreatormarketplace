@@ -14,7 +14,7 @@ interface LoginFormProps {
     userType?: "creator" | "brand";
 }
 
-const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
+const LoginForm = ({ userType }: LoginFormProps) => {
     const router = useRouter();
     const paragraph =
         userType === "creator"
@@ -68,7 +68,8 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
     const linkedInClientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-    const redirectUri = "https://b2bcreatormarketplace.vercel.app/auth/linkedin/callback"; // Change in production
+    const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+    const redirectUri = `${DOMAIN}/auth/linkedin/callback`; // Change in production
 
     const handleLogin = () => {
         const scopes = [
@@ -84,11 +85,11 @@ const LoginForm = ({ userType = "brand" }: LoginFormProps) => {
 
     const handleGoogleAuth = () => {
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        const redirectUri = "https://b2bcreatormarketplace.vercel.app/auth/google/callback"; // Update for production
+        const redirectUri = `${DOMAIN}/auth/google/callback`; // Update for production
         const scope = "openid email profile";
         const responseType = "code";
 
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${userType}`;
 
         window.open(googleAuthUrl, "_blank", "noopener,noreferrer");
     };

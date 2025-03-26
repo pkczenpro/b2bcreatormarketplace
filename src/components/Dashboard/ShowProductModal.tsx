@@ -32,7 +32,7 @@ export default function ShowProductModal({
             <div className="flex flex-row items-start">
                 <img loading="lazy"
                     src={
-                        product?.productLogo?.startsWith("http")
+                        product?.productLogo?.includes("http")
                             ? product?.productLogo
                             : process.env.NEXT_PUBLIC_SERVER_URL + "/uploads/" + product?.productLogo
                     }
@@ -59,7 +59,7 @@ export default function ShowProductModal({
 
 
 const renderFileType = (file: string) => {
-    const fileUrl = file.startsWith("http")
+    const fileUrl = file.includes("http")
         ? file
         : `${process.env.NEXT_PUBLIC_SERVER_URL}/uploads/${file}`;
 

@@ -25,6 +25,8 @@ type Chat = {
 
 export default function Inbox() {
     const [chatList, setChatList] = useState<Chat[]>([]);
+    const [filteredChatList, setFilteredChatList] = useState<Chat[]>([]);
+
     const [userData, setUserData] = useState<any>(null);
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -33,18 +35,8 @@ export default function Inbox() {
 
     const socket = useRef<any>(null); // Initialize socket reference
 
-    console.log(selectedChat)
     // Fetch user and chat data
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await api.get("/users/creators");
-                setChatList(response.data);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
-
         const fetchUserData = async () => {
             try {
                 const response = await api.get("/users/user");
@@ -54,28 +46,39 @@ export default function Inbox() {
             }
         };
 
-        fetchUsers();
         fetchUserData();
-    }, []);
+    }, []); // Runs only once on mount
 
     useEffect(() => {
-        // Initialize socket connection
-        if (userData) {
-            socket.current = io("http://localhost:8000"); // Replace with your Socket.IO server URL
+        const fetchUsers = async () => {
+            if (!userData) return; // Ensure userData is available before fetching users
 
-            // Join the room (this could be the user ID or chat ID)
+            try {
+                const resp = await api.get("/messages/chatlist")
+
+                setChatList(resp.data);
+                setFilteredChatList(resp.data);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        };
+
+        fetchUsers();
+    }, [userData]); // Runs when userData updates
+
+
+    useEffect(() => {
+        if (userData) {
+            socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL!);
+
             socket.current.emit("join", userData._id);
 
-            // Listen for new messages
             socket.current.on("message", (newMessage: Message) => {
-                setMessages((prevMessages) => [...prevMessages, newMessage]);
+                setMessages((prev) => [...prev, newMessage]);
             });
 
-            // Clean up socket connection on component unmount
             return () => {
-                if (socket.current) {
-                    socket.current.disconnect();
-                }
+                socket.current.disconnect();
             };
         }
     }, [userData]);
@@ -135,12 +138,20 @@ export default function Inbox() {
         }
     };
 
+    const [search, setSearch] = useState("");
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        setFilteredChatList(
+            chatList.filter((chat) => chat.name.toLowerCase().includes(e.target.value.toLowerCase()))
+        );
+    }
+
     return (
-        <div className="flex">
-            <LeftMenu />
-            <div className="flex flex-col w-full min-h-screen bg-neutral-50">
-                <div className="flex flex-col items-center justify-start h-full py-6">
-                    <div className="flex flex-col w-full md:w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">
+        <div className="flex flex-col md:flex-row">
+            <LeftMenu className="hidden md:block" />
+            <div className="flex flex-col w-full min-h-screen h-auto bg-neutral-50">
+                <div className="flex flex-col items-center justify-start h-full py-6 px-4">
+                    <div className="flex flex-col w-full md:w-[90%] p-4 md:p-8 bg-white rounded-md shadow-sm">
                         <h1 className="text-2xl font-semibold mb-4">Messaging</h1>
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -148,22 +159,24 @@ export default function Inbox() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                            <div className="border border-neutral-100 h-[80vh] flex">
+                            <div className="border border-neutral-100 min-h-[80vh] flex flex-col md:flex-row">
                                 {/* Left Panel - Chat List */}
-                                <div className="w-full md:w-[40%] p-2">
-                                    <Input placeholder="Search for a chat" className="w-full mb-4" />
+                                <div className="w-full md:w-[40%] p-2 border-b md:border-b-0 md:border-r border-neutral-100">
+                                    <Input placeholder="Search for a chat" className="w-full mb-4"
+                                        value={search} onChange={handleSearch}
+                                    />
                                     <div className="flex flex-col space-y-2 overflow-y-auto max-h-[70vh]">
-                                        {chatList.map((chat, index) => (
+                                        {filteredChatList?.map((chat, index) => (
                                             <div
                                                 key={index}
                                                 onClick={() => handleSelectChat(chat)}
                                                 className={`flex items-center space-x-2 border-b border-neutral-100 p-2 cursor-pointer
-                ${selectedChat?.name === chat.name ? 'bg-neutral-100' : 'hover:bg-neutral-100'}
+                ${selectedChat?._id === chat._id ? 'bg-neutral-100' : 'hover:bg-neutral-100'}
                 transition-colors duration-200 ease-in-out active:bg-neutral-200`}
                                             >
                                                 <img
                                                     loading="lazy"
-                                                    src={chat.image}
+                                                    src={chat.image.includes("http") ? chat.image : process.env.NEXT_PUBLIC_SERVER_URL + chat.image}
                                                     alt={chat.name}
                                                     className="w-10 h-10 rounded-full"
                                                 />
@@ -174,15 +187,18 @@ export default function Inbox() {
                                             </div>
                                         ))}
                                     </div>
-
                                 </div>
 
                                 {/* Right Panel - Chat Window */}
-                                <div className="w-full md:w-[60%] bg-neutral-50 flex flex-col justify-between">
-                                    <div className="flex items-center space-x-2 border border-neutral-100 p-4 mb-4 bg-white">
+                                <div className="w-full md:w-[60%] bg-neutral-50 flex flex-col justify-between flex-1 overflow-hidden">
+                                    <div className="flex items-center space-x-2 border border-neutral-100 p-4 bg-white">
                                         <img
                                             loading="lazy"
-                                            src={selectedChat?.image}
+                                            src={
+                                                selectedChat?.image.includes("http") ?
+                                                    selectedChat?.image :
+                                                    process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image
+                                            }
                                             alt={selectedChat?.name || "User"}
                                             className="w-10 h-10 rounded-full"
                                         />
@@ -191,71 +207,23 @@ export default function Inbox() {
                                             <p className="text-sm text-neutral-500">{selectedChat?.active}</p>
                                         </div>
                                     </div>
-
                                     {/* Chat Body */}
-                                    <div className="flex flex-col justify-end space-y-2 px-6 h-[60vh] overflow-auto pb-4">
+                                    <div className="flex flex-col space-y-2 px-4 max-h-[60vh] overflow-y-auto">
                                         {messages.map((msg, index) => (
-                                            <div
-                                                key={index}
-                                                className={`flex items-center space-x-2 ${msg.isSender ? "justify-end" : ""}`}
-                                            >
-
+                                            <div key={index} className={`flex items-center space-x-2 ${msg.isSender ? "justify-end" : ""}`}>
                                                 <div>
                                                     <div className="flex items-center space-x-2">
                                                         {!msg.isSender && (
-                                                            <img
-                                                                loading="lazy"
-                                                                src={selectedChat?.image}
-                                                                alt={selectedChat?.name}
-                                                                className="w-8 h-8 rounded-full"
-                                                            />
+                                                            <img loading="lazy" src={selectedChat?.image.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image} alt={selectedChat?.name} className="w-8 h-8 rounded-full" />
                                                         )}
-                                                        <div
-                                                            className={`p-2 rounded-md w-full ${msg.isSender ? "bg-primary-600 text-white" : "bg-primary-50 text-neutral-700"}
-                              text-wrap break-words`}
-                                                        >
-                                                            <p className={
-                                                                `text-sm ${msg.isSender ? "text-right" : "text-left"}`
-                                                            }>{msg.text}</p>
+                                                        <div className={`p-2 rounded-md ${msg.isSender ? "bg-primary-600 text-white" : "bg-primary-50 text-neutral-700"} break-words`}>
+                                                            <p className={`text-sm ${msg.isSender ? "text-right" : "text-left"}`}>{msg.text}</p>
                                                         </div>
-
                                                     </div>
-                                                    <p className={`text-xs text-neutral-500 mt-1
-                            ${msg.isSender ? "text-right" : "text-left"}
-                                                        `}>
-                                                        {new Date().toLocaleTimeString()}
-                                                    </p>
+                                                    <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>{msg.createdAt}</p>
                                                 </div>
-
-
                                             </div>
                                         ))}
-
-                                        {uploadedFiles.length > 0 && (
-                                            <div className="flex flex-col space-y-1 mt-2">
-                                                {uploadedFiles.map((file, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between border border-neutral-100 p-2 rounded-md"
-                                                    >
-                                                        <div className="flex items-center space-x-2">
-                                                            <PaperclipIcon className="w-5 h-5 text-gray-500" />
-                                                            <span className="text-sm text-neutral-700">{file.name}</span>
-                                                        </div>
-                                                        <div>
-                                                            <Delete
-                                                                className="w-5 h-5 text-red-500 cursor-pointer"
-                                                                onClick={() =>
-                                                                    setUploadedFiles((prevFiles) =>
-                                                                        prevFiles.filter((_, i) => i !== index)
-                                                                    )
-                                                                }
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
                                     </div>
 
                                     {/* Message Input */}
@@ -272,10 +240,7 @@ export default function Inbox() {
                                             <PaperclipIcon className="w-6 h-6 text-primary-700" />
                                             <input type="file" className="hidden" onChange={handleFileUpload} />
                                         </label>
-                                        <button
-                                            onClick={handleSendMessage}
-                                            className="text-blue-500"
-                                        >
+                                        <button onClick={handleSendMessage} className="text-blue-500">
                                             <SendIcon className="w-6 h-6 text-primary-700 cursor-pointer" />
                                         </button>
                                     </div>
@@ -286,5 +251,6 @@ export default function Inbox() {
                 </div>
             </div>
         </div>
+
     );
 }

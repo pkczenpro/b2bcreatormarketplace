@@ -2,7 +2,6 @@
 
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
-import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,8 +15,7 @@ interface SignupFormProps {
     userType?: "creator" | "brand";
 }
 
-const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
-    const router = useRouter();
+const SignupForm = ({ userType }: SignupFormProps) => {
     const paragraph =
         userType === "creator"
             ? "Connect with brands to widen your audience."
@@ -53,7 +51,6 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
                 toast.success(response.data.message, {
                     position: "top-center",
                 });
-                router.push("/profile-setup");
             }
         } catch (error) {
             console.error("Signup error:", error);
@@ -64,6 +61,35 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
 
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
+
+    const linkedInClientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+    const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+    const redirectUri = `${DOMAIN}/auth/linkedin/callback`; // Change in production
+
+    const handleLogin = () => {
+        const scopes = [
+            "openid",
+            "profile",
+            "email",
+            "w_member_social",
+        ].join(" ");
+
+        const linkedInAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${linkedInClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${userType}&scope=${encodeURIComponent(scopes)}`;
+        window.location.href = linkedInAuthUrl; // Redirect to LinkedIn login };
+    }
+
+    const handleGoogleAuth = () => {
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        const redirectUri = `${DOMAIN}/auth/google/callback`; // Update for production
+        const scope = "openid email profile";
+        const responseType = "code";
+
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+
+        window.open(googleAuthUrl, "_blank", "noopener,noreferrer");
+    };
+
 
     return (
         <div>
@@ -116,9 +142,15 @@ const SignupForm = ({ userType = "brand" }: SignupFormProps) => {
                 </Button>
             </form>
 
-            <div className="mt-6 space-y-3">
-                <Button variant="outline" socialMediaIcon={<Image src="/icons/google.svg" alt="Google" width={24} height={24} />}>Sign up with Google</Button>
-                <Button variant="outline" socialMediaIcon={<Image src="/icons/linkedin.svg" alt="LinkedIn" width={24} height={24} />}>Sign up with LinkedIn</Button>
+            <div className="mt-6 space-y-3 mb-4">
+                <Button variant="outline" onClick={handleGoogleAuth} socialMediaIcon={<Image src="/icons/google.svg" alt="Google" width={24} height={24} />}>
+                    Sign up with Google
+                </Button>
+                <Button
+                    onClick={handleLogin}
+                    variant="outline" socialMediaIcon={<Image src="/icons/linkedin.svg" alt="LinkedIn" width={24} height={24} />}>
+                    Sign up with LinkedIn
+                </Button>
             </div>
 
             <center>{loading && <Spin size="large" />}</center>

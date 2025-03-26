@@ -4,12 +4,13 @@
 import Button from "@/components/Button/Button";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
 import { Select, Input, Spin, Card } from "antd";
-import { MessageSquare, Plus, Trash } from "lucide-react";
-import React, { useState } from "react";
+import { ArrowRight, MessageSquare, Plus, Trash, Upload } from "lucide-react";
+import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
+import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 
 
 type CreatorDashboardProps = {
@@ -20,29 +21,19 @@ export default function CreatorDashboard({
     isPreview
 }: CreatorDashboardProps) {
     const [userData, setUserData] = useState<any>(null);
-
     const getUserDetails = async () => {
+        setLoading(true);
         const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
         if (!userId) return;
         let res = null;
-
         try {
             res = await api.get(`/users/user`);
             setUserData(res.data);
-
-
-            setShowSections({
-                services: res.data.services.length > 0,
-                partnerships: res.data.previousWork.length > 0,
-                work: res.data.featuredWork.length > 0,
-                // linkedin: res.data.linkedin.length > 0,
-                testimonials: res.data.testimonials.length > 0,
-                textBlock: res.data.textBlock.length > 0,
-                statBlock: res.data.stats.length > 0,
-            });
         }
         catch (err) {
             console.log(err);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -51,54 +42,52 @@ export default function CreatorDashboard({
     }, []);
 
     const [showSections, setShowSections] = React.useState({
-        services: false,
-        partnerships: false,
-        work: false,
-        linkedin: false,
-        testimonials: false,
-        textBlock: false,
-        statBlock: false,
+        services: true,
+        partnerships: true,
+        work: true,
+        linkedin: true,
+        testimonials: true,
+        textBlock: true,
+        statBlock: true,
     });
 
     const [data, setData] = useState({});
-
-    const [tags, setTags] = useState<string[]>([]);
-    const [tagText, setTagText] = useState("");
-
-    const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && e.currentTarget.value.trim() !== "") {
-            setTags([...tags, e.currentTarget.value.trim()]);
-            setTagText("");
-        }
-    };
-
     const handleChange = (field: string, value: string) => {
         setData({ ...data, [field]: value });
     }
 
+    const resetAllState = () => {
+        setData({});
+        setTestimProfile(null);
+        setTestimName("");
+        setTestimPosition("");
+        setTestimText("");
+        setStatNumber("");
+        setStatLabel("");
+        setContent("");
+    }
+
+    const [loading, setLoading] = useState(false);
     const handleUserData = async (field: string, operation: string, itemId: string, data: unknown) => {
+        setLoading(true);
         const userId = userData?._id;
         if (!userId) return;
-
         let res = null;
         let url = `/users/${userId}/${field}/${operation}`;
         if (operation !== "add") url += `/${itemId}`;
-
         try {
             const headers = data instanceof FormData ? { "Content-Type": "multipart/form-data" } : {};
-
             res = await api.post(url, data, { headers });
-
             if (res.data.success) {
                 toast.success(res.data.message, { position: "top-center" });
             }
-
-            setData(prev => ({ ...prev })); // Prevent unnecessary state clearing
+            resetAllState();
             getUserDetails();
         } catch (err) {
             console.error("Error in handleUserData:", err.response?.data || err.message);
         } finally {
             setUploadLoading(false);
+            setLoading(false);
         }
     };
 
@@ -122,14 +111,6 @@ export default function CreatorDashboard({
                         >
                             <Trash size={16} />
                         </button>
-                        {/* <button
-                            onClick={() => {
-                                handleUserData("services", "update", service._id, { title: "Updated Web Development", price: 120 })
-                            }}
-                            className="absolute top-2 right-14"
-                        >
-                            <Trash size={16} />
-                        </button> */}
                         <div className="text-[16px] font-bold mb-2">
                             {service.title}
                         </div>
@@ -230,7 +211,7 @@ export default function CreatorDashboard({
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
                                 <img loading="lazy"
                                     src={
-                                        userData?.previousWork[index].image?.startsWith("http")
+                                        userData?.previousWork[index].image?.includes("http")
                                             ? userData?.previousWork[index].image
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.previousWork[index].image
                                     }
@@ -268,7 +249,8 @@ export default function CreatorDashboard({
                                 ref={fileInputRef}
                                 onChange={(e) => {
                                     handleFileChange(e, "previousWork");
-                                }} // Handle file selection
+                                    e.target.value = "";
+                                }}
                                 disabled={uploadLoading}
                             />
                             <span className="text-3xl text-gray-600">+</span>
@@ -293,7 +275,7 @@ export default function CreatorDashboard({
                             <div className="bg-white w-full aspect-[4/3] rounded-md overflow-hidden relative">
                                 <img loading="lazy"
                                     src={
-                                        userData?.featuredWork[index].image?.startsWith("http")
+                                        userData?.featuredWork[index].image?.includes("http")
                                             ? userData?.featuredWork[index].image
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.featuredWork[index].image
                                     }
@@ -340,68 +322,68 @@ export default function CreatorDashboard({
             </div>
         );
     };
-    const LinkedInDiv = () => {
-        return (
-            <div className="w-full bg-neutral-50 p-6 rounded-sm">
-                {/* Header */}
-                <div className="flex items-center space-x-3 mb-4">
-                    <img loading="lazy" src="/icons/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
-                    <h2 className="uppercase text-lg font-semibold">ANDREWS LINKEDIN</h2>
-                </div>
+    // const LinkedInDiv = () => {
+    //     return (
+    //         <div className="w-full bg-neutral-50 p-6 rounded-sm">
+    //             {/* Header */}
+    //             <div className="flex items-center space-x-3 mb-4">
+    //                 <img loading="lazy" src="/icons/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
+    //                 <h2 className="uppercase text-lg font-semibold">ANDREWS LINKEDIN</h2>
+    //             </div>
 
-                {/* Description */}
-                <p className="text-gray-600 text-sm leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
-                    veniam saepe officiis fugiat quidem maxime, laudantium eligendi
-                    pariatur ex soluta animi aut nihil commodi ipsum quisquam perferendis
-                    aperiam. Facilis eligendi nisi ullam voluptates blanditiis sed rerum
-                    consectetur maiores rem hic.
-                </p>
+    //             {/* Description */}
+    //             <p className="text-gray-600 text-sm leading-relaxed">
+    //                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
+    //                 veniam saepe officiis fugiat quidem maxime, laudantium eligendi
+    //                 pariatur ex soluta animi aut nihil commodi ipsum quisquam perferendis
+    //                 aperiam. Facilis eligendi nisi ullam voluptates blanditiis sed rerum
+    //                 consectetur maiores rem hic.
+    //             </p>
 
-                {/* Audience Interests */}
-                <div className="w-full sm:w-1/3 mt-3">
-                    <h1 className="text-sm font-bold text-left mb-1">Audience Interests:</h1>
-                    {!isPreview && (
-                        <>
-                            <Input
-                                value={tagText}
-                                onChange={(e) => setTagText(e.target.value)}
-                                onKeyPress={handleAddTag}
-                                placeholder="Press Enter to add tags"
-                                className="w-full"
-                            />
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {tags.map((tag, index) => (
-                                    <div
-                                        key={index}
-                                        className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
-                                    >
-                                        {tag}
-                                        <span
-                                            className="ml-2 text-red-500 cursor-pointer"
-                                            onClick={() => setTags(tags.filter((item) => item !== tag))}
-                                        >
-                                            ✕
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
+    //             {/* Audience Interests */}
+    //             <div className="w-full sm:w-1/3 mt-3">
+    //                 <h1 className="text-sm font-bold text-left mb-1">Audience Interests:</h1>
+    //                 {!isPreview && (
+    //                     <>
+    //                         <Input
+    //                             value={tagText}
+    //                             onChange={(e) => setTagText(e.target.value)}
+    //                             onKeyPress={handleAddTag}
+    //                             placeholder="Press Enter to add tags"
+    //                             className="w-full"
+    //                         />
+    //                         <div className="flex flex-wrap gap-2 mt-2">
+    //                             {tags.map((tag, index) => (
+    //                                 <div
+    //                                     key={index}
+    //                                     className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
+    //                                 >
+    //                                     {tag}
+    //                                     <span
+    //                                         className="ml-2 text-red-500 cursor-pointer"
+    //                                         onClick={() => setTags(tags.filter((item) => item !== tag))}
+    //                                     >
+    //                                         ✕
+    //                                     </span>
+    //                                 </div>
+    //                             ))}
+    //                         </div>
+    //                     </>
+    //                 )}
+    //             </div>
 
-                {/* Stats */}
-                <div className="flex flex-wrap md:flex-nowrap sm:flex-nowrap gap-4 mt-4">
-                    {Array(4).fill(null).map((_, index) => (
-                        <div key={index} className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
-                            <h1 className="text-lg font-semibold">1,200</h1>
-                            <p className="text-gray-600">#Jobs Completed</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
+    //             {/* Stats */}
+    //             <div className="flex flex-wrap md:flex-nowrap sm:flex-nowrap gap-4 mt-4">
+    //                 {Array(4).fill(null).map((_, index) => (
+    //                     <div key={index} className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md">
+    //                         <h1 className="text-lg font-semibold">1,200</h1>
+    //                         <p className="text-gray-600">#Jobs Completed</p>
+    //                     </div>
+    //                 ))}
+    //             </div>
+    //         </div>
+    //     );
+    // };
     const StatCard = ({ value, title, _id }: { value: number; title: string; _id: string }) => {
         return (
             <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md relative">
@@ -432,7 +414,7 @@ export default function CreatorDashboard({
                 <p>&quot;{text}&quot;</p>
                 <div className="flex items-center mt-6 ml-auto">
                     <img loading="lazy" alt={name} className="w-12 h-12 rounded-full"
-                        src={image.startsWith("http") ? image : process.env.NEXT_PUBLIC_SERVER_URL + image}
+                        src={image.includes("http") ? image : process.env.NEXT_PUBLIC_SERVER_URL + image}
                     />
                     <div className="flex flex-col ml-4">
                         <h1 className="font-semibold">{name}</h1>
@@ -463,6 +445,7 @@ export default function CreatorDashboard({
 
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
+
                 <h2 className="uppercase mb-4">Testimonials</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {testimonials.map((item, index) => (
@@ -533,7 +516,7 @@ export default function CreatorDashboard({
         );
     };
 
-    const [statNumber, setStatNumber] = useState(0);
+    const [statNumber, setStatNumber] = useState("");
     const [statLabel, setStatLabel] = useState("");
 
     const handleState = () => {
@@ -542,7 +525,7 @@ export default function CreatorDashboard({
             title: statLabel
         });
 
-        setStatNumber(0);
+        setStatNumber("");
         setStatLabel("");
     }
 
@@ -591,6 +574,7 @@ export default function CreatorDashboard({
     const [content, setContent] = useState("");
     const [eye, setEye] = useState(false);
     const TextBlockDiv = () => {
+
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <div className="flex justify-between">
@@ -624,8 +608,10 @@ export default function CreatorDashboard({
                                     onClick={() => {
                                         if (userData?.textBlock.length === 0) {
                                             handleUserData("textBlock", "add", '', { description: content })
+                                            setEye(!eye)
                                         } else {
                                             handleUserData("textBlock", "update", userData?.textBlock[0]?._id, { description: content })
+                                            setEye(!eye)
                                         }
                                     }}
                                 >
@@ -638,72 +624,158 @@ export default function CreatorDashboard({
         );
     };
 
+    const userFileInputRef = useRef(null);
+    const userFileInputRef2 = useRef(null);
+
+    const handleUserFilesChange = (event, field) => {
+        const file = event.target.files[0];
+        if (file) {
+            updateUserImages(field, file);
+        }
+        event.target.value = null;
+    };
+
+    const updateUserImages = async (field: string, image: File) => {
+        const formData = new FormData();
+        formData.append(field, image);
+
+        try {
+            const res = await api.put(`/users/user-update`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+
+            if (res.data.success) {
+                toast.success(res.data.message, { position: "top-center" });
+                getUserDetails();
+            }
+        } catch (err) {
+            console.error("Error in updateUserImages:", err.response?.data || err.message);
+        }
+    }
 
     return (
         <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16 w-full">
-            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16 w-full">
+            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16 w-full relative">
+                <LoadingOverlay
+                    loading={loading}
+                />
+                <Link href="/dashboard/user-preview/[id]" as={`/dashboard/user-preview/${userData?._id}`}>
+                    <div className="flex items-center space-x-2 text-primary-700 font-medium absolute top-5 right-5">
+                        View Storefront
+                        <ArrowRight size={18} />
+                    </div>
+                </Link>
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <div>
-                        <div className="relative">
+
+                    <div className="relative">
+
+                        <div className="relative w-full h-48 sm:h-72 group">
                             {/* Cover Image */}
-                            <div className="relative w-full h-48 sm:h-72">
-                                <img loading="lazy" src={
-                                    userData?.coverImage?.startsWith("http")
+                            <img
+                                loading="lazy"
+                                src={
+                                    userData?.coverImage?.includes("http")
                                         ? userData?.coverImage
                                         : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
-                                } alt="Cover" className="w-full h-full object-cover rounded-md" />
+                                }
+                                alt="Cover"
+                                className="w-full h-full object-cover rounded-md"
+                            />
+
+                            {/* Hover Overlay */}
+                            <div
+                                className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer rounded-md"
+                                onClick={() => userFileInputRef2.current.click()}
+                            >
+                                <Upload size={32} className="text-white" />
                             </div>
 
-                            {/* Profile Section */}
-                            <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
-                                {/* Profile Picture and Info */}
-                                <div className="flex items-end space-x-4">
-                                    <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <img loading="lazy" src={
-                                            userData?.profileImage?.startsWith("http")
+                            <input
+                                type="file"
+                                className="hidden"
+                                ref={userFileInputRef2}
+                                onChange={(event) => handleUserFilesChange(event, "coverImage")}
+                            />
+
+                        </div>
+
+                        {/* Profile Section */}
+                        <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
+                            {/* Profile Picture and Info */}
+                            <div className="flex items-end space-x-4">
+                                <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
+                                    {/* Profile Image */}
+                                    <img
+                                        loading="lazy"
+                                        src={
+                                            userData?.profileImage?.includes("http")
                                                 ? userData?.profileImage
                                                 : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
-                                        } alt="Profile" className="w-full h-full object-cover" />
+                                        }
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                    />
+
+                                    {/* Hover Overlay */}
+                                    <div
+                                        className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                                        onClick={() => userFileInputRef.current.click()}
+                                    >
+                                        <Upload size={32} className="text-white" />
                                     </div>
-                                    {/* Name and Socials */}
-                                    <div className="flex flex-col">
-                                        <h2 className="text-2xl font-semibold">
-                                            {userData?.name || "Creator Name"}
-                                        </h2>
-                                        <div className="flex space-x-3 mt-1 text-gray-500">
-                                            {
-                                                userData?.socialMediaLinks.map((link: any, index: number) => (
-                                                    <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                        <img loading="lazy"
-                                                            src={`/icons/${link.platform}.svg`}
-                                                            alt={link.platform}
-                                                            className="w-6 h-6"
-                                                        />
-                                                    </a>
-                                                ))
-                                            }
-                                        </div>
-                                    </div>
+
+                                    {/* Hidden File Input */}
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        ref={userFileInputRef}
+                                        onChange={(event) => handleUserFilesChange(event, "profileImage")}
+                                    />
                                 </div>
 
-                                {/* Chat Button */}
-                                <Link href="/dashboard/inbox">
-                                    <Button
-                                        size="small"
-                                        variant="primary"
-                                        className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-                                    >
-                                        <MessageSquare size={16} className="mr-2" />
-                                        Have a Chat
-                                    </Button></Link>
+                                {/* Name and Socials */}
+                                <div className="flex flex-col">
+                                    <h2 className="text-2xl font-semibold">
+                                        {userData?.name || "Creator Name"}
+                                    </h2>
+                                    <div className="flex space-x-3 mt-1 text-gray-500">
+                                        {
+                                            userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
+                                                <a key={index} href={link.link} target="_blank" rel="noreferrer">
+                                                    <img loading="lazy"
+                                                        src={`/icons/${link.platform}.svg`}
+                                                        alt={link.platform}
+                                                        className="w-6 h-6"
+                                                    />
+                                                </a>
+                                            ))
+                                        }
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Chat Button */}
+                            <Link href="/dashboard/inbox">
+                                <Button
+                                    size="small"
+                                    variant="primary"
+                                    className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                                >
+                                    <MessageSquare size={16} className="mr-2" />
+                                    Have a Chat
+                                </Button>
+                            </Link>
                         </div>
+
                     </div>
+
+
 
                     {/* Bio */}
                     <p className="mt-24 text-gray-600 text-sm">
@@ -731,16 +803,11 @@ export default function CreatorDashboard({
                         {showSections.services && ServicesDiv()}
                         {showSections.partnerships && PartnershipsDiv()}
                         {showSections.work && WorkDiv()}
-                        {showSections.linkedin && LinkedInDiv()}
+                        {/* {showSections.linkedin && LinkedInDiv()} */}
                         {showSections.testimonials && TestimonialsDiv()}
                         {showSections.textBlock && TextBlockDiv()}
                         {showSections.statBlock && StatBlockDiv()}
                     </div>
-
-                    {/* Add a section */}
-
-
-
                 </motion.div>
             </div>
         </div>

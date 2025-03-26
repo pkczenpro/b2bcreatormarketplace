@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/utils/axiosInstance";
+import { toast } from "sonner";
 
 const LinkedInCallback = () => {
     const navigate = useRouter();
@@ -10,20 +11,16 @@ const LinkedInCallback = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
-        const userType = urlParams.get("state");
 
         if (code) {
             api
-                .post("/users/login/linkedin?authtype=1", { code, userType })
-                .then((response) => {
-                    localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    localStorage.setItem('userType', response.data.user.userType); // temp
-                    navigate.push("/dashboard/post-maker")
+                .post("/users/get-access-token", { code })
+                .then(() => {
+                    const lastUrl = localStorage.getItem("lastUrl");
+                    navigate.push(lastUrl || "/dashboard");
                 })
                 .catch((error) => {
-                    console.error("Login failed", error);
-                    navigate.push("/login");
+                    toast.error("Error logging in with LinkedIn");
                 });
         }
     }, []);
@@ -49,7 +46,7 @@ const LinkedInCallback = () => {
                 d="M4 12a8 8 0 0116 0h-2a6 6 0 00-12 0H4z"
             ></path>
         </svg>
-        <p className="font-medium">Authenticating...</p>
+        <p className="font-medium">Authenticating...        </p>
     </div>;
 };
 

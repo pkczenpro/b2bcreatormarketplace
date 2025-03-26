@@ -9,6 +9,7 @@ import React from "react";
 import api from "@/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import { Spin } from "antd";
+import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 
 type ProfileSetupProps = object;
 
@@ -26,32 +27,34 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const router = useRouter();
   const [userType, setUserType] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setUserType(localStorage.getItem("userType"));
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUserData(JSON.parse(storedUser));
-      }
+  const [loading, setLoading] = useState(false);
+  const getUserData = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/users/user");
+      setUserData(response.data);
+      setUserType(response.data.userType);
+    } catch (error) {
+      console.error("Profile setup error:", error);
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
+    getUserData();
   }, []);
 
-  console.log(userData)
 
-
-  const [profileName, setProfileName] = useState<string>("Andrew Bishop");
-  const [location, setLocation] = useState<string>("Location");
+  const [profileName, setProfileName] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [coverPicture, setCoverPicture] = useState<string | null>(null);
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [linkedin, setLinkedin] = useState<string>("linkedin.com/in/johndoe");
-  const [medium, setMedium] = useState<string>("medium.com/@johndoe");
-  const [spotify, setSpotify] = useState<string>(
-    "open.spotify.com/user/johndoe"
-  );
-  const [website, setWebsite] = useState<string>("johndoe.com");
+  const [linkedin, setLinkedin] = useState<string>("");
+  const [medium, setMedium] = useState<string>("");
+  const [spotify, setSpotify] = useState<string>("");
+  const [website, setWebsite] = useState<string>("");
   const [otherLinks, setOtherLinks] = useState<string>("");
   const [openOtherLinks, setOpenOtherLinks] = useState<boolean>(false);
   const [shortIntroduction, setShortIntroduction] = useState("");
@@ -264,7 +267,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
-        {userType === "creator" && (
+        {userType === "brand" && (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">
               Company Location
@@ -348,7 +351,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     },
   ];
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const finishSetup = async () => {
     setLoading(true);
 
@@ -406,7 +409,10 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   };
 
   return (
-    <div className="flex flex-col-reverse items-center justify-center bg-white p-4 md:flex-row md:p-6">
+    <div className="flex flex-col-reverse items-center justify-center bg-white p-4 md:flex-row md:p-6 relative">
+      <LoadingOverlay
+        loading={loading}
+      />
       <div className="w-full max-w-lg md:w-[40vw] ml-0 md:ml-24">
         <h1 className="text-h3 font-bold text-left mb-1">Setup Your Profile</h1>
         <p className="text-neutral-600 text-left mb-6 md:mb-10">

@@ -68,8 +68,12 @@ export default function Creators() {
             >
                 <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
                     <img loading="lazy" src={
-                        process.env.NEXT_PUBLIC_SERVER_URL + creator.profileImage
-                    } alt="" />
+                        creator.image?.includes("http")
+                            ? creator.image
+                            : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
+                    } alt="" 
+                        className="w-12 h-12 rounded-full"
+                    />
                     <h2 className="text-md font-bold text-neutral-600">
                         {creator.name}
                     </h2>
@@ -131,8 +135,9 @@ export default function Creators() {
                 });
                 toast.success("Creator added to campaign successfully.", {
                     position: "top-right",
-                    description: "Tony Dunbar has been added to Campaign 1.",
+                    description: `${creator.name} has been added to Campaign` + res.data.title,
                 })
+                setAddToCampaign(false);
             }
             catch (ex) {
                 console.log(ex)
@@ -229,9 +234,9 @@ export default function Creators() {
                                     <div className="flex items-center space-x-4">
                                         <div className="relative w-14 h-14">
                                             <img loading="lazy" src={
-                                                creator.image?.startsWith("http")
+                                                creator.image?.includes("http")
                                                     ? creator.image
-                                            : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
+                                                    : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
                                             } alt={creator.name} className="w-14 h-14 rounded-full" />
                                             <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
                                         </div>

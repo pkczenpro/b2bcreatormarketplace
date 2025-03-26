@@ -2,54 +2,29 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 import api from "@/utils/axiosInstance";
 import { Input, Table, Button } from "antd";
-import { Search, Compass, Earth } from "lucide-react";
+import { Search, Compass, Earth, Heart } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-
-// const categories = [
-//     { name: "Technology", sub: ["AI", "Blockchain", "SaaS"] },
-//     { name: "Marketing", sub: ["SEO", "Social Media", "Branding"] },
-//     { name: "Finance", sub: ["Investment", "Banking", "Insurance"] }
-// ];
-
-const companies = [
-    {
-        id: 1,
-        name: "TechCorp",
-        region: "USA",
-        size: "500+",
-        category: "Technology",
-        linkedin: "https://linkedin.com/company/techcorp",
-        website: "https://techcorp.com",
-        logo: "/icons/linkedin.svg",
-        description: "Leading innovator in AI and blockchain solutions."
-    },
-    {
-        id: 2,
-        name: "MarketGenius",
-        region: "UK",
-        size: "200-500",
-        category: "Marketing",
-        linkedin: "https://linkedin.com/company/marketgenius",
-        website: "https://marketgenius.com",
-        logo: "/icons/linkedin.svg",
-        description: "Helping brands excel in digital marketing strategies."
-    }
-];
+import { toast } from "sonner";
 
 export default function Dashboard() {
+    const loggedUserId = JSON.parse(localStorage.getItem("user"))._id;
+
+    const [companies, setCompanies] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    // const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
     const getBrands = async () => {
+        setLoading(true);
         api.get("/users/brands").then(res => {
             setFilteredData(res.data);
-            // "tags": ["developer", "startup"]
-
+            setCompanies(res.data);
         }).catch(err => {
             console.error(err);
+        }).finally(() => {
+            setLoading(false);
         });
     }
 
@@ -65,22 +40,20 @@ export default function Dashboard() {
         ));
     };
 
-    const handleCategoryFilter = (category) => {
-        setSelectedCategories(prev =>
-            prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-        );
-    };
-
-    useEffect(() => {
-        if (selectedCategories.length === 0) {
-            setFilteredData(companies);
-        } else {
-            setFilteredData(companies.filter(company => selectedCategories.includes(company.category)));
+    const followBrand = async (id) => {
+        try {
+            await api.get("/users/follow-brand/" + id);
+            getBrands();
+        } catch (error) {
+            console.log(error);
         }
-    }, [selectedCategories]);
+    }
 
     return (
         <div className="flex min-h-screen bg-gray-100">
+            {/* <LoadingOverlay
+                loading={loading}
+            /> */}
             <LeftMenu />
             <div className="flex flex-col w-full p-6">
                 <div className="flex items-center justify-between bg-white p-6 rounded-lg">
@@ -100,8 +73,6 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex gap-2 mt-2 h-full">
-
-
                     <div className="col-span-3 bg-white p-6 rounded-lg w-full">
                         <h3 className="text-xl font-semibold mb-4">Featured Brands</h3>
                         <div>
@@ -111,26 +82,49 @@ export default function Dashboard() {
                                 pagination={false}
                                 rowKey="id"
                                 size="small"
+                                loading={loading}
                                 columns={[
                                     {
                                         title: "Name",
                                         dataIndex: "name",
                                         render: (name, record) => (
-                                            <div className="flex items-center">
-                                                <img loading="lazy" src={record.image} alt="logo" className="w-12 h-12 mr-2" />
+                                            <div className="flex items-center space-x-4 p-4 hover:bg-gray-50 transition-all rounded-lg">
                                                 <div>
-                                                    <div className="flex items-center">
-                                                        <Link href={`/dashboard/brands/${record.id}`} className="mr-2">
-                                                            <span className="font-semibold text-gray-800">{name}</span>
+                                                    {
+                                                        record.followers.includes(loggedUserId)
+                                                            ? <Heart className="text-red-600 hover:text-gray-300 transition-all cursor-pointer"
+                                                                onClick={() => followBrand(record._id)}
+                                                            />
+                                                            : <Heart className="text-gray-300 hover:text-red-500 transition-all cursor-pointer"
+                                                                onClick={() => followBrand(record._id)}
+                                                            />
+                                                    }
+                                                </div>
+                                                <img
+                                                    loading="lazy"
+                                                    src={record.image}
+                                                    alt="logo"
+                                                    className="w-16 h-16 rounded-full border-2 border-gray-200 shadow-md"
+                                                />
+                                                <div className="flex-1">
+                                                    <div className="flex items-center space-x-2">
+                                                        <Link href={`/dashboard/brands/${record.id}`} className="font-semibold text-lg text-gray-800 hover:text-blue-500 transition-all">
+                                                            {name}
                                                         </Link>
-                                                        <img loading="lazy" src="/icons/linkedin.svg" alt="" className="w-5 h-5 mr-2" />
-                                                        <Earth className="w-5 h-5 text-neutral-500" />
+                                                        <img
+                                                            loading="lazy"
+                                                            src="/icons/linkedin.svg"
+                                                            alt="LinkedIn"
+                                                            className="w-5 h-5 opacity-70 hover:opacity-100 transition-all"
+                                                        />
+                                                        <Earth className="w-5 h-5 text-neutral-500 hover:text-neutral-700 transition-all" />
                                                     </div>
-                                                    <p className="text-sm text-gray-500">{record.description}</p>
+                                                    <p className="mt-2 text-sm text-gray-600">{record.description}</p>
                                                 </div>
                                             </div>
                                         )
                                     },
+
                                     {
                                         title: "Region",
                                         dataIndex: "region",

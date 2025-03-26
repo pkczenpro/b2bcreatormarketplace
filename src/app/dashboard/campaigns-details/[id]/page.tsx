@@ -2,7 +2,7 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, Input, Modal } from "antd";
 import React from "react";
 import Button from "@/components/Button/Button";
 import { motion } from "framer-motion";
@@ -24,11 +24,20 @@ type CampaignDetailsProps = object;
 export default function CampaignDetails({ }: CampaignDetailsProps) {
     const [userType, setUserType] = React.useState<string | null>(null);
     const { id } = useParams();
+
     React.useEffect(() => {
         if (typeof window !== "undefined") {
-            setUserType(localStorage.getItem("userType"));
+            // Parse the string from localStorage to get the user object
+            const user = localStorage.getItem("user");
+            if (user) {
+                const parsedUser = JSON.parse(user);
+                setUserType(parsedUser.userType); // Set userType
+            }
         }
     }, []);
+
+    console.log(userType);  // This will log the userType, "creator" for example.
+
 
     const [campaign, setCampaign] = React.useState(null);
     const getCampaign = async () => {
@@ -172,7 +181,11 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     const campaignCreators = () => {
         return (
             <div className="mt-4">
-                <CreatorTable campaign={campaign} />
+                <CreatorTable campaign={campaign} Refresh={
+                    () => {
+                        getCampaign();
+                    }
+                } />
             </div>
         )
     }
@@ -180,12 +193,34 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     const campaignContent = () => {
         return (
             <div className="mt-4">
-                <ContentTable />
+                <ContentTable campaign={campaign} Refresh={
+                    () => {
+                        getCampaign();
+                    }
+                } />
             </div>
         )
     }
 
     const navigation = useRouter();
+
+    const [amount, setAmount] = React.useState(null);
+    const applyToCampaign = async () => {
+        try {
+            await api.post(`/campaigns/${id}/apply`, {
+                amount,
+            })
+
+            toast.success("Campaign applied successfully", {
+                position: "top-right",
+                description: "You have successfully applied for the campaign",
+            });
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const [amountModal, setAmountModal] = React.useState(false);
 
     return (
         <div className="flex">
@@ -226,10 +261,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                     size="small"
                                     onClick={() => {
                                         if (userType === "creator") {
-                                            toast.success("Campaign applied successfully", {
-                                                position: "top-right",
-                                                description: "You have successfully applied for the campaign",
-                                            });
+                                            setAmountModal(true);
                                         }
                                         else {
                                             navigation.push("/dashboard/creators");
@@ -279,6 +311,42 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                     </motion.div> : <div>Loading...</div>}
                 </div>
             </div>
+
+
+
+            <Modal
+                title="Join the Campaign 🚀"
+                open={amountModal}
+                onOk={() => {
+                    applyToCampaign();
+                    setAmountModal(false);
+                }}
+                onCancel={() => setAmountModal(false)}
+                centered
+                okText="Apply Now"
+                cancelText="Maybe Later"
+            >
+                <p className="mb-3">
+                    We'd love to have you on board! Let us know your charges for this campaign:
+                </p>
+                <Input
+                    type="text"
+                    value={formatPrice(amount?.toString())}
+                    onChange={(e) => {
+                        const rawValue = e.target.value.replace(/,/g, ""); // Remove existing commas
+                        setAmount(rawValue ? parseInt(rawValue, 10) : ""); // Ensure it's a number
+                    }}
+                    placeholder="Enter your rate (e.g., 1,000)"
+                    prefix="💰"
+                />
+            </Modal>
+
         </div>
     );
 }
+
+
+const formatPrice = (value) => {
+    if (!value) return "";
+    return value.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Adds commas for thousands
+};

@@ -8,10 +8,11 @@ const GoogleCallback = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const code = searchParams.get("code");
+    const state = searchParams.get("state");
 
     useEffect(() => {
         if (code) {
-            api.post("/users/login/google", { code, userType: "creator" }) // Change userType dynamically
+            api.post("/users/login/google", { code, userType: state }) // Change userType dynamically
                 .then(response => {
                     localStorage.setItem("token", response.data.token);
                     localStorage.setItem("user", JSON.stringify(response.data.user));
