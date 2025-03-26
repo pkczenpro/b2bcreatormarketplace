@@ -11,7 +11,16 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
-    const loggedUserId = JSON.parse(localStorage.getItem("user"))._id;
+    const [loggedUserId, setLoggedUserId] = useState("");
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const user = localStorage.getItem("user");
+            if (user) {
+                setLoggedUserId(JSON.parse(user)._id);
+            }
+        }
+    }, []);
 
     const [companies, setCompanies] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
