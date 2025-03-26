@@ -1,9 +1,11 @@
 import { Button, Modal, Select } from "antd";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
 import Template_1 from "./TEMPLATES/Template_1";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { toast } from "sonner";
+import api from "@/utils/axiosInstance";
 
 const TEMPLATES = [
     { id: 1, name: "Template 1", size: "288x360", component: Template_1, bgColor: "#000" },
@@ -44,10 +46,7 @@ const CarouselEditor = () => {
         const postElement = document.getElementById(`post-${index}`);
         if (postElement) {
             html2canvas(postElement, { backgroundColor: null }).then((canvas) => {
-                const link = document.createElement("a");
-                link.href = canvas.toDataURL("image/png");
-                link.download = `carousel_${index + 1}.png`;
-                link.click();
+                setImageFile([...imageFile, canvas.toDataURL("image/png")]);
             });
         }
     };
@@ -111,11 +110,167 @@ const CarouselEditor = () => {
         }
     };
 
+    const [relatedCampaigns, setRelatedCampaigns] = useState([]);
+    const [userData, setUserData] = useState(null);
+    const getUserData = async () => {
+        try {
+            const response = await api.get("/users/user");
+            setUserData(response.data);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    };
+
+    const getRelatedCampaigns = async (userId) => {
+        if (!userId) return; // Prevent unnecessary API calls
+        try {
+            const response = await api.get(`/campaigns/related-cg/${userId}`);
+            setRelatedCampaigns(response.data);
+        } catch (error) {
+            console.error("Error fetching related campaigns:", error);
+        }
+    };
+
+    useEffect(() => {
+        getUserData();
+    }, []);
+
+    useEffect(() => {
+        if (userData?._id) {
+            getRelatedCampaigns(userData._id);
+        }
+    }, [userData]);
+
+    const getLinkedInAuthUrl = () => {
+        const scopes = ["openid", "profile", "email", "w_member_social"].join(" ");
+        const linkedInClientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+        const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+        const redirectUri = `${DOMAIN}/auth/linkedin/access_token_callback`; // Change in production
+
+        localStorage.setItem("lastUrl", "/dashboard/post-maker");
+
+        return `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${linkedInClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}`;
+    };
+
+    const handleLinkedinAccess = () => {
+        const linkedInAuthUrl = getLinkedInAuthUrl();
+        window.location.href = linkedInAuthUrl;
+    };
+
+    const [selectedCampaign, setSelectedCampaign] = useState(null);
+    const [postContent, setPostContent] = useState("");
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+
+    const publishToLinkedIn = async () => {
+        const imageFilesToAdd = [];
+
+        // Process each post to extract images
+        for (const index of posts) {
+            const postElement = document.getElementById(`post-${index}`);
+            if (postElement) {
+                await html2canvas(postElement, { backgroundColor: null }).then((canvas) => {
+                    // Convert canvas to data URL
+                    const dataUrl = canvas.toDataURL("image/png");
+
+                    // Convert data URL to Blob
+                    const blob = dataURLtoBlob(dataUrl);
+
+                    // Create a File from the Blob (using a timestamp as the filename)
+                    const file = new File([blob], `image-${Date.now()}.png`, { type: "image/png" });
+
+                    // Push the file to the imageFilesToAdd array
+                    imageFilesToAdd.push(file);
+                });
+            }
+        }
+
+        // After all posts are processed, update the state with the new files
+        setImageFile((prevFiles) => [...(prevFiles || []), ...imageFilesToAdd]);
+
+
+        // Log the file objects to verify
+        console.log("Image Files (as File objects):", imageFilesToAdd);
+
+        // Create the form data for the API request
+        const formData = new FormData();
+        formData.append("content", postContent);
+        formData.append("type", "Carousel Maker");
+
+        for (const i of imageFilesToAdd) {
+            formData.append("images", i);
+        }
+
+        if (imageFilesToAdd.length === 0) {
+            toast.error("Please add at least one post to share", {
+                position: "top-center",
+                description: "Please add at least one post to share",
+            });
+            return;
+        }
+
+        // Check if a campaign is selected, otherwise show an error
+        if (!selectedCampaign) {
+            toast.error("Please select a campaign to share this post", {
+                position: "top-center",
+                description: "Please select a campaign to share this post",
+            });
+            return;
+        }
+
+        // Make the API request to submit the form data
+        try {
+            const res = await api.post(`/campaigns/${selectedCampaign}/creators/${userData._id}/submit`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            if (res?.data.error_code === 400) {
+                toast.error(res.message, {
+                    position: "top-center",
+                    description: res.message,
+                });
+                handleLinkedinAccess();
+                return;
+            }
+
+            toast.success("Post shared successfully", {
+                position: "top-center",
+                description: "Your post has been shared to LinkedIn",
+            });
+        } catch (error) {
+            console.error("Error sharing post to LinkedIn:", error);
+        }
+    };
+
+    // Helper function to convert data URL to Blob
+    const dataURLtoBlob = (dataUrl) => {
+        const byteString = atob(dataUrl.split(',')[1]);
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uintArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+            uintArray[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([arrayBuffer], { type: 'image/png' });
+    };
+
+
+
     return (
         <div className="flex w-full min-h-[80vh]">
             {showTemplatesModal()}
             <div className="min-w-[15vw] max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
                 <div>
+                    {/* Campaign Selection */}
+                    <h3 className="font-medium mb-2">
+                        Select a Campaign
+                    </h3>
+                    <Select className="mb-4 w-full" placeholder="Select Campaign" onChange={setSelectedCampaign}>
+                        {relatedCampaigns.map((campaign) => (
+                            <Select.Option key={campaign._id} value={campaign._id}>
+                                {campaign.title}
+                            </Select.Option>
+                        ))}
+                    </Select>
                     <h3 className="font-medium mb-2">Template Size</h3>
                     <Select className="w-full mb-2" value={selectedSize} onChange={(value) => setSelectedSize(value)}>
                         {templateSizes.map((size) => (
@@ -156,14 +311,16 @@ const CarouselEditor = () => {
                 <div>
                     <Button
                         type="primary"
-                        className="w-full mb-2 bg-primary-700 text-white">
+                        className="w-full mb-2 bg-primary-700 text-white"
+                        onClick={publishToLinkedIn}
+                    >
                         Publish To LinkedIn
                     </Button>
-                    <Button className="w-full flex items-center">
+                    {/* <Button className="w-full flex items-center">
                         <Clock
                             size={16}
                         />   Schedule Post
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 
