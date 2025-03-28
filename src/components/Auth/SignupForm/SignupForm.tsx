@@ -85,7 +85,7 @@ const SignupForm = ({ userType }: SignupFormProps) => {
         const scope = "openid email profile";
         const responseType = "code";
 
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${userType}`;
 
         window.open(googleAuthUrl, "_blank", "noopener,noreferrer");
     };
