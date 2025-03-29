@@ -24,7 +24,7 @@ export default function Signup() {
 
 
     return (
-        <div className="p-6 flex md:flex-row sm:flex-col flex-col justify-between items-center min-h-[100vh]">
+        <div className="p-6 flex flex-col md:flex-row justify-center items-center min-h-screen mx-auto">
             {/* Tabs Section */}
             <div className="w-full px-8 md:px-16 lg:px-32 mb-8 sm:mb-0">
                 <Tabs tabs={tabs} localStorageKey="authTab" />
@@ -32,7 +32,7 @@ export default function Signup() {
 
 
             {/* Image Section */}
-            <div className="w-full h-full flex justify-center">
+            <div className="w-full flex justify-center">
                 <img loading="lazy"
                     src="/images/wallpaper.png"
                     alt="Signup"

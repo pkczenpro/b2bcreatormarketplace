@@ -155,7 +155,7 @@ export default function BrandDashboard() {
                 </>
             ),
         },
-        products?.length > 0 && {
+        {
             id: 3,
             label: "Products",
             content: (

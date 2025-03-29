@@ -248,7 +248,7 @@ export default function CreatorDashboard() {
         <div className="flex flex-col sm:flex-row">
             <LeftMenu />
             <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50">
-                <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16 w-full">
+                <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

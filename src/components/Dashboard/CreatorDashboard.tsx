@@ -4,8 +4,8 @@
 import Button from "@/components/Button/Button";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
 import { Select, Input, Spin, Card } from "antd";
-import { ArrowRight, MessageSquare, Plus, Trash, Upload } from "lucide-react";
-import React, { useRef, useState } from "react";
+import { ArrowRight, Check, MessageSquare, Pencil, Plus, Trash, Upload } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
@@ -42,14 +42,26 @@ export default function CreatorDashboard({
     }, []);
 
     const [showSections, setShowSections] = React.useState({
-        services: true,
-        partnerships: true,
-        work: true,
-        linkedin: true,
-        testimonials: true,
-        textBlock: true,
-        statBlock: true,
+        services: false,
+        partnerships: false,
+        work: false,
+        linkedin: false,
+        testimonials: false,
+        textBlock: false,
+        statBlock: false,
     });
+
+    useEffect(() => {
+        setShowSections({
+            services: userData?.services.length > 0,
+            partnerships: userData?.previousWork.length > 0,
+            work: userData?.featuredWork.length > 0,
+            linkedin: false,
+            testimonials: userData?.testimonials.length > 0,
+            textBlock: userData?.textBlock.length > 0,
+            statBlock: userData?.stats.length > 0,
+        });
+    }, [userData]);
 
     const [data, setData] = useState({});
     const handleChange = (field: string, value: string) => {
@@ -635,16 +647,13 @@ export default function CreatorDashboard({
         event.target.value = null;
     };
 
-    const updateUserImages = async (field: string, image: File) => {
+    const updateUserImages = async (field: string, image: any) => {
         const formData = new FormData();
         formData.append(field, image);
-
         try {
             const res = await api.put(`/users/user-update`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
-
             if (res.data.success) {
                 toast.success(res.data.message, { position: "top-center" });
                 getUserDetails();
@@ -654,27 +663,20 @@ export default function CreatorDashboard({
         }
     }
 
+
     return (
         <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16 w-full">
-            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-16 w-full relative">
+            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full relative">
                 <LoadingOverlay
                     loading={loading}
                 />
-                <Link href="/dashboard/user-preview/[id]" as={`/dashboard/user-preview/${userData?._id}`}>
-                    <div className="flex items-center space-x-2 text-primary-700 font-medium absolute top-5 right-5">
-                        View Storefront
-                        <ArrowRight size={18} />
-                    </div>
-                </Link>
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-
                     <div className="relative">
-
                         <div className="relative w-full h-48 sm:h-72 group">
                             {/* Cover Image */}
                             <img
@@ -706,10 +708,10 @@ export default function CreatorDashboard({
                         </div>
 
                         {/* Profile Section */}
-                        <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
+                        <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-80px] pl-12">
                             {/* Profile Picture and Info */}
                             <div className="flex items-end space-x-4">
-                                <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
+                                <div className="relative group w-24 sm:w-48 rounded-sm overflow-hidden">
                                     {/* Profile Image */}
                                     <img
                                         loading="lazy"
@@ -741,12 +743,15 @@ export default function CreatorDashboard({
 
                                 {/* Name and Socials */}
                                 <div className="flex flex-col">
-                                    <h2 className="text-2xl font-semibold">
-                                        {userData?.name || "Creator Name"}
-                                    </h2>
+                                    <EditableHeading
+                                        className={"text-2xl font-semibold"}
+                                        initialName={userData?.name} onChange={(e) => {
+                                            updateUserImages("name", e);
+                                        }}
+                                    />
                                     <div className="flex space-x-3 mt-1 text-gray-500">
                                         {
-                                            userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
+                                            userData?.socialMediaLinks.filter((item) => item.link).length > 0 ? userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
                                                 <a key={index} href={link.link} target="_blank" rel="noreferrer">
                                                     <img loading="lazy"
                                                         src={`/icons/${link.platform}.svg`}
@@ -754,7 +759,7 @@ export default function CreatorDashboard({
                                                         className="w-6 h-6"
                                                     />
                                                 </a>
-                                            ))
+                                            )) : <span className="text-gray-500">Add social media links</span>
                                         }
                                     </div>
                                 </div>
@@ -778,18 +783,29 @@ export default function CreatorDashboard({
 
 
                     {/* Bio */}
-                    <p className="mt-24 text-gray-600 text-sm">
-                        {userData?.bio}
-                    </p>
+                    <div className="mt-24 text-gray-600 text-sm">
+                        <EditableHeading
+                            initialName={userData?.bio || "Add a bio here"}
+                            onChange={(e) => {
+                                updateUserImages("bio", e);
+                            }}
+                        />
+                    </div>
 
                     {/* Tags */}
                     <div className="mt-4 flex space-x-2">
-                        {userData?.tags.map((tag: string, index: number) => (
-                            <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                                {tag}
-                            </span>
-                        ))}
+                        <EditableTagsAdder
+                            tags={
+                                typeof userData?.tags === "string"
+                                    ? userData?.tags.split(",")
+                                    : [] // If it's not a string, fall back to an empty array
+                            }
+                            setTags={(tags) => {
+                                updateUserImages("tags", tags);
+                            }}
+                        />
                     </div>
+
 
                     {!isPreview && <div className="mt-8">
                         <PopupDropdown
@@ -809,6 +825,99 @@ export default function CreatorDashboard({
                         {showSections.statBlock && StatBlockDiv()}
                     </div>
                 </motion.div>
+            </div>
+        </div>
+    );
+}
+
+// types 
+
+type EditableHeadingProps = {
+    initialName: string;
+    onChange: (name: string) => void;
+    className: string;
+};
+
+const EditableHeading = ({ initialName, onChange, className }: EditableHeadingProps) => {
+    const [name, setName] = useState(initialName);
+    const [isEditing, setIsEditing] = useState(false);
+
+    useEffect(() => {
+        setName(initialName);
+    }, [initialName]);
+
+    const handleBlur = (e) => {
+        setName(e.target.innerText);
+    };
+
+    const handleChange = () => {
+        if (name === initialName) return;
+        onChange(name);
+    }
+
+    return (
+        <div className="flex items-center gap-2">
+            {isEditing ? (
+                <h2
+                    className={`${className} border-b border-gray-400 focus:outline-none`}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={handleBlur}
+                >
+                    {name}
+                </h2>
+            ) : (
+                <h2 className={className}>{name}</h2>
+            )}
+
+            <button
+                onClick={() => {
+                    if (isEditing) handleChange();
+                    setIsEditing(!isEditing);
+                }}
+                className="p-1 rounded-md bg-gray-200 hover:bg-gray-300 transition"
+            >
+                {isEditing ? <Check size={10} /> : <Pencil size={10} />}
+            </button>
+        </div>
+    );
+};
+
+const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: string[]) => void }) => {
+    const [tagText, setTagText] = useState("");
+
+    const handleAddTag = (e) => {
+        if (e.key === "Enter" && tagText) {
+            setTags([...tags, tagText]);
+            setTagText("");
+        }
+    }
+
+    return (
+        <div className="w-full sm:w-1/3 mt-3">
+            <h1 className="text-sm font-bold text-left mb-1">Audience Interests:</h1>
+            <Input
+                value={tagText}
+                onChange={(e) => setTagText(e.target.value)}
+                onKeyPress={handleAddTag}
+                placeholder="Press Enter to add tags"
+                className="w-full"
+            />
+            <div className="flex flex-wrap gap-2 mt-2">
+                {tags?.map((tag, index) => (
+                    <div
+                        key={index}
+                        className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
+                    >
+                        {tag}
+                        <span
+                            className="ml-2 text-red-500 cursor-pointer"
+                            onClick={() => setTags(tags?.filter((item) => item !== tag))}
+                        >
+                            ✕
+                        </span>
+                    </div>
+                ))}
             </div>
         </div>
     );

@@ -10,6 +10,7 @@ import api from "@/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import { Spin } from "antd";
 import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
+import { toast } from "sonner";
 
 type ProfileSetupProps = object;
 
@@ -355,6 +356,24 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const finishSetup = async () => {
     setLoading(true);
 
+    if (!profileFile || !coverFile) {
+      toast.error("Please upload profile and cover picture");
+      setLoading(false);
+      return;
+    }
+
+    if (tags.length === 0) {
+      toast.error("Please add at least one tag");
+      setLoading(false);
+      return
+    }
+
+    if (!shortIntroduction) {
+      toast.error("Please add a short introduction");
+      setLoading(false);
+      return
+    }
+
     try {
       const formData = new FormData();
 
@@ -376,8 +395,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
           { platform: "otherLinks", link: otherLinks || "" },
         ])
       );
-      console.log(profileFile)
-      console.log(coverFile)
+
       // Append files
       if (profileFile) {
         formData.append("profileImage",

@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import {
   Inbox, Store, Flag, Calendar, AlignCenter, GalleryHorizontal, User,
-  BriefcaseBusiness, Bell, LogOut, Menu as BurgerIcon
+  BriefcaseBusiness, Bell, LogOut, Menu as BurgerIcon,
+  Home
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,6 +36,7 @@ export const LeftMenu = () => {
   }, []);
 
   const menuItems = [
+    { name: "Home", icon: Home, link: `/dashboard/user-preview/${userData?._id}` },
     { name: "Inbox", icon: Inbox, link: "/dashboard/inbox" },
     { name: userType === "brand" ? "Brandfront" : "Storefront", icon: Store, link: "/dashboard", underline: true },
     { name: "Campaigns", icon: Flag, link: "/dashboard/campaigns" },
@@ -53,7 +55,7 @@ export const LeftMenu = () => {
   ].filter(Boolean);
 
   const logout = () => {
-    localStorage.removeItem("userType");
+    localStorage.clear();
     window.location.href = "/login";
   };
 
@@ -62,10 +64,12 @@ export const LeftMenu = () => {
       <Link href={link} className="w-full">
         <Tooltip title={tooltip} placement="right" arrow={true}>
           <li className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === link ? "bg-neutral-50" : ""}`}
-            style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+            // style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+            style={{ color: "#3D4350" }}
           >
             <Icon size={20} className="mr-2"
-              style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+              // style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
+              style={{ color: "#3D4350" }}
             />
             {name}
           </li>
@@ -104,6 +108,7 @@ export const LeftMenu = () => {
       <div className="sm:flex flex-col  min-w-[20%] max-w-[20%] w-[20%] px-[16px] max-h-screen bg-white border-r border-gray-200 hidden sm:block">
         <div className="py-6 flex items-center justify-between mt-6">
           <h1 className="text-lg font-bold">B2B Creator</h1>
+          <Bell size={24} />
         </div>
         <div className="flex flex-col items-start h-full">
           <ul className="w-full">{renderMenuItems()}</ul>
