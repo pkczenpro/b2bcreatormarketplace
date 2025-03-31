@@ -3,7 +3,7 @@
 
 import Button from "@/components/Button/Button";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
-import { Select, Input, Spin, Card } from "antd";
+import { Select, Input, Spin, Card, Modal } from "antd";
 import { ArrowRight, Check, MessageSquare, Pencil, Plus, Trash, Upload } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
@@ -655,7 +655,7 @@ export default function CreatorDashboard({
                 headers: { "Content-Type": "multipart/form-data" },
             });
             if (res.data.success) {
-                toast.success(res.data.message, { position: "top-center" });
+                // toast.success(res.data.message, { position: "top-center" });
                 getUserDetails();
             }
         } catch (err) {
@@ -667,9 +667,9 @@ export default function CreatorDashboard({
     return (
         <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16 w-full">
             <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full relative">
-                <LoadingOverlay
+                {/* <LoadingOverlay
                     loading={loading}
-                />
+                /> */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -759,9 +759,16 @@ export default function CreatorDashboard({
                                                         className="w-6 h-6"
                                                     />
                                                 </a>
-                                            )) : <span className="text-gray-500">Add social media links</span>
+                                            )) : <EditableSocialMediaLinks
+                                                links={userData?.socialMediaLinks || []}
+                                                setLinks={(links) => {
+                                                    updateUserImages("socialMediaLinks", links);
+                                                }}
+                                            />
                                         }
                                     </div>
+
+
                                 </div>
                             </div>
 
@@ -796,9 +803,7 @@ export default function CreatorDashboard({
                     <div className="mt-4 flex space-x-2">
                         <EditableTagsAdder
                             tags={
-                                typeof userData?.tags === "string"
-                                    ? userData?.tags.split(",")
-                                    : [] // If it's not a string, fall back to an empty array
+                                userData?.tags || []
                             }
                             setTags={(tags) => {
                                 updateUserImages("tags", tags);
@@ -886,6 +891,7 @@ const EditableHeading = ({ initialName, onChange, className }: EditableHeadingPr
 const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: string[]) => void }) => {
     const [tagText, setTagText] = useState("");
 
+    console.log(tags);
     const handleAddTag = (e) => {
         if (e.key === "Enter" && tagText) {
             setTags([...tags, tagText]);
@@ -904,7 +910,7 @@ const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: 
                 className="w-full"
             />
             <div className="flex flex-wrap gap-2 mt-2">
-                {tags?.map((tag, index) => (
+                {tags?.filter((item) => item).map((tag, index) => (
                     <div
                         key={index}
                         className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
@@ -916,6 +922,69 @@ const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: 
                         >
                             ✕
                         </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks: (links: any[]) => void }) => {
+    const [platform, setPlatform] = useState("");
+    const [link, setLink] = useState("");
+
+    const handleAddLink = () => {
+        if (platform && link) {
+            setLinks([...links, { platform, link }]);
+            setPlatform("");
+            setLink("");
+        }
+    }
+
+    const [modal, setModal] = useState(false);
+
+
+
+    return (
+        <div className="w-full">
+            {/* <h1 className="text-sm font-bold text-left mb-1">Social Media Links:</h1> */}
+            <Modal
+                title="Add Link"
+                visible={modal}
+                onCancel={() => setModal(false)}
+                footer={null}
+                centered
+            >
+                <Input
+                    placeholder="Enter Link"
+                    className="w-1/2"
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                />
+                <Button
+                    onClick={handleAddLink}
+                    size="small"
+                    variant="primary"
+                    className="text-sm"
+                >
+                    Add Link
+                </Button>
+
+            </Modal>
+            <div className="flex space-x-3 mt-1 text-gray-500">
+                {links.map((link, index) => (
+                    <div key={index} onClick={
+                        () => {
+                            setPlatform(link.platform);
+                            setLink(link.link);
+                            setModal(true);
+                        }
+                    }>
+                        <img loading="lazy"
+                            src={`/icons/${link.platform}.svg`}
+                            alt={link.platform}
+                            className="w-6 h-6"
+                        />
                     </div>
                 ))}
             </div>

@@ -121,6 +121,7 @@ export const LeftMenu = () => {
           } alt="Profile" className="w-10 h-10 rounded-full object-cover" />
           <div className="flex flex-col">
             <span className="font-bold text-sm">{userData?.name}</span>
+            <span className="text-xs text-neutral-500">{userData?.email}</span>
           </div>
           <LogOut size={20} className="cursor-pointer" onClick={logout} />
         </div>
