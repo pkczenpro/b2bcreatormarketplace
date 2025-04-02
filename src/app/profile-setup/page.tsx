@@ -355,8 +355,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   // const [loading, setLoading] = useState(false);
   const finishSetup = async () => {
     setLoading(true);
-
-    if (!profileFile || !coverFile) {
+    console.log("profileFile", profilePicture);
+    console.log("coverFile", coverPicture);
+    if ((!profileFile && !profilePicture) || (!coverFile && !coverPicture)) {
       toast.error("Please upload profile and cover picture");
       setLoading(false);
       return;

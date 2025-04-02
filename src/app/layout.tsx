@@ -15,11 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" 
-      style={{
-        maxWidth: "1800px",
-        margin: "0 auto",
-      }}
+    <html lang="en"
     >
       <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
         <body>

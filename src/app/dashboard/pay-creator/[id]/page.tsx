@@ -17,7 +17,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
     return (
         <div className="flex">
             <LeftMenu />
-            <div className="flex flex-col w-full min-h-screen bg-neutral-50 p-12">
+            <div className="flex flex-col w-full min-h-screen bg-neutral-50 p-12 overflow-y-auto max-h-screen">
                 <Breadcrumb
                     items={[
                         {

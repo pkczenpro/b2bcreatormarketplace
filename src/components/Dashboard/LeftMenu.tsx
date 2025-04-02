@@ -80,7 +80,7 @@ export const LeftMenu = () => {
   ));
 
   return (
-    <>
+    <div className="bg-neutral-50 min-w-[20%] max-w-[20%] w-[20%]">
       {/* Mobile Menu */}
       <div className="sm:hidden bg-white border-b flex p-8 justify-between items-start">
         <BurgerIcon size={24} className="cursor-pointer" onClick={() => setDrawerVisible(true)} />
@@ -105,7 +105,7 @@ export const LeftMenu = () => {
       </Drawer>
 
       {/* Desktop Sidebar */}
-      <div className="sm:flex flex-col  min-w-[20%] max-w-[20%] w-[20%] px-[16px] max-h-screen bg-white border-r border-gray-200 hidden sm:block">
+      <div className="sm:flex flex-col px-[16px] bg-white border-r border-gray-200 hidden h-[100vh]">
         <div className="py-6 flex items-center justify-between mt-6">
           <h1 className="text-lg font-bold">B2B Creator</h1>
           <Bell size={24} />
@@ -126,6 +126,6 @@ export const LeftMenu = () => {
           <LogOut size={20} className="cursor-pointer" onClick={logout} />
         </div>
       </div>
-    </>
+    </div>
   );
 };

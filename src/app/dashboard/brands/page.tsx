@@ -62,7 +62,7 @@ export default function Dashboard() {
                 loading={loading}
             /> */}
             <LeftMenu />
-            <div className="flex flex-col w-full p-6">
+            <div className="flex flex-col w-full p-6 overflow-y-auto max-h-screen">
                 <div className="flex items-center justify-between bg-white p-6 rounded-lg">
                     <div>
                         <h1 className="text-3xl font-bold flex items-center gap-2">

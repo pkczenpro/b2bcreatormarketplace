@@ -149,7 +149,7 @@ export default function Inbox() {
     return (
         <div className="flex flex-col md:flex-row">
             <LeftMenu className="hidden md:block" />
-            <div className="flex flex-col w-full min-h-screen h-auto bg-neutral-50">
+            <div className="flex flex-col w-full min-h-screen h-auto bg-neutral-50 overflow-y-auto max-h-screen">
                 <div className="flex flex-col items-center justify-start h-full py-6 px-4">
                     <div className="flex flex-col w-full md:w-[90%] p-4 md:p-8 bg-white rounded-md shadow-sm">
                         <h1 className="text-2xl font-semibold mb-4">Messaging</h1>

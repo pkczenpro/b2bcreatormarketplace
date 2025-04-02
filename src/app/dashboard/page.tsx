@@ -26,7 +26,7 @@ function Dashboard({ }: DashboardProps) {
   return (
     <div className="flex flex-col sm:flex-row">
       <LeftMenu />
-      <div className="flex flex-col w-full min-h-screen bg-neutral-50">
+      <div className="flex flex-col items-center justify-center w-full min-h-screen bg-neutral-50 overflow-y-auto max-h-screen">
         {userType === "creator" ? <CreatorDashboard /> :
           <BrandDashboard isPreview={false}/>}
       </div>

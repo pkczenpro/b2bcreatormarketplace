@@ -3,15 +3,13 @@
 
 import Button from "@/components/Button/Button";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
-import { Select, Input, Spin, Card, Modal } from "antd";
-import { ArrowRight, Check, MessageSquare, Pencil, Plus, Trash, Upload } from "lucide-react";
+import { Select, Input, Modal, Button as AntdButton } from "antd";
+import { Check, MessageSquare, Pencil, Plus, Trash, Upload } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
-import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
-
 
 type CreatorDashboardProps = {
     isPreview?: boolean;
@@ -139,7 +137,7 @@ export default function CreatorDashboard({
 
                 {/* Add Service Modal */}
                 {!isPreview && (
-                    <div className="bg-white p-6 flex flex-col rounded-md shadow-sm">
+                    <div className="bg-white p-6 flex flex-col rounded-md shadow-sm relative">
                         <div className="text-[16px] font-bold mb-2">
                             <Input
                                 name="title"
@@ -152,7 +150,7 @@ export default function CreatorDashboard({
                         </div>
                         <div className="flex flex-col sm:flex-row justify-between items-end">
                             <div className="text-[15px] text-neutral-700 sm:w-3/4">
-                                <Input
+                                <Input.TextArea
                                     placeholder="Add Service Description Here"
                                     className="w-full sm:w-[70%]"
                                     value={data.description || ""}
@@ -184,13 +182,15 @@ export default function CreatorDashboard({
                                 </Select>
                             </div>
                         </div>
-                        <Button
+
+                        <button
                             onClick={() => {
                                 handleUserData("services", "add", "", data)
                             }}
-                            size="small" variant="primary" className="text-sm mt-4 w-full sm:w-[30%] ml-auto" >
-                            Add Service
-                        </Button>
+                            className="absolute top-2 right-2 bg-primary-600 text-white rounded-full p-1"
+                        >
+                            <Plus size={16} />
+                        </button>
                     </div>
                 )
                 }
@@ -665,129 +665,113 @@ export default function CreatorDashboard({
 
 
     return (
-        <div className="flex flex-col items-center justify-start h-full p-8 md:p-16 sm:p-16 w-full">
-            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full relative">
-                {/* <LoadingOverlay
-                    loading={loading}
-                /> */}
+        <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50 overflow-y-auto max-h-screen max-w-[1500px]">
+                <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <div className="relative">
-                        <div className="relative w-full h-48 sm:h-72 group">
-                            {/* Cover Image */}
-                            <img
-                                loading="lazy"
-                                src={
-                                    userData?.coverImage?.includes("http")
-                                        ? userData?.coverImage
-                                        : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
-                                }
-                                alt="Cover"
-                                className="w-full h-full object-cover rounded-md"
-                            />
+                    <div>
+                        <div className="relative">
+                            <div className="relative w-full h-48 sm:h-72 group">
+                                {/* Cover Image */}
+                                <img
+                                    loading="lazy"
+                                    src={
+                                        userData?.coverImage?.includes("http")
+                                            ? userData?.coverImage
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
+                                    }
+                                    alt="Cover"
+                                    className="w-full h-full object-cover rounded-md"
+                                />
 
-                            {/* Hover Overlay */}
-                            <div
-                                className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer rounded-md"
-                                onClick={() => userFileInputRef2.current.click()}
-                            >
-                                <Upload size={32} className="text-white" />
-                            </div>
-
-                            <input
-                                type="file"
-                                className="hidden"
-                                ref={userFileInputRef2}
-                                onChange={(event) => handleUserFilesChange(event, "coverImage")}
-                            />
-
-                        </div>
-
-                        {/* Profile Section */}
-                        <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-80px] pl-12">
-                            {/* Profile Picture and Info */}
-                            <div className="flex items-end space-x-4">
-                                <div className="relative group w-24 sm:w-48 rounded-sm overflow-hidden">
-                                    {/* Profile Image */}
-                                    <img
-                                        loading="lazy"
-                                        src={
-                                            userData?.profileImage?.includes("http")
-                                                ? userData?.profileImage
-                                                : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
-                                        }
-                                        alt="Profile"
-                                        className="w-full h-full object-cover"
-                                    />
-
-                                    {/* Hover Overlay */}
-                                    <div
-                                        className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                                        onClick={() => userFileInputRef.current.click()}
-                                    >
-                                        <Upload size={32} className="text-white" />
-                                    </div>
-
-                                    {/* Hidden File Input */}
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        ref={userFileInputRef}
-                                        onChange={(event) => handleUserFilesChange(event, "profileImage")}
-                                    />
+                                {/* Hover Overlay */}
+                                <div
+                                    className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer rounded-md"
+                                    onClick={() => userFileInputRef2?.current?.click()}
+                                >
+                                    <Upload size={32} className="text-white" />
                                 </div>
 
-                                {/* Name and Socials */}
-                                <div className="flex flex-col">
-                                    <EditableHeading
-                                        className={"text-2xl font-semibold"}
-                                        initialName={userData?.name} onChange={(e) => {
-                                            updateUserImages("name", e);
-                                        }}
-                                    />
-                                    <div className="flex space-x-3 mt-1 text-gray-500">
-                                        {
-                                            userData?.socialMediaLinks.filter((item) => item.link).length > 0 ? userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
-                                                <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                    <img loading="lazy"
-                                                        src={`/icons/${link.platform}.svg`}
-                                                        alt={link.platform}
-                                                        className="w-6 h-6"
-                                                    />
-                                                </a>
-                                            )) : <EditableSocialMediaLinks
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    ref={userFileInputRef2}
+                                    onChange={(event) => handleUserFilesChange(event, "coverImage")}
+                                />
+
+                            </div>
+
+                            {/* Profile Section */}
+                            <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-80px] pl-12">
+                                {/* Profile Picture and Info */}
+                                <div className="flex items-end space-x-4">
+                                    <div className="relative group w-24 sm:w-48 rounded-sm overflow-hidden">
+                                        {/* Profile Image */}
+                                        <img
+                                            loading="lazy"
+                                            src={
+                                                userData?.profileImage?.includes("http")
+                                                    ? userData?.profileImage
+                                                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+                                            }
+                                            alt="Profile"
+                                            className="w-full h-full object-cover"
+                                        />
+
+                                        {/* Hover Overlay */}
+                                        <div
+                                            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                                            onClick={() => userFileInputRef.current.click()}
+                                        >
+                                            <Upload size={32} className="text-white" />
+                                        </div>
+
+                                        {/* Hidden File Input */}
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            ref={userFileInputRef}
+                                            onChange={(event) => handleUserFilesChange(event, "profileImage")}
+                                        />
+                                    </div>
+
+                                    {/* Name and Socials */}
+                                    <div className="flex flex-col">
+                                        <EditableHeading
+                                            className={"text-2xl font-semibold"}
+                                            initialName={userData?.name} onChange={(e) => {
+                                                updateUserImages("name", e);
+                                            }}
+                                        />
+                                        <div className="flex space-x-3 mt-1 text-gray-500">
+                                            <EditableSocialMediaLinks
                                                 links={userData?.socialMediaLinks || []}
                                                 setLinks={(links) => {
-                                                    updateUserImages("socialMediaLinks", links);
+                                                    updateUserImages("socialMediaLinks", JSON.stringify(links));
                                                 }}
                                             />
-                                        }
+                                        </div>
                                     </div>
-
-
                                 </div>
+
+                                {/* Chat Button */}
+                                <Link href="/dashboard/inbox">
+                                    <Button
+                                        size="small"
+                                        variant="primary"
+                                        className="text-sm flex px-3 py-1 items-center max-w-[150px]"
+                                    >
+                                        <MessageSquare size={16} className="mr-2" />
+                                        Have a Chat
+                                    </Button>
+                                </Link>
                             </div>
-
-                            {/* Chat Button */}
-                            <Link href="/dashboard/inbox">
-                                <Button
-                                    size="small"
-                                    variant="primary"
-                                    className="text-sm flex px-3 py-1 items-center max-w-[150px]"
-                                >
-                                    <MessageSquare size={16} className="mr-2" />
-                                    Have a Chat
-                                </Button>
-                            </Link>
                         </div>
-
                     </div>
-
-
 
                     {/* Bio */}
                     <div className="mt-24 text-gray-600 text-sm">
@@ -932,62 +916,145 @@ const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: 
 const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks: (links: any[]) => void }) => {
     const [platform, setPlatform] = useState("");
     const [link, setLink] = useState("");
+    const [isAdd, setIsAdd] = useState(false);
 
     const handleAddLink = () => {
         if (platform && link) {
             setLinks([...links, { platform, link }]);
             setPlatform("");
             setLink("");
+            setModal(false);
         }
     }
 
     const [modal, setModal] = useState(false);
 
+    const platforms = [
+        { value: "medium", label: "Medium" },
+        { value: "spotify", label: "Spotify" },
+        { value: "linkedin", label: "LinkedIn" },
+        { value: "website", label: "Website" }
+    ];
 
 
     return (
         <div className="w-full">
             {/* <h1 className="text-sm font-bold text-left mb-1">Social Media Links:</h1> */}
             <Modal
-                title="Add Link"
+                title={
+                    !isAdd ? "Edit Link" : "Add Link"
+                }
                 visible={modal}
-                onCancel={() => setModal(false)}
+                onCancel={() => {
+                    setPlatform("");
+                    setIsAdd(false);
+                    setLink("");
+                    setModal(false);
+                }}
                 footer={null}
                 centered
+                className="rounded-lg"
             >
-                <Input
-                    placeholder="Enter Link"
-                    className="w-1/2"
-                    value={link}
-                    onChange={(e) => setLink(e.target.value)}
-                />
-                <Button
-                    onClick={handleAddLink}
-                    size="small"
-                    variant="primary"
-                    className="text-sm"
-                >
-                    Add Link
-                </Button>
+                <div className="space-y-4">
+                    {isAdd && <div>
+                        <label htmlFor="platform" className="text-gray-700 font-medium">Platform</label>
+                        <Select
+                            placeholder="Select Platform"
+                            className="w-full rounded-md border-gray-300"
+                            value={platform}
+                            onChange={(value) => setPlatform(value)}
+                            disabled={!isAdd}
+                        >
+                            {platforms.map((platform) => (
+                                <Select.Option key={platform.value} value={platform.value}>
+                                    {platform.label}
+                                </Select.Option>
+                            ))}
+                        </Select>
 
+                    </div>}
+
+                    <div>
+                        <label htmlFor="link" className="text-gray-700 font-medium">Link</label>
+                        <Input
+                            id="link"
+                            placeholder="Enter Link"
+                            className="w-full rounded-md border-gray-300"
+                            value={link}
+                            onChange={(e) => setLink(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="flex">
+
+                        {!isAdd && <AntdButton
+                            onClick={() => {
+                                setLinks(links.filter((item) => item.platform !== platform && item.link !== link));
+                                setModal(false);
+                            }}
+                            className="w-full bg-red-500 text-white hover:bg-red-600 rounded-md py-2 mt-4"
+                        >
+                            Delete Link
+                        </AntdButton>}
+
+                        <AntdButton
+                            onClick={() => {
+                                if (isAdd) handleAddLink();
+                                else {
+                                    setLinks(links.map((item) => {
+                                        if (item.platform === platform) {
+                                            item.link = link;
+                                        }
+                                        return item;
+                                    }));
+                                    setModal(false);
+                                }
+                            }}
+                            className="w-full bg-blue-500 text-white hover:bg-blue-600 rounded-md py-2 mt-4"
+                        >
+                            {isAdd ? "Add Link" : "Save Changes"}
+                        </AntdButton>
+                    </div>
+                </div>
             </Modal>
-            <div className="flex space-x-3 mt-1 text-gray-500">
-                {links.map((link, index) => (
-                    <div key={index} onClick={
-                        () => {
+
+
+
+            <div className="flex space-x-4 mt-2 text-gray-600">
+                {links.filter((item) => item.link).map((link, index) => (
+                    <div
+                        key={index}
+                        onClick={() => {
                             setPlatform(link.platform);
                             setLink(link.link);
+                            setIsAdd(false);
                             setModal(true);
-                        }
-                    }>
-                        <img loading="lazy"
+                        }}
+                        className="cursor-pointer transition duration-200 ease-in-out transform hover:bg-gray-100 rounded-full hover:scale-105"
+                    >
+                        <img
+                            loading="lazy"
                             src={`/icons/${link.platform}.svg`}
                             alt={link.platform}
                             className="w-6 h-6"
                         />
                     </div>
                 ))}
+                {/* // dashed border cirlce for account adding  */}
+                <div
+                    onClick={() => {
+                        setModal(true)
+                        setIsAdd(true);
+                    }}
+                    className="flex items-center justify-center w-6 h-6 border-dashed border-2 rounded-full cursor-pointer hover:border-gray-400 bg-[#F6F6F8]"
+                >
+                    <Plus size={16} />
+                </div>
             </div>
+
+
+
+
         </div>
     );
 }

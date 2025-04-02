@@ -142,7 +142,7 @@ export default function StoreFront({ }: DashboardProps) {
   return (
     <div className="flex">
       <LeftMenu />
-      <div className="flex flex-col w-full min-h-screen bg-neutral-50">
+      <div className="flex flex-col w-full min-h-screen bg-neutral-50 overflow-y-auto max-h-screen">
         {/* Content */}
         <div className="flex flex-col items-center justify-start h-full py-12">
           <div className="flex flex-col w-[90%] px-8 py-8 bg-white rounded-md shadow-sm">

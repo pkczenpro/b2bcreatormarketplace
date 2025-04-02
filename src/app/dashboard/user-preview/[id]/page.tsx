@@ -247,7 +247,7 @@ export default function CreatorDashboard() {
     return (
         <div className="flex flex-col sm:flex-row">
             <LeftMenu />
-            <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50">
+            <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50 overflow-y-auto max-h-screen max-w-[1500px]">
                 <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -258,33 +258,45 @@ export default function CreatorDashboard() {
                         <div>
                             <div className="relative">
                                 {/* Cover Image */}
-                                <div className="relative w-full h-48 sm:h-72">
-                                    <img loading="lazy" src={
-                                        userData?.coverImage?.includes("http")
-                                            ? userData?.coverImage
-                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
-                                    } alt="Cover" className="w-full h-full object-cover rounded-md" />
+                                <div className="relative w-full h-48 sm:h-72 group">
+                                    {/* Cover Image */}
+                                    <img
+                                        loading="lazy"
+                                        src={
+                                            userData?.coverImage?.includes("http")
+                                                ? userData?.coverImage
+                                                : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
+                                        }
+                                        alt="Cover"
+                                        className="w-full h-full object-cover rounded-md"
+                                    />
                                 </div>
 
                                 {/* Profile Section */}
-                                <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-70px] pl-12">
+                                <div className="flex items-end justify-between w-[100%] mt-4 absolute bottom-[-80px] pl-12">
                                     {/* Profile Picture and Info */}
                                     <div className="flex items-end space-x-4">
-                                        <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                            <img loading="lazy" src={
-                                                userData?.profileImage?.includes("http")
-                                                    ? userData?.profileImage
-                                                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
-                                            } alt="Profile" className="w-full h-full object-cover" />
+                                        <div className="relative group w-24 sm:w-48 rounded-sm overflow-hidden">
+                                            {/* Profile Image */}
+                                            <img
+                                                loading="lazy"
+                                                src={
+                                                    userData?.profileImage?.includes("http")
+                                                        ? userData?.profileImage
+                                                        : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+                                                }
+                                                alt="Profile"
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
                                         {/* Name and Socials */}
                                         <div className="flex flex-col">
-                                            <h2 className="text-2xl font-semibold">
+                                            <h2 className="text-2xl font-semibold mb-1">
                                                 {userData?.name || "Creator Name"}
                                             </h2>
                                             <div className="flex space-x-3 mt-1 text-gray-500">
                                                 {
-                                                    userData?.socialMediaLinks.map((link: any, index: number) => (
+                                                    userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
                                                         <a key={index} href={link.link} target="_blank" rel="noreferrer">
                                                             <img loading="lazy"
                                                                 src={`/icons/${link.platform}.svg`}
@@ -319,7 +331,7 @@ export default function CreatorDashboard() {
 
                         {/* Tags */}
                         <div className="mt-4 flex space-x-2">
-                            {userData?.tags.map((tag: string, index: number) => (
+                            {userData?.tags.filter((item) => item).map((tag: string, index: number) => (
                                 <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
                                     {tag}
                                 </span>

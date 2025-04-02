@@ -170,7 +170,7 @@ export default function Creators() {
         <div className="flex">
             {addToCampaignModal()}
             <LeftMenu />
-            <div className="flex flex-col w-full min-h-screen bg-neutral-50 px-4 py-12">
+            <div className="flex flex-col w-full min-h-screen bg-neutral-50 px-4 py-12 overflow-y-auto max-h-screen">
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     Discover Creators
                     <Compass className="w-6 h-6 text-neutral-600" />

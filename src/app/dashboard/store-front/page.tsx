@@ -9,7 +9,7 @@ export default function StoreFrontPage() {
     return (
         <div className="flex">
             <LeftMenu />
-            <div className="w-full">
+            <div className="w-full overflow-y-auto max-h-screen">
                 <BrandDashboard isPreview={true} />
             </div>
         </div>

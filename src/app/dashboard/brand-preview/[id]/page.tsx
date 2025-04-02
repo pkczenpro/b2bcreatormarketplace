@@ -213,7 +213,7 @@ export default function BrandDashboard() {
     return (
         <div className="flex flex-col sm:flex-row w-full">
             <LeftMenu />
-            <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8 w-full">
+            <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8 w-full overflow-y-auto max-h-screen">
                 <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
 
                 <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
