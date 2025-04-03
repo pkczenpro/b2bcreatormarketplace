@@ -56,6 +56,23 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
         getCampaign();
     }, [id]);
 
+    const [campaignAnalytics, setCampaignAnalytics] = React.useState(null);
+    const getCampaignAnalytics = async () => {
+        try {
+            const res = await api.get("/campaigns/analytics/" + id);
+            console.log(res.data); // Log the data to ensure it's being fetched correctly
+            setCampaignAnalytics(res.data);
+        } catch (e) {
+            console.log("Error fetching campaign:", e);
+            toast.error("Failed to load campaign data");
+        }
+    }
+
+    React.useEffect(() => {
+        getCampaignAnalytics();
+    }, [id]);
+
+
     const campaignOverview = () => {
         return (
             <>
@@ -66,7 +83,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                         </h3>
                         <div className="flex items-end text-neutral-600">
                             <span className="font-bold text-3xl mr-1">
-                                30
+                                {campaignAnalytics?.totalContent || 0}
                             </span>
                             <p className="text-neutral-600 mb-[1px]">Total Content</p>
                         </div>
@@ -76,17 +93,21 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             <h3 className="text-h6 font-[400]">
                                 Content Distribution
                             </h3>
-                            <BarChartComponent />
+                            <BarChartComponent
+                                campaignAnalytics={campaignAnalytics}
+                            />
                         </div>
                         <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8 w-full ml-8">
                             <h3 className="text-h6 font-[400]">
                                 Number of Content
                             </h3>
-                            <BarChartComponent />
+                            <BarChartComponent
+                                campaignAnalytics={campaignAnalytics}
+                            />
                         </div>
                     </div>
                 </div>
-                <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8">
+                {/* <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8">
                     <div className="flex items-center justify-between">
                         <h3 className="text-h6 font-bold">
                             Engagement
@@ -132,7 +153,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </>
         )
     }

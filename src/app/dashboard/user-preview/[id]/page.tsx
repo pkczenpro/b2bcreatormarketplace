@@ -9,6 +9,7 @@ import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
+import CustomImage from "@/components/CustomImage";
 
 export default function CreatorDashboard() {
     const [userData, setUserData] = useState<any>(null);
@@ -278,7 +279,7 @@ export default function CreatorDashboard() {
                                     <div className="flex items-end space-x-4">
                                         <div className="relative group w-24 sm:w-48 rounded-sm overflow-hidden">
                                             {/* Profile Image */}
-                                            <img
+                                            <CustomImage
                                                 loading="lazy"
                                                 src={
                                                     userData?.profileImage?.includes("http")

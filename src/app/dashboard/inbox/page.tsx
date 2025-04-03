@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import CustomImage from "@/components/CustomImage";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
 import api from "@/utils/axiosInstance";
@@ -54,7 +55,7 @@ export default function Inbox() {
             if (!userData) return; // Ensure userData is available before fetching users
 
             try {
-                const resp = await api.get("/messages/chatlist")
+                const resp = await api.get("/messages/contactlist")
 
                 setChatList(resp.data);
                 setFilteredChatList(resp.data);
@@ -174,10 +175,10 @@ export default function Inbox() {
                 ${selectedChat?._id === chat._id ? 'bg-neutral-100' : 'hover:bg-neutral-100'}
                 transition-colors duration-200 ease-in-out active:bg-neutral-200`}
                                             >
-                                                <img
+                                                <CustomImage
                                                     loading="lazy"
-                                                    src={chat.image.includes("http") ? chat.image : process.env.NEXT_PUBLIC_SERVER_URL + chat.image}
-                                                    alt={chat.name}
+                                                    src={chat?.image?.includes("http") ? chat.image : process.env.NEXT_PUBLIC_SERVER_URL + chat.image}
+                                                    alt={chat?.name}
                                                     className="w-10 h-10 rounded-full"
                                                 />
                                                 <div>

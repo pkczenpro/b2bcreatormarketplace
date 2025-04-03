@@ -10,6 +10,7 @@ import React, { useState, useEffect } from "react";
 import { Drawer, Tooltip } from "antd";
 import { WandSparkles } from "lucide-react";
 import api from "@/utils/axiosInstance";
+import CustomImage from "../CustomImage";
 
 export const LeftMenu = () => {
   const pathname = usePathname();
@@ -95,7 +96,7 @@ export const LeftMenu = () => {
       } placement="left" open={drawerVisible} onClose={() => setDrawerVisible(false)} width={300} closable={false} bodyStyle={{ padding: 0 }}>
         <ul className="w-full">{renderMenuItems()}</ul>
         <div className="flex items-center justify-around mt-auto py-8">
-          <img loading="lazy" src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
+          <CustomImage loading="lazy" src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
           <div className="flex flex-col">
             <span className="font-bold">{userData?.name}</span>
             <span className="text-xs text-neutral-500">{userData?.email}</span>
@@ -114,7 +115,7 @@ export const LeftMenu = () => {
           <ul className="w-full">{renderMenuItems()}</ul>
         </div>
         <div className="flex items-center justify-around mt-auto py-8">
-          <img loading="lazy" src={
+          <CustomImage loading="lazy" src={
             userData?.profileImage?.includes("http") ?
               userData?.profileImage :
               process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage

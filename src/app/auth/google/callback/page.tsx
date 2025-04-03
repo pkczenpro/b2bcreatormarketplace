@@ -14,18 +14,14 @@ const GoogleCallback = () => {
         if (code) {
             api.post("/users/login/google", { code, userType: state }) // Change userType dynamically
                 .then(response => {
-                    // if (response?.data?.user?.isCompletedOnboarding) {
-                    //     localStorage.setItem("token", response?.data?.token);
-                    //     localStorage.setItem("user", JSON.stringify(response.data.user));
-                    //     localStorage.setItem("userType", response.data.user.userType);
-                    //     router.push("/dashboard");
-                    // } else {
-                    //     router.push('/profile-setup');
-                    // }
-                    localStorage.setItem("token", response?.data?.token);
-                    localStorage.setItem("user", JSON.stringify(response.data.user));
-                    localStorage.setItem("userType", response.data.user.userType);
-                    router.push('/dashboard');
+                    localStorage.setItem('token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('userType', response.data.user.userType); // temp
+                    if (response.data.user.isCompletedOnboarding) {
+                        router.push('/dashboard');
+                    } else {
+                        router.push('/profile-setup');
+                    }
                 })
                 .catch(error => console.error("Google Auth Error:", error?.response?.data));
         }
