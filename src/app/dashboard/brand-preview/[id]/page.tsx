@@ -13,6 +13,7 @@ import ShowProductModal from "@/components/Dashboard/ShowProductModal";
 import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { toast } from "sonner";
+import CustomImage from "@/components/CustomImage";
 
 
 export default function BrandDashboard() {
@@ -96,7 +97,8 @@ export default function BrandDashboard() {
                         <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center space-x-4 mb-4">
-                                    <img loading="lazy"
+                                    <CustomImage
+                                        loading="lazy"
                                         className="w-16 h-16 object-cover rounded-full"
                                         src={
                                             partnership?.profileImage?.includes("http")
@@ -221,7 +223,7 @@ export default function BrandDashboard() {
                         <div className="relative">
                             {/* Cover Image */}
                             <div className="relative w-full h-48 sm:h-72">
-                                <img loading="lazy" src={userData?.coverImage?.includes("http")
+                                <CustomImage loading="lazy" src={userData?.coverImage?.includes("http")
                                     ? userData?.coverImage
                                     : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
                             </div>
@@ -230,29 +232,32 @@ export default function BrandDashboard() {
                             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                                     <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <img loading="lazy" src={userData?.profileImage?.includes("http")
+                                        <CustomImage loading="lazy" src={userData?.profileImage?.includes("http")
                                             ? userData?.profileImage
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
 
                                     {/* Name and Socials */}
                                     <div className="mt-3 sm:mt-0">
-                                        <h2 className="text-xl sm:text-2xl font-semibold">
+                                        {userData?.profileName && <h2 className="text-xl sm:text-2xl font-semibold">
                                             {userData?.profileName}
-                                        </h2>
-                                        <h4 className="text-gray-500 text-sm">
-                                            {userData?.location}
-                                        </h4>
+                                        </h2>}
+                                        {userData?.location != "undefined" && userData?.location &&
+                                            <h4 className="text-gray-500 text-sm">
+                                                {userData?.location}
+                                            </h4>}
                                         <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
-                                            {userData?.socialMediaLinks.map((link: any, index: number) => (
-                                                <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                    <img loading="lazy"
-                                                        src={`/icons/${link.platform}.svg`}
-                                                        alt={link.platform}
-                                                        className="w-6 h-6"
-                                                    />
-                                                </a>
-                                            ))}
+                                            {
+                                                userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
+                                                    <a key={index} href={link.link} target="_blank" rel="noreferrer">
+                                                        <img loading="lazy"
+                                                            src={`/icons/${link.platform}.svg`}
+                                                            alt={link.platform}
+                                                            className="w-6 h-6"
+                                                        />
+                                                    </a>
+                                                ))
+                                            }
                                         </div>
                                     </div>
                                 </div>

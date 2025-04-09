@@ -4,9 +4,9 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Image, Mic, Plus, Text, Upload, Video } from "lucide-react";
+import { ArrowRight, Check, Image, Mic, Pencil, Plus, Text, Upload, Video } from "lucide-react";
 import { motion } from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Divider, Modal, Select, Switch, Button as AntdButton } from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
@@ -16,6 +16,8 @@ import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
 import LoadingOverlay from "../LoadingOverlay/LoadingOverlay";
+import CustomImage from "../CustomImage";
+import { get } from "http";
 
 type BrandDashboardProps = {
   isPreview: boolean;
@@ -290,6 +292,7 @@ export default function BrandDashboard({
         okText="Create Campaign"
         onOk={() => {
           handleAddCampaign();
+          getBrand();
         }}
         onCancel={() => setVisible(false)}
       >
@@ -497,8 +500,8 @@ export default function BrandDashboard({
 
 
       if (res.data.success) {
-        toast.success(res.data.message, { position: "top-center" });
-        getUserDetails();
+        // toast.success(res.data.message, { position: "top-center" });
+        getBrand();
       }
     } catch (err) {
       console.error("Error in updateUserImages:", err.response?.data || err.message);
@@ -512,13 +515,17 @@ export default function BrandDashboard({
       <AddProductModal modal={modal} setModal={setModal} />
       <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
       <LoadingOverlay loading={loading} />
-      <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
+      <div
+        style={{
+          display: loading ? "none" : "block",
+        }}
+        className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <div className="relative">
             {/* Cover Image */}
             <div className="relative w-full h-48 sm:h-72 group">
               {/* Cover Image */}
-              <img
+              <CustomImage
                 loading="lazy"
                 src={
                   userData?.coverImage?.includes("http")
@@ -547,11 +554,11 @@ export default function BrandDashboard({
             </div>
 
             {/* Profile Section */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-90px] px-4 sm:px-12">
               <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                 <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
                   {/* Profile Image */}
-                  <img
+                  <CustomImage
                     loading="lazy"
                     src={
                       userData?.profileImage?.includes("http")
@@ -580,23 +587,23 @@ export default function BrandDashboard({
                 </div>
 
                 {/* Name and Socials */}
-                <div className="mt-3 sm:mt-0">
-                  <h2 className="text-xl sm:text-2xl font-semibold">
-                    {userData?.profileName}
-                  </h2>
+                <div className="flex flex-col">
+                  <EditableHeading
+                    className={"text-2xl font-semibold"}
+                    initialName={userData?.profileName} onChange={(e) => {
+                      updateUserImages("profileName", e);
+                    }}
+                  />
                   <h4 className="text-gray-500 text-sm">
                     {userData?.location}
                   </h4>
-                  <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
-                    {userData?.socialMediaLinks.map((link: any, index: number) => (
-                      <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                        <img loading="lazy"
-                          src={`/icons/${link.platform}.svg`}
-                          alt={link.platform}
-                          className="w-6 h-6"
-                        />
-                      </a>
-                    ))}
+                  <div className="flex space-x-3 mt-1 text-gray-500">
+                    <EditableSocialMediaLinks
+                      links={userData?.socialMediaLinks || []}
+                      setLinks={(links) => {
+                        updateUserImages("socialMediaLinks", JSON.stringify(links));
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -610,17 +617,26 @@ export default function BrandDashboard({
 
           {/* Bio */}
           <p className="mt-20 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
-            {userData?.bio}
+            <EditableHeading
+              initialName={userData?.bio || "Add a bio here"}
+              onChange={(e) => {
+                updateUserImages("bio", e);
+              }}
+            />
           </p>
 
           {/* Tags */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {userData?.tags.map((tag: string, index: number) => (
-              <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
-                {tag}
-              </span>
-            ))}
+          <div className="mt-4 flex space-x-2">
+            <EditableTagsAdder
+              tags={
+                userData?.tags || []
+              }
+              setTags={(tags) => {
+                updateUserImages("tags", tags);
+              }}
+            />
           </div>
+
 
           {/* STATS TODO */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
@@ -672,5 +688,246 @@ export default function BrandDashboard({
       </div>
     </div>
 
+  );
+}
+
+
+// types 
+
+type EditableHeadingProps = {
+  initialName: string;
+  onChange: (name: string) => void;
+  className: string;
+};
+
+const EditableHeading = ({ initialName, onChange, className }: EditableHeadingProps) => {
+  const [name, setName] = useState(initialName);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setName(initialName);
+  }, [initialName]);
+
+  const handleBlur = (e) => {
+    setName(e.target.innerText);
+  };
+
+  const handleChange = () => {
+    if (name === initialName) return;
+    onChange(name);
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {isEditing ? (
+        <h2
+          className={`${className} border-b border-gray-400 focus:outline-none`}
+          contentEditable
+          suppressContentEditableWarning
+          onBlur={handleBlur}
+        >
+          {name}
+        </h2>
+      ) : (
+        <h2 className={className}>{name}</h2>
+      )}
+
+      <button
+        onClick={() => {
+          if (isEditing) handleChange();
+          setIsEditing(!isEditing);
+        }}
+        className="p-1 rounded-md bg-gray-200 hover:bg-gray-300 transition"
+      >
+        {isEditing ? <Check size={10} /> : <Pencil size={10} />}
+      </button>
+    </div>
+  );
+};
+
+const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: string[]) => void }) => {
+  const [tagText, setTagText] = useState("");
+
+  console.log(tags);
+  const handleAddTag = (e) => {
+    if (e.key === "Enter" && tagText) {
+      setTags([...tags, tagText]);
+      setTagText("");
+    }
+  }
+
+  return (
+    <div className="w-full sm:w-1/3 mt-3">
+      <h1 className="text-sm font-bold text-left mb-1">Audience Interests:</h1>
+      <Input
+        value={tagText}
+        onChange={(e) => setTagText(e.target.value)}
+        onKeyPress={handleAddTag}
+        placeholder="Press Enter to add tags"
+        className="w-full"
+      />
+      <div className="flex flex-wrap gap-2 mt-2">
+        {tags?.filter((item) => item).map((tag, index) => (
+          <div
+            key={index}
+            className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
+          >
+            {tag}
+            <span
+              className="ml-2 text-red-500 cursor-pointer"
+              onClick={() => setTags(tags?.filter((item) => item !== tag))}
+            >
+              ✕
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks: (links: any[]) => void }) => {
+  const [platform, setPlatform] = useState("");
+  const [link, setLink] = useState("");
+  const [isAdd, setIsAdd] = useState(false);
+
+  const handleAddLink = () => {
+    if (platform && link) {
+      setLinks([...links, { platform, link }]);
+      setPlatform("");
+      setLink("");
+      setModal(false);
+    }
+  }
+
+  const [modal, setModal] = useState(false);
+
+  const platforms = [
+    { value: "medium", label: "Medium" },
+    { value: "spotify", label: "Spotify" },
+    { value: "linkedin", label: "LinkedIn" },
+    { value: "website", label: "Website" }
+  ];
+
+
+  return (
+    <div className="w-full">
+      {/* <h1 className="text-sm font-bold text-left mb-1">Social Media Links:</h1> */}
+      <Modal
+        title={
+          !isAdd ? "Edit Link" : "Add Link"
+        }
+        visible={modal}
+        onCancel={() => {
+          setPlatform("");
+          setIsAdd(false);
+          setLink("");
+          setModal(false);
+        }}
+        footer={null}
+        centered
+        className="rounded-lg"
+      >
+        <div className="space-y-4">
+          {isAdd && <div>
+            <label htmlFor="platform" className="text-gray-700 font-medium">Platform</label>
+            <Select
+              placeholder="Select Platform"
+              className="w-full rounded-md border-gray-300"
+              value={platform}
+              onChange={(value) => setPlatform(value)}
+              disabled={!isAdd}
+            >
+              {platforms.map((platform) => (
+                <Select.Option key={platform.value} value={platform.value}>
+                  {platform.label}
+                </Select.Option>
+              ))}
+            </Select>
+
+          </div>}
+
+          <div>
+            <label htmlFor="link" className="text-gray-700 font-medium">Link</label>
+            <Input
+              id="link"
+              placeholder="Enter Link"
+              className="w-full rounded-md border-gray-300"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+            />
+          </div>
+
+          <div className="flex">
+
+            {!isAdd && <AntdButton
+              onClick={() => {
+                setLinks(links.filter((item) => item.platform !== platform && item.link !== link));
+                setModal(false);
+              }}
+              className="w-full bg-red-500 text-white hover:bg-red-600 rounded-md py-2 mt-4"
+            >
+              Delete Link
+            </AntdButton>}
+
+            <AntdButton
+              onClick={() => {
+                if (isAdd) handleAddLink();
+                else {
+                  setLinks(links.map((item) => {
+                    if (item.platform === platform) {
+                      item.link = link;
+                    }
+                    return item;
+                  }));
+                  setModal(false);
+                }
+              }}
+              className="w-full bg-blue-500 text-white hover:bg-blue-600 rounded-md py-2 mt-4"
+            >
+              {isAdd ? "Add Link" : "Save Changes"}
+            </AntdButton>
+          </div>
+        </div>
+      </Modal>
+
+
+
+      <div className="flex space-x-4 mt-2 text-gray-600">
+        {links.filter((item) => item.link).map((link, index) => (
+          <div
+            key={index}
+            onClick={() => {
+              setPlatform(link.platform);
+              setLink(link.link);
+              setIsAdd(false);
+              setModal(true);
+            }}
+            className="cursor-pointer transition duration-200 ease-in-out transform hover:bg-gray-100 rounded-full hover:scale-105"
+          >
+            <img
+              loading="lazy"
+              src={`/icons/${link.platform}.svg`}
+              alt={link.platform}
+              className="w-6 h-6"
+            />
+          </div>
+        ))}
+        {/* // dashed border cirlce for account adding  */}
+        <div
+          onClick={() => {
+            setModal(true)
+            setIsAdd(true);
+          }}
+          className="flex items-center justify-center w-6 h-6 border-dashed border-2 rounded-full cursor-pointer hover:border-gray-400 bg-[#F6F6F8]"
+        >
+          <Plus size={16} />
+        </div>
+      </div>
+
+
+
+
+    </div>
   );
 }

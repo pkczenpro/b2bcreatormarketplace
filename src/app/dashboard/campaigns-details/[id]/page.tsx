@@ -298,7 +298,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             {moment(campaign?.startDate).format("MM/DD/YYYY")} - {moment(campaign?.endDate).format("MM/DD/YYYY")}
                         </p>
                         <div className="mt-4">
-                            {(userType === "creator" || !campaign?.isOwner) ? (
+                            {!campaign?.isOwner ? (
                                 campaignAbout()
                             ) : (
                                 <Tabs

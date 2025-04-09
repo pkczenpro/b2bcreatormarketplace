@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Segmented, Switch, Upload, message, ColorPicker, Tabs, Slider } from "antd";
 import { ArrowRightCircle } from "lucide-react";
 import html2canvas from "html2canvas";
 import EmojiPicker from 'emoji-picker-react';
-import { time } from "console";
+import CustomImage from "@/components/CustomImage";
 
 interface Template1Props {
     index: number;
@@ -12,6 +12,7 @@ interface Template1Props {
     fontFamily: string;
     backgroundColor: string;
     template: number;
+    deleteItem: (index: number) => void;
 }
 
 const Template_1: React.FC<Template1Props> = ({
@@ -19,66 +20,17 @@ const Template_1: React.FC<Template1Props> = ({
     selectedSize,
     fontFamily,
     backgroundColor,
+    data,
+    setData,
+    deleteItem
 }) => {
-    const [data, setData] = useState({
-        editableTopic: {
-            label: "Topic",
-            color: "#ffffff",
-            fontSize: 16,
-            textAlign: "center",
-            hidden: false,
-        },
-        editableTitle: {
-            label: "Title",
-            color: "#ffffff",
-            fontSize: 64,
-            textAlign: "center",
-            hidden: false,
-        },
-        editableTagline: {
-            label: "Tagline",
-            color: "#ffffff",
-            fontSize: 16,
-            textAlign: "center",
-            hidden: false,
-        },
-        editableProfileName: {
-            label: "Profile Name",
-            color: "#ffffff",
-            fontSize: 16,
-            textAlign: "left",
-            hidden: false,
-        },
-        editableProfileUsername: {
-            label: "Profile Username",
-            color: "#ffffff",
-            fontSize: 16,
-            textAlign: "left",
-            hidden: false,
-        },
-        editableButton: {
-            label: "Button",
-            color: "#ffffff",
-            fontSize: 16,
-            textAlign: "center",
-            hidden: false,
-        },
-        isLastItem: false, // If the last item
-        swipeButton: true, // Show Swipe Button
-        bgColor: backgroundColor, // Background Color
-        showProfileImage: true, // Show Profile Image
-        backgroundImage: { // Background Image
-            image: null,
-            opacity: 1,
-        },
-        profileImage: { // Profile Image
-            image: "/images/profile.png",
-            opacity: 1,
-        },
-        showEditingDiv: false, // Show the editing div
-        emoji: null, // Emoji
-        isHeadImage: false, // removes profile pic and puts it on the top instead of tagline
-    });
+    const [userData, setUserData] = useState(null);
+    useEffect(() => {
+        const userData = localStorage.getItem("user");
+        if (userData) {
+            setUserData(JSON.parse(userData));
+        }
+    }, []);
 
     const handleImageUpload = (key: "backgroundImage" | "profileImage") => (info: any) => {
         if (info.file.status === "done") {
@@ -115,7 +67,7 @@ const Template_1: React.FC<Template1Props> = ({
             <div className="flex items-center gap-1">
                 <Input
                     className="w-full px-1 py-0.5 text-xs"
-                    value={data[valueKey].label}
+                    value={data[valueKey]?.label}
                     onChange={(e) => {
                         if (label === "Title") {
                             const fontSize = Math.max(32, 64 - e.target.value.length);
@@ -126,7 +78,7 @@ const Template_1: React.FC<Template1Props> = ({
                     }}
                 />
                 <ColorPicker
-                    value={data[valueKey].color}
+                    value={data[valueKey]?.color}
                     onChange={(_, color) => setData({ ...data, [valueKey]: { ...data[valueKey], color } })}
                     size="small"
                 />
@@ -134,12 +86,12 @@ const Template_1: React.FC<Template1Props> = ({
                     className="w-16 px-1 py-0.5 text-xs"
                     type="number"
                     max={128}
-                    value={data[valueKey].fontSize}
+                    value={data[valueKey]?.fontSize}
                     onChange={(e) => setData({ ...data, [valueKey]: { ...data[valueKey], fontSize: parseInt(e.target.value) } })}
                 />
                 <Segmented
                     className="text-xs"
-                    value={data[valueKey].textAlign}
+                    value={data[valueKey]?.textAlign}
                     options={[
                         { label: "L", value: "left" },
                         { label: "C", value: "center" },
@@ -150,7 +102,7 @@ const Template_1: React.FC<Template1Props> = ({
                 />
                 <Switch
                     size="small"
-                    checked={!data[valueKey].hidden}
+                    checked={!data[valueKey]?.hidden}
                     onChange={(checked) => setData({ ...data, [valueKey]: { ...data[valueKey], hidden: !checked } })}
                 />
             </div>
@@ -258,8 +210,10 @@ const Template_1: React.FC<Template1Props> = ({
         }, time);
     };
 
+    const DEFAULT_IMG = process.env.NEXT_PUBLIC_SERVER_URL + "/default.png";
+
     return (
-        <div className="w-full h-full flex flex-col mt-12">
+        <div className="w-full h-full flex flex-col">
             <div
                 key={index}
                 id={`post-${index}`}
@@ -318,7 +272,7 @@ const Template_1: React.FC<Template1Props> = ({
                             className="text-white font-bold leading-tight mb-1 break-words"
                             style={{
                                 color: data.editableTitle.color || "#ffffff",
-                                fontSize: data.editableTitle.fontSize, // Decrease size as text grows, min 32px
+                                fontSize: `${Math.max(Math.min(data.editableTitle.fontSize, 48), 22)}px`, // Max 64px, Min 32px
                                 textAlign: data.editableTitle.textAlign || "center",
                                 display: data.editableTitle.hidden ? "none" : "block",
                             }}
@@ -327,6 +281,7 @@ const Template_1: React.FC<Template1Props> = ({
                                 ? `${data.editableTitle.label.slice(0, 110)}...`
                                 : data.editableTitle.label}
                         </h1>
+
 
                     </div>
 
@@ -345,14 +300,25 @@ const Template_1: React.FC<Template1Props> = ({
                 <div className="flex justify-between items-center w-full z-10 absolute px-8 bottom-8">
                     {data.showProfileImage && (
                         <div className="flex items-center space-x-4">
-                            {!data.isHeadImage && <img loading="lazy"
-                                src={data.profileImage.image}
-                                alt="Profile"
-                                className="w-12 h-12 rounded-full"
-                                style={{
-                                    opacity: data.profileImage.opacity || 1,
-                                }}
-                            />}
+                            {!data.isHeadImage &&
+                                <img
+                                    loading="lazy"
+                                    src={
+                                        data?.profileImage?.image ||
+                                        (userData?.profileImage?.includes("http")
+                                            ? userData?.profileImage
+                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage)
+                                        ||
+                                        DEFAULT_IMG
+                                    }
+                                    alt="Profile"
+                                    className="w-12 h-12 rounded-full"
+                                    style={{
+                                        opacity: data?.profileImage?.opacity || 1,
+                                    }}
+                                />
+
+                            }
                             <div>
                                 <h1
                                     className="text-white text-left font-semibold text-lg"
@@ -363,7 +329,7 @@ const Template_1: React.FC<Template1Props> = ({
                                         display: data.editableProfileName.hidden ? "none" : "block",
                                     }}
                                 >
-                                    {data.editableProfileName.label}
+                                    {data?.editableProfileName?.label || userData?.name}
                                 </h1>
                                 <p
                                     className="text-sm text-neutral-300 text-left"
@@ -374,7 +340,7 @@ const Template_1: React.FC<Template1Props> = ({
                                         display: data.editableProfileUsername.hidden ? "none" : "block",
                                     }}
                                 >
-                                    {data.editableProfileUsername.label}
+                                    {data?.editableProfileUsername?.label || userData?.email?.split("@")[0]}
                                 </p>
                             </div>
                         </div>
@@ -388,10 +354,16 @@ const Template_1: React.FC<Template1Props> = ({
                 <div className="mt-6 bg-white shadow-lg rounded-lg p-6 space-y-6 z-10 transition-all relative">
                     <Button className="absolute top-2 right-2" onClick={() => setData({ ...data, showEditingDiv: false })} type="primary" size="small">X</Button>
                     <div className="z-30 absolute top-0 left-0 m-4">
-                        <Button size="small"
+                        <Button
+                            size="small"
                             className="mr-2 bg-red-600"
                             type="primary"
-                        >Delete</Button>
+                            onClick={() => {
+                                deleteItem(index);
+                            }}
+                        >
+                            Delete
+                        </Button>
                         <Button size="small" type="primary" onClick={() => {
                             setData({ ...data, showEditingDiv: false });
                             timeout(() => exportImage(), 1000);

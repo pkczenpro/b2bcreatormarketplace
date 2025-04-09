@@ -148,7 +148,7 @@ export default function Dashboard() {
                                         title: "Actions",
                                         key: "actions",
                                         render: (
-                                            text,
+                                        text,
                                             record
                                         ) => (
                                             <div className="flex flex-col gap-2">

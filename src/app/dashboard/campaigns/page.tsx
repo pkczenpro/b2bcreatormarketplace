@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import CustomImage from "@/components/CustomImage";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
 import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
@@ -97,7 +98,7 @@ export default function Campaign() {
                 className="bg-white rounded-lg p-6 border border-1 shadow-sm cursor-pointer transition-all duration-300 hover:shadow-md hover:border-neutral-100"
               >
                 <div className="flex items-center">
-                  <img loading="lazy"
+                  <CustomImage loading="lazy"
                     src={
                       campaign?.image?.includes("http")
                         ? campaign?.image
