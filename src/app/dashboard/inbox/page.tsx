@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from "react";
 import { io } from 'socket.io-client';
 import { toast } from "sonner";
 
+
 type Message = {
     from: string;
     text: string;
@@ -94,14 +95,18 @@ export default function Inbox() {
     }, [userData]); // Runs when userData updates
 
 
+
     useEffect(() => {
         if (userData) {
             socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL!);
 
             socket.current.emit("join", userData._id);
 
+            const audio = new Audio("/assets/notification.mp3");  // Path from the public folder
+
             socket.current.on("message", (newMessage: Message) => {
                 setMessages((prev) => [...prev, newMessage]);
+                audio.play().catch((err) => console.log("Audio play error:", err));
             });
 
             return () => {
@@ -110,12 +115,16 @@ export default function Inbox() {
         }
     }, [userData]);
 
+
+    const [chatSelectLoading, setChatSelectLoading] = useState(true);
     const handleSelectChat = (chat: Chat) => {
         setSelectedChat(chat);
         fetchMessages(chat._id); // Fetch messages for selected chat
+
     };
 
     const fetchMessages = async (receiverId: string) => {
+        setChatSelectLoading(true);
         if (!userData) return;
 
         try {
@@ -124,6 +133,8 @@ export default function Inbox() {
         } catch (error) {
             console.error("Error fetching messages:", error);
         }
+
+        setChatSelectLoading(false);
     };
 
     const handleSendMessage = async () => {
@@ -276,6 +287,9 @@ export default function Inbox() {
     }, []);
 
     const [chatListMod, setChatListMod] = React.useState(false);
+
+    console.log(selectedChat)
+    console.log(contactList)
     const chatListModal = () => {
         return (
             <Modal
@@ -406,82 +420,88 @@ export default function Inbox() {
                                 {/* Right Panel - Chat Window */}
                                 {/* Right Panel - Chat Window */}
                                 <div className="w-full md:w-[60%] bg-neutral-50 flex flex-col justify-between flex-1 max-h-[80vh]">
-                                    <div
-                                        style={{
-                                            display: selectedChat ? "flex" : "none",
-                                        }}
-                                        className="flex items-center justify-between space-x-2 border-b border-neutral-100 p-4 bg-white">
-                                        <div className="flex items-center space-x-2">
-                                            {selectedChat && <CustomImage
-                                                loading="lazy"
-                                                src={selectedChat?.image?.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image}
-                                                alt={selectedChat?.name || "User"}
-                                                className="w-12 h-12 rounded-full"
-                                            />}
-                                            <div>
-                                                <h1 className="font-semibold text-lg">{selectedChat?.name}</h1>
-                                                <p className="text-sm text-neutral-500">{selectedChat?.active}</p>
+                                    {selectedChat && !chatSelectLoading ? <div className="w-full bg-neutral-50 flex flex-col justify-between flex-1 max-h-[80vh]">
+                                        <div
+                                            style={{
+                                                display: selectedChat ? "flex" : "none",
+                                            }}
+                                            className="flex items-center justify-between space-x-2 border-b border-neutral-100 p-4 bg-white">
+                                            <div className="flex items-center space-x-2">
+                                                {selectedChat && <CustomImage
+                                                    loading="lazy"
+                                                    src={selectedChat?.image?.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image}
+                                                    alt={selectedChat?.name || "User"}
+                                                    className="w-12 h-12 rounded-full"
+                                                />}
+                                                <div>
+                                                    <h1 className="font-semibold text-lg">{selectedChat?.name}</h1>
+                                                    <p className="text-sm text-neutral-500">{selectedChat?.active}</p>
+                                                </div>
+                                            </div>
+                                            {selectedChat?.userType === "creator" && <div className="ml-auto">
+                                                <Button
+
+                                                    onClick={() => {
+                                                        setAddToCampaign(true);
+                                                        setCreator(selectedChat);
+                                                    }}
+                                                    className="bg-primary-600 text-white rounded-md px-4 py-2 flex items-center space-x-2">
+                                                    Invite to a campaign
+                                                </Button>
+                                            </div>}
+                                        </div>
+
+                                        {/* Chat Body */}
+                                        <div className="flex-1 overflow-y-auto p-4" ref={chatBodyRef}>
+                                            <div className="flex flex-col justify-end space-y-2">
+                                                {messages.map((msg, index) => (
+                                                    <div key={index} className={`flex items-start space-x-2 ${msg.isSender ? "justify-end" : ""}`}>
+                                                        {/* Sender or receiver profile image */}
+                                                        {!msg.isSender && (
+                                                            <CustomImage
+                                                                loading="lazy"
+                                                                src={selectedChat?.image?.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image}
+                                                                alt={selectedChat?.name}
+                                                                className="w-10 h-10 rounded-full"
+                                                            />
+                                                        )}
+                                                        {/* Message bubble */}
+                                                        <div className={`flex flex-col ${msg.isSender ? "items-end" : "items-start"} w-full`}>
+                                                            <div
+                                                                className={`p-3 rounded-md ${msg.isSender ? "bg-primary-600 text-white" : "bg-neutral-100 text-neutral-700"} max-w-[75%] break-words`}
+                                                            >
+                                                                <p className={`text-sm ${msg.isSender ? "text-right" : "text-left"}`}>{msg.text}</p>
+                                                            </div>
+                                                            <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>{msg.createdAt}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                        {selectedChat?.userType === "creator" && <div className="ml-auto">
-                                            <Button
 
-                                                onClick={() => {
-                                                    setAddToCampaign(true);
-                                                    setCreator(selectedChat);
-                                                }}
-                                                className="bg-primary-600 text-white rounded-md px-4 py-2 flex items-center space-x-2">
-                                                Invite to a campaign
-                                            </Button>
-                                        </div>}
-                                    </div>
-
-                                    {/* Chat Body */}
-                                    <div className="flex-1 overflow-y-auto p-4" ref={chatBodyRef}>
-                                        <div className="flex flex-col justify-end space-y-2">
-                                            {messages.map((msg, index) => (
-                                                <div key={index} className={`flex items-start space-x-2 ${msg.isSender ? "justify-end" : ""}`}>
-                                                    {/* Sender or receiver profile image */}
-                                                    {!msg.isSender && (
-                                                        <CustomImage
-                                                            loading="lazy"
-                                                            src={selectedChat?.image?.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image}
-                                                            alt={selectedChat?.name}
-                                                            className="w-10 h-10 rounded-full"
-                                                        />
-                                                    )}
-                                                    {/* Message bubble */}
-                                                    <div className={`flex flex-col ${msg.isSender ? "items-end" : "items-start"} w-full`}>
-                                                        <div
-                                                            className={`p-3 rounded-md ${msg.isSender ? "bg-primary-600 text-white" : "bg-neutral-100 text-neutral-700"} max-w-[75%] break-words`}
-                                                        >
-                                                            <p className={`text-sm ${msg.isSender ? "text-right" : "text-left"}`}>{msg.text}</p>
-                                                        </div>
-                                                        <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>{msg.createdAt}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Message Input */}
-                                    {selectedChat && <div className="flex items-center border-t border-neutral-100 p-4 bg-white">
-                                        <input
-                                            type="text"
-                                            className="flex-1 border border-neutral-300 rounded-md px-4 py-2 mx-2"
-                                            placeholder="Type a message..."
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                                        />
-                                        {/* <label className="cursor-pointer mr-2">
+                                        {/* Message Input */}
+                                        {selectedChat && <div className="flex items-center border-t border-neutral-100 p-4 bg-white">
+                                            <input
+                                                type="text"
+                                                className="flex-1 border border-neutral-300 rounded-md px-4 py-2 mx-2"
+                                                placeholder="Type a message..."
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                                            />
+                                            {/* <label className="cursor-pointer mr-2">
                                             <PaperclipIcon className="w-6 h-6 text-primary-700" />
                                             <input type="file" className="hidden" onChange={handleFileUpload} />
                                         </label> */}
-                                        <button onClick={handleSendMessage} className="text-blue-500">
-                                            <SendIcon className="w-6 h-6 text-primary-700 cursor-pointer" />
-                                        </button>
-                                    </div>}
+                                            <button onClick={handleSendMessage} className="text-blue-500">
+                                                <SendIcon className="w-6 h-6 text-primary-700 cursor-pointer" />
+                                            </button>
+                                        </div>}
+                                    </div> :
+                                        <div className="flex items-center justify-center h-full">
+                                            <p className="text-neutral-500">Loading...</p>
+                                        </div>
+                                    }
                                 </div>
 
 

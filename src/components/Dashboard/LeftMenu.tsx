@@ -62,15 +62,33 @@ export const LeftMenu = () => {
 
     socketRef.current.emit("join", userData._id);
 
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audio = new Audio("/assets/notification.mp3");
+
     socketRef.current.on("newNotification", (data) => {
       console.log("New notification received:", data);
       setNotifications((prev) => [data, ...prev]);
+
+      // Decode and play audio
+      fetch(audio.src)
+        .then(response => response.arrayBuffer())
+        .then(data => audioContext.decodeAudioData(data))
+        .then(buffer => {
+          const source = audioContext.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioContext.destination);
+          source.start();
+        })
+        .catch(err => {
+          console.log("Audio play error:", err);
+        });
     });
 
     return () => {
       socketRef.current.off("newNotification");
     };
   }, [userData]);
+
 
 
   const handleMarkAsRead = async () => {
