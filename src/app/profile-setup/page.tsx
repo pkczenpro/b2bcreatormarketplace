@@ -22,6 +22,9 @@ type UserData = {
   socialMediaLinks: { platform: string; link: string }[];
   bio: string;
   tags: string[];
+  userType: string;
+  category: string;
+  subCategory: string;
 };
 
 export default function ProfileSetup({ }: ProfileSetupProps) {
@@ -62,6 +65,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [tagText, setTagText] = useState("");
 
+  const [category, setCategory] = useState<string>("");
+  const [subCategory, setSubCategory] = useState<string>("");
+
 
   useEffect(() => {
     if (userData) {
@@ -92,6 +98,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       );
       setShortIntroduction(userData.bio === "undefined" ? "" : userData.bio || "");
       setTags(userData.tags || []);
+
+      setCategory(userData.category || "");
+      setSubCategory(userData.subCategory || "");
     }
   }, [userData]);
 
@@ -119,6 +128,17 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       setCoverFile(event.target.files[0]);
     }
   };
+
+  const handleMainCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = event.target.value;
+    setCategory(selectedCategory);
+    setSubCategory(""); // Reset subcategory when main category changes
+  }
+  const handleSubCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSubCategory(event.target.value);
+  }
+  
+
   const [activeId, setActiveId] = useState(1);
 
   const ProfileInformation = () => {
@@ -268,6 +288,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
+
+
         {userType === "brand" && (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">
@@ -285,6 +307,54 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 required
                 name="location"
               />
+            </div>
+
+            <h1 className="text-h5 font-bold text-left mb-1">
+              Company Category
+            </h1>
+            <p className="text-neutral-600 text-left mb-6">
+              Select the category that best describes your company.
+            </p>
+            <div className="w-[70%] mb-4">
+              <select
+                value={category}
+                onChange={handleMainCategoryChange}
+                className="w-full p-2 border text-sm border-neutral-200 rounded-lg"
+              >
+                <option value="">Select Category</option>
+                <option value="tech">Tech</option>
+                <option value="fashion">Fashion</option>
+                <option value="food">Food</option>
+                {/* Add more categories as needed */}
+              </select>
+
+              {category && (
+                <select
+                  value={subCategory}
+                  onChange={handleSubCategoryChange}
+                  className="w-full p-2 border text-sm border-neutral-200 rounded-lg mt-2"
+                >
+                  <option value="">Select Subcategory</option>
+                  {category === "tech" && (
+                    <>
+                      <option value="software">Software</option>
+                      <option value="hardware">Hardware</option>
+                    </>
+                  )}
+                  {category === "fashion" && (
+                    <>
+                      <option value="clothing">Clothing</option>
+                      <option value="accessories">Accessories</option>
+                    </>
+                  )}
+                  {category === "food" && (
+                    <>
+                      <option value="snacks">Snacks</option>
+                      <option value="beverages">Beverages</option>
+                    </>
+                  )}
+                </select>
+              )}
             </div>
           </>
         )}
@@ -384,6 +454,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       formData.append("bio", shortIntroduction);
       formData.append("tags", JSON.stringify(tags)); // For array data, you might need to stringify it
       formData.append("isCompletedOnboarding", "true");
+      formData.append("category", category);
+      formData.append("subCategory", subCategory);
 
       // Append social media links as JSON (stringified array)
       formData.append(

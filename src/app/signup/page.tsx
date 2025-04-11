@@ -27,7 +27,7 @@ export default function Signup() {
         <div className="p-6 flex flex-col md:flex-row justify-center items-center min-h-screen mx-auto">
             {/* Tabs Section */}
             <div className="w-full px-8 md:px-16 lg:px-32 mb-8 sm:mb-0">
-                <Tabs tabs={tabs} localStorageKey="authTab" />
+                <Tabs tabs={tabs} localStorageKey="signupTab" />
             </div>
 
 

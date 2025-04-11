@@ -6,6 +6,7 @@ import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import Input from "@/components/Input/Input";
 import api from "@/utils/axiosInstance";
 import { Button, Modal, Select, Tooltip } from "antd";
+import { time } from "console";
 import { motion } from "framer-motion";
 import { Delete, InboxIcon, PaperclipIcon, PlusCircle, SendIcon } from "lucide-react";
 import moment from "moment";
@@ -96,7 +97,6 @@ export default function Inbox() {
     }, [userData]); // Runs when userData updates
 
 
-
     useEffect(() => {
         if (userData) {
             socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL!);
@@ -106,6 +106,9 @@ export default function Inbox() {
             const audio = new Audio("/assets/notification.mp3");  // Path from the public folder
 
             socket.current.on("message", (newMessage: Message) => {
+                if (newMessage.isFirstMessage) {
+                    fetchChatList();
+                }
                 setMessages((prev) => [...prev, newMessage]);
                 audio.play().catch((err) => console.log("Audio play error:", err));
             });
@@ -121,7 +124,7 @@ export default function Inbox() {
     const handleSelectChat = (chat: Chat) => {
         setSelectedChat(chat);
         fetchMessages(chat._id); // Fetch messages for selected chat
-
+        fetchChatList(); // Refresh chat list
     };
 
     const fetchMessages = async (receiverId: string) => {
@@ -151,21 +154,22 @@ export default function Inbox() {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
         setMessage("");
 
-        // Emit message to server via socket.io
-        if (socket.current) {
-            socket.current.emit("send_message", {
-                sender: userData._id, // Set actual sender
-                receiver: selectedChat._id,
-                message: message,
-                timestamp: moment().format("hh:mm A"),
-            });
-        }
+        // // Emit message to server via socket.io
+        // if (socket.current) {
+        //     socket.current.emit("send_message", {
+        //         sender: userData._id, // Set actual sender
+        //         receiver: selectedChat._id,
+        //         message: message,
+        //         timestamp: moment().format("hh:mm A"),
+        //     });
+        // }
 
         try {
             await api.post("/messages", {
                 sender: userData._id, // Set actual sender
                 receiver: selectedChat._id,
                 message: message,
+                timestamp: moment().format("hh:mm A"),
             });
 
             if (chatBodyRef.current) {
@@ -291,8 +295,6 @@ export default function Inbox() {
 
     const [chatListMod, setChatListMod] = React.useState(false);
 
-    console.log(selectedChat)
-    console.log(contactList)
     const chatListModal = () => {
         return (
             <Modal
@@ -361,7 +363,8 @@ export default function Inbox() {
                         >
                             <div className="border border-neutral-100 min-h-[80vh] flex flex-col md:flex-row">
                                 {/* Left Panel - Chat List */}
-                                <div className="w-full md:w-[40%] p-2 border-b md:border-b-0 md:border-r border-neutral-100">
+                                <div
+                                    className="w-full md:w-[40%] p-2 border-b md:border-b-0 md:border-r border-neutral-100">
                                     <div className="flex items-center justify-between mb-4">
                                         <Input
                                             placeholder="Search for a chat"
@@ -411,17 +414,17 @@ export default function Inbox() {
                                                 </div>
 
                                                 <p className="text-xs text-neutral-400 whitespace-nowrap">
-                                                    {new Date(chat.timestamp).toLocaleTimeString('en-US', {
+                                                    {new Date(chat?.timestamp).toLocaleTimeString('en-US', {
                                                         hour: '2-digit',
                                                         minute: '2-digit',
                                                         hour12: true,
                                                     })}
                                                 </p>
 
+                                                {!chat?.isRead && <div className="w-3 h-3 bg-primary-600 rounded-full"></div>}
                                             </div>
                                         ))}
                                     </div>
-
                                 </div>
 
                                 {/* Right Panel - Chat Window */}
