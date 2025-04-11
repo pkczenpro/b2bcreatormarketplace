@@ -8,6 +8,7 @@ import api from "@/utils/axiosInstance";
 import { Button, Modal, Select, Tooltip } from "antd";
 import { motion } from "framer-motion";
 import { Delete, InboxIcon, PaperclipIcon, PlusCircle, SendIcon } from "lucide-react";
+import moment from "moment";
 import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { io } from 'socket.io-client';
@@ -144,6 +145,7 @@ export default function Inbox() {
             from: userData._id, // Set actual user data here
             text: message,
             isSender: true,
+            createdAt: moment().format("hh:mm A"),
         };
 
         setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -155,6 +157,7 @@ export default function Inbox() {
                 sender: userData._id, // Set actual sender
                 receiver: selectedChat._id,
                 message: message,
+                timestamp: moment().format("hh:mm A"),
             });
         }
 
@@ -407,10 +410,14 @@ export default function Inbox() {
                                                     <p className="text-sm text-neutral-500 truncate">{chat.message}</p>
                                                 </div>
 
-                                                {/* Optional Last Message Time */}
                                                 <p className="text-xs text-neutral-400 whitespace-nowrap">
-                                                    {new Date(chat.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {new Date(chat.timestamp).toLocaleTimeString('en-US', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                        hour12: true,
+                                                    })}
                                                 </p>
+
                                             </div>
                                         ))}
                                     </div>
@@ -472,7 +479,10 @@ export default function Inbox() {
                                                             >
                                                                 <p className={`text-sm ${msg.isSender ? "text-right" : "text-left"}`}>{msg.text}</p>
                                                             </div>
-                                                            <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>{msg.createdAt}</p>
+                                                            <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>
+                                                                {msg.createdAt}
+                                                            </p>
+
                                                         </div>
                                                     </div>
                                                 ))}
