@@ -21,7 +21,6 @@ export const LeftMenu = () => {
   const [userType, setUserType] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
-<<<<<<< HEAD
   const [unreadMessages, setUnreadMessages] = useState(0);
   const socketRef = useRef();
 
@@ -29,11 +28,6 @@ export const LeftMenu = () => {
 
   const getUserDetails = async () => {
     setLoading(true);
-=======
-  const socketRef = useRef();
-
-  const getUserDetails = async () => {
->>>>>>> upstream/main
     const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
     if (!userId) return;
     let res = null;
@@ -41,18 +35,12 @@ export const LeftMenu = () => {
       res = await api.get(`/users/user`);
       setUserData(res.data);
       setUserType(res.data.userType);
-<<<<<<< HEAD
       setUnreadMessages(res.data.unreadMessages);
     }
     catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
-=======
-    }
-    catch (err) {
-      console.log(err);
->>>>>>> upstream/main
     }
   }
 
@@ -187,7 +175,6 @@ export const LeftMenu = () => {
     window.location.href = "/login";
   };
 
-<<<<<<< HEAD
   const renderMenuItems = () =>
     menuItems.map(({ name, icon: Icon, link, underline, tooltip, color }, index) => (
       <div key={index}>
@@ -216,27 +203,6 @@ export const LeftMenu = () => {
       </div>
     ));
 
-=======
-  const renderMenuItems = () => menuItems.map(({ name, icon: Icon, link, underline, tooltip, color }, index) => (
-    <div key={index}>
-      <Link href={link} className="w-full">
-        <Tooltip title={tooltip} placement="right" arrow={true}>
-          <li className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold ${pathname === link ? "bg-neutral-50" : ""}`}
-            // style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
-            style={{ color: "#3D4350" }}
-          >
-            <Icon size={20} className="mr-2"
-              // style={{ color: pathname === link ? "#3B82F6" : color || "#4B5563" }}
-              style={{ color: "#3D4350" }}
-            />
-            {name}
-          </li>
-        </Tooltip>
-      </Link>
-      {underline && <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>}
-    </div>
-  ));
->>>>>>> upstream/main
 
   return (
     <div className="bg-neutral-50 min-w-[20%] max-w-[20%] w-[20%]">

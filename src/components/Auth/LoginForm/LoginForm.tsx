@@ -45,11 +45,7 @@ const LoginForm = ({ userType }: LoginFormProps) => {
                 password: inputs.password,
                 userType,
             });
-            if (response.status === 200) {
-<<<<<<< HEAD
-                
-=======
->>>>>>> upstream/main
+            if (response.status === 200) {                
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('userType', response.data.user.userType); // temp

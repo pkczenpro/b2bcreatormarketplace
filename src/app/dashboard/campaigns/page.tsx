@@ -42,13 +42,8 @@ export default function Campaign() {
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter(
         (campaign) =>
-<<<<<<< HEAD
           campaign?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
           campaign?.company?.toLowerCase()?.includes(searchQuery.toLowerCase())
-=======
-          campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          campaign.company.toLowerCase().includes(searchQuery.toLowerCase())
->>>>>>> upstream/main
       );
     }
 

@@ -22,12 +22,9 @@ type UserData = {
   socialMediaLinks: { platform: string; link: string }[];
   bio: string;
   tags: string[];
-<<<<<<< HEAD
   userType: string;
   category: string;
   subCategory: string;
-=======
->>>>>>> upstream/main
 };
 
 export default function ProfileSetup({ }: ProfileSetupProps) {
@@ -68,12 +65,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [tagText, setTagText] = useState("");
 
-<<<<<<< HEAD
   const [category, setCategory] = useState<string>("");
   const [subCategory, setSubCategory] = useState<string>("");
 
-=======
->>>>>>> upstream/main
 
   useEffect(() => {
     if (userData) {
@@ -104,12 +98,9 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       );
       setShortIntroduction(userData.bio === "undefined" ? "" : userData.bio || "");
       setTags(userData.tags || []);
-<<<<<<< HEAD
 
       setCategory(userData.category || "");
       setSubCategory(userData.subCategory || "");
-=======
->>>>>>> upstream/main
     }
   }, [userData]);
 
@@ -137,7 +128,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       setCoverFile(event.target.files[0]);
     }
   };
-<<<<<<< HEAD
 
   const handleMainCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = event.target.value;
@@ -149,8 +139,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   }
   
 
-=======
->>>>>>> upstream/main
   const [activeId, setActiveId] = useState(1);
 
   const ProfileInformation = () => {
@@ -300,11 +288,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
-<<<<<<< HEAD
 
 
-=======
->>>>>>> upstream/main
         {userType === "brand" && (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">
@@ -323,7 +308,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 name="location"
               />
             </div>
-<<<<<<< HEAD
 
             <h1 className="text-h5 font-bold text-left mb-1">
               Company Category
@@ -372,8 +356,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 </select>
               )}
             </div>
-=======
->>>>>>> upstream/main
           </>
         )}
 
@@ -472,11 +454,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       formData.append("bio", shortIntroduction);
       formData.append("tags", JSON.stringify(tags)); // For array data, you might need to stringify it
       formData.append("isCompletedOnboarding", "true");
-<<<<<<< HEAD
       formData.append("category", category);
       formData.append("subCategory", subCategory);
-=======
->>>>>>> upstream/main
 
       // Append social media links as JSON (stringified array)
       formData.append(
