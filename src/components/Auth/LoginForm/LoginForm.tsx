@@ -46,7 +46,10 @@ const LoginForm = ({ userType }: LoginFormProps) => {
                 userType,
             });
             if (response.status === 200) {
+<<<<<<< HEAD
                 
+=======
+>>>>>>> upstream/main
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('userType', response.data.user.userType); // temp
