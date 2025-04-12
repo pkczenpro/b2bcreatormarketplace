@@ -14,12 +14,16 @@ type PostMakerProps = object;
 
 export default function PostMaker({ }: PostMakerProps) {
     const [selectedCampaign, setSelectedCampaign] = useState("");
+    const [selectedBrandId, setSelectedBrandId] = useState("");
+
     const [relatedCampaigns, setRelatedCampaigns] = useState([]);
     const [postContent, setPostContent] = useState("");
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [isReadMore, setIsReadMore] = useState(false);
 
+
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const [userData, setUserData] = useState(null);
     const getUserData = async () => {
         try {
@@ -40,8 +44,19 @@ export default function PostMaker({ }: PostMakerProps) {
         }
     };
 
+    // const getRelatedProducts = async (userId) => {
+    //     if (!userId) return; // Prevent unnecessary API calls
+    //     try {
+    //         const response = await api.get(`/campaigns/related-cg/${userId}`);
+    //         setRelatedCampaigns(response.data);
+    //     } catch (error) {
+    //         console.error("Error fetching related campaigns:", error);
+    //     }
+    // }
+
     useEffect(() => {
         getUserData();
+
     }, []);
 
     useEffect(() => {
@@ -49,6 +64,12 @@ export default function PostMaker({ }: PostMakerProps) {
             getRelatedCampaigns(userData._id);
         }
     }, [userData]);
+
+    // useEffect(() => {
+    //     if (selectedCampaign) {
+    //         getRelatedProducts(selectedCampaign);
+    //     }
+    // }, [selectedCampaign]);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -147,7 +168,7 @@ export default function PostMaker({ }: PostMakerProps) {
     const publishToLinkedIn = async () => {
         const formData = new FormData();
         formData.append("content", postContent);
-        formData.append("type", "AI Text Creator");
+        formData.append("hookType", "AI Text Creator");
 
         if (imagePreview && imageFile) {
             imageFile.forEach((file) => formData.append("images", file));
@@ -203,6 +224,7 @@ export default function PostMaker({ }: PostMakerProps) {
                 setImagePreview={setImagePreview}
                 isReadMore={isReadMore}
                 setIsReadMore={setIsReadMore}
+                relatedProducts={[]}
             />
             {SchedulePostModal()}
         </div>

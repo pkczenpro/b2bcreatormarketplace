@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tooltip as RadixTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { title } from "process";
 
 const schema = z.object({
     post: z.string().min(1, "Post cannot be empty"),
@@ -24,16 +25,28 @@ const PostEditor = ({
     setSelectedCampaign,
     publishToLinkedIn,
     setIsModalVisible,
+
+    relatedProducts,
 }) => {
     const [aiPrompt, setAiPrompt] = useState("");
     const [loading, setLoading] = useState(false);
     const [uploadedImages, setUploadedImages] = useState<any[]>([]);
 
+    const [brandName, setBrandName] = useState("");
+    const [selectedProduct, setSelectedProduct] = useState("");
+    const [hookType, setHookType] = useState("");
+
     const generatePostWithAI = async () => {
         if (!aiPrompt) return;
         setLoading(true);
         try {
-            const response = await api.post("/campaigns/generate-post", { prompt: aiPrompt, selectedCampaign });
+            const response = await api.post("/campaigns/generate-post", {
+                prompt: aiPrompt,
+                selectedCampaign,
+                selectedProduct,
+                brandName,
+                hookType
+            });
             setPostContent(response.data.post);
         } catch (error) {
             console.error("AI Generation Error:", error);
@@ -95,15 +108,70 @@ const PostEditor = ({
     return (
         <div className="flex flex-col w-full max-w-xl mx-auto bg-white py-6 gap-5">
 
-            {/* Campaign Selection */}
-            <div>
-                <p className="font-semibold text-neutral-700 mb-2">Select Campaign</p>
+            <div className="flex">
+                {/* Campaign Selection */}
+                <div className="w-full mr-2">
+                    <p className="font-semibold text-neutral-700 mb-2">Select Campaign</p>
+                    <Select
+                        className="w-full"
+                        placeholder="Choose campaign"
+                        value={selectedCampaign}
+                        onChange={setSelectedCampaign}
+                        options={relatedCampaigns.map((c) => ({ label: c.title, value: c._id }))}
+                    />
+                </div>
+
+                {/* Product Selection */}
+                <div className="w-full">
+                    <p className="font-semibold text-neutral-700 mb-2">Select Product</p>
+                    {/* <Select
+                        className="w-full"
+                        value={selectedProduct}
+                        onChange={setSelectedProduct}
+                        options={relatedProducts?.map((c) => ({ label: c.title, value: c._id }))}
+                    /> */}
+                    <Input
+                        className="w-full"
+                        placeholder="Choose product"
+                        value={selectedProduct}
+                        onChange={(e) => setSelectedProduct(e.target.value)}
+                    // options={relatedProducts?.map((c) => ({ label: c.title, value: c._id }))}
+                    />
+                </div>
+                <div className="w-full">
+                    <p className="font-semibold text-neutral-700 mb-2">Brand Name</p>
+                    {/* <Select
+                        className="w-full"
+                        value={selectedProduct}
+                        onChange={setSelectedProduct}
+                        options={relatedProducts?.map((c) => ({ label: c.title, value: c._id }))}
+                    /> */}
+                    <Input
+                        className="w-full"
+                        placeholder="Choose brand name"
+                        value={brandName}
+                        onChange={(e) =>
+                            setBrandName(e.target.value)
+                        }
+                    />
+
+                </div>
+            </div>
+
+            {/* Product Selection */}
+            <div className="w-full">
+                <p className="font-semibold text-neutral-700 mb-2">Hook Type</p>
                 <Select
                     className="w-full"
-                    placeholder="Choose campaign"
-                    value={selectedCampaign}
-                    onChange={setSelectedCampaign}
-                    options={relatedCampaigns.map((c) => ({ label: c.title, value: c._id }))}
+                    value={hookType}
+                    onChange={setHookType}
+                    options={[
+                        { title: "Trending and Timely Hook" },
+                        { title: "Value Driven Hook" },
+                        { title: "Curiosity Driven Hook" },
+                        { title: "Lead Magnet Style Hook" },
+                        { title: "Awareness Type Hook" },
+                    ]?.map((c) => ({ label: c.title, value: c.title }))}
                 />
             </div>
 
