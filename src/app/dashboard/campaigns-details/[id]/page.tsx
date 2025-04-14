@@ -9,7 +9,6 @@ import { motion } from "framer-motion";
 import Tabs from "@/components/Tabs/Tabs";
 
 import { BarChartComponent } from "@/components/Charts/BarChart";
-import { InteractiveBarChart } from "@/components/Charts/InteractiveBarChart";
 import { CreatorTable } from "@/components/BrandTables/Creators";
 import { ContentTable } from "@/components/BrandTables/Content";
 import Link from "next/link";
@@ -23,20 +22,28 @@ type CampaignDetailsProps = object;
 
 export default function CampaignDetails({ }: CampaignDetailsProps) {
     const [userType, setUserType] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState(true);
     const { id } = useParams();
 
-    React.useEffect(() => {
-        if (typeof window !== "undefined") {
-            // Parse the string from localStorage to get the user object
-            const user = localStorage.getItem("user");
-            if (user) {
-                const parsedUser = JSON.parse(user);
-                setUserType(parsedUser.userType); // Set userType
-            }
+    const getUserDetails = async () => {
+        setLoading(true);
+        const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
+        if (!userId) return;
+        let res = null;
+        try {
+            res = await api.get(`/users/user`);
+            setUserType(res.data.userType);
         }
-    }, []);
+        catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    console.log(userType);  // This will log the userType, "creator" for example.
+    React.useEffect(() => {
+        getUserDetails();
+    }, []);
 
 
     const [campaign, setCampaign] = React.useState(null);
@@ -280,6 +287,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                     className="ml-auto max-w-[200px]"
                                     variant="primary"
                                     size="small"
+                                    disabled={loading}
+                                    loading={loading}
                                     onClick={() => {
                                         if (userType === "creator") {
                                             setAmountModal(true);

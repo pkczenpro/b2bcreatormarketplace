@@ -15,6 +15,12 @@ import CustomImage from "../CustomImage";
 import { io } from "socket.io-client";
 import moment from "moment";
 
+type Message = {
+  from: string;
+  text: string;
+  isSender: boolean;
+};
+
 export const LeftMenu = () => {
   const pathname = usePathname();
   const [userData, setUserData] = useState(null);
@@ -89,6 +95,11 @@ export const LeftMenu = () => {
         .catch(err => {
           console.log("Audio play error:", err);
         });
+    });
+
+    socketRef.current.on("message", (newMessage: Message) => {
+      console.log("New message received:", newMessage);
+      setUnreadMessages(prev => prev + 1);
     });
 
     return () => {

@@ -6,7 +6,8 @@ import api from "@/utils/axiosInstance";
 import { Badge, Button, Input, Modal, Select } from "antd";
 import { Compass, Linkedin, Store, Globe, RefreshCwIcon, Search, LocateIcon, MapPin } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
 import { toast } from "sonner";
 
 const { Option } = Select;
@@ -71,7 +72,7 @@ export default function Creators() {
                         creator.image?.includes("http")
                             ? creator.image
                             : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
-                    } alt="" 
+                    } alt=""
                         className="w-12 h-12 rounded-full"
                     />
                     <h2 className="text-md font-bold text-neutral-600">
@@ -165,6 +166,23 @@ export default function Creators() {
         getCampaigns();
     }, []);
 
+    const socket = useRef(null);
+    const [activeUsers, setActiveUsers] = useState([]);
+
+    useEffect(() => {
+        socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL!);
+
+        socket.current.on("activeUsers", (users) => {
+            setActiveUsers(users); // this is an array of userIds
+        });
+
+        return () => {
+            socket.current?.off("activeUsers");
+            socket.current?.disconnect(); // Good practice to disconnect
+        };
+    }, []);
+
+
 
     return (
         <div className="flex">
@@ -238,7 +256,8 @@ export default function Creators() {
                                                     ? creator.image
                                                     : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
                                             } alt={creator.name} className="w-14 h-14 rounded-full" />
-                                            <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                                            
+                                            {activeUsers.includes(creator._id) && <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>}
                                         </div>
 
                                         <div>

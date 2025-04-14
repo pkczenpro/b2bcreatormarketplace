@@ -113,6 +113,10 @@ export default function Inbox() {
                 audio.play().catch((err) => console.log("Audio play error:", err));
             });
 
+            socket.current.on("activeUsers", (users) => {
+                setActiveUsers(users); // this is an array of userIds
+            });
+
             return () => {
                 socket.current.disconnect();
             };
@@ -122,6 +126,7 @@ export default function Inbox() {
 
     const [chatSelectLoading, setChatSelectLoading] = useState(true);
     const handleSelectChat = (chat: Chat) => {
+        console.log("chat", chat)
         setSelectedChat(chat);
         fetchMessages(chat._id); // Fetch messages for selected chat
         fetchChatList(); // Refresh chat list
@@ -316,6 +321,7 @@ export default function Inbox() {
                                 <div
                                     key={index}
                                     onClick={() => {
+
                                         handleSelectChat(chat)
                                         setChatListMod(false);
                                     }}
@@ -345,6 +351,20 @@ export default function Inbox() {
             </Modal>
         )
     }
+
+    const [activeUsers, setActiveUsers] = useState([]);
+ 
+    useEffect(() => {
+        socket?.current?.on("activeUsers", (users) => {
+        
+            setActiveUsers(users); // this is an array of userIds
+        });
+
+        return () => {
+            socket?.current?.off("activeUsers");
+        };
+    }, []);
+
 
     return (
         <div className="flex flex-col md:flex-row">
@@ -404,8 +424,13 @@ export default function Inbox() {
                                                         src={chat?.image?.includes("http") ? chat.image : process.env.NEXT_PUBLIC_SERVER_URL + chat.image}
                                                         alt={chat?.name}
                                                         className={`w-12 h-12 rounded-full object-cover
-            ${selectedChat && selectedChat?._id === chat._id ? 'ring-2 ring-primary-700' : ''}`}
+            ${selectedChat && selectedChat?._id === chat._id ? 'ring-2 ring-primary-700' : ''}
+            ${chat?.active === "online" && 'ring-2 ring-green-600'}
+            `}
+
                                                     />
+                                                    {
+                                                        activeUsers.includes(chat?._id) && <div className="w-3 h-3 bg-green-600 rounded-full absolute bottom-0 right-0"></div>}
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
@@ -445,7 +470,14 @@ export default function Inbox() {
                                                 />}
                                                 <div>
                                                     <h1 className="font-semibold text-lg">{selectedChat?.name}</h1>
-                                                    <p className="text-sm text-neutral-500">{selectedChat?.active}</p>
+                                                    <p className="text-sm text-neutral-500 flex items-center gap-2">
+                                                        {
+                                                            activeUsers.includes(selectedChat?._id) && <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                                                        }
+                                                        {
+                                                            activeUsers.includes(selectedChat?._id) ? "Online" : "Offline"
+                                                        }
+                                                    </p>
                                                 </div>
                                             </div>
                                             {selectedChat?.userType === "creator" && <div className="ml-auto">

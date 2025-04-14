@@ -6,7 +6,7 @@ import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import ShowProductModal from "@/components/Dashboard/ShowProductModal";
@@ -17,7 +17,11 @@ import CustomImage from "@/components/CustomImage";
 
 
 export default function BrandDashboard() {
-    const loggedInUserId = JSON.parse(localStorage.getItem("user"))._id;
+    const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        setLoggedInUserId(JSON.parse(localStorage.getItem("user") || "{}")._id);
+    }, []);
 
     const [userData, setUserData] = useState<any>(null);
     const [campaigns, setCampaigns] = useState<any>(null);
