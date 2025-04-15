@@ -33,6 +33,18 @@ type Chat = {
 const { Option } = Select;
 
 export default function Inbox() {
+    // const [query, setQuery] = useState("");
+    const [user_id, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const urlQuery = new URLSearchParams(window.location.search);
+            const user = urlQuery.get("user");
+            setUserId(user);
+            // setQuery(window.location.search);
+        }
+    }, []);
+
     const [chatList, setChatList] = useState<Chat[]>([]);
     const [filteredChatList, setFilteredChatList] = useState<Chat[]>([]);
     const [userData, setUserData] = useState<any>(null);
@@ -85,8 +97,8 @@ export default function Inbox() {
         try {
             const resp = await api.get("/messages/chatlist")
 
-            setChatList(resp.data);
-            setFilteredChatList(resp.data);
+            setChatList(resp.data.filter((chat: Chat) => chat._id !== userData._id));
+            setFilteredChatList(resp.data.filter((chat: Chat) => chat._id !== userData._id));
         } catch (error) {
             console.error("Error fetching users:", error);
         }
@@ -96,6 +108,16 @@ export default function Inbox() {
         fetchContactList();
     }, [userData]); // Runs when userData updates
 
+    const selectedChatRef = useRef(selectedChat);
+    const chatListRef = useRef(chatList);
+
+    useEffect(() => {
+        selectedChatRef.current = selectedChat; // Update the ref whenever selectedChat changes
+    }, [selectedChat]);
+
+    useEffect(() => {
+        chatListRef.current = chatList; // Update the ref whenever chatList changes
+    }, [chatList]);
 
     useEffect(() => {
         if (userData) {
@@ -103,20 +125,51 @@ export default function Inbox() {
 
             socket.current.emit("join", userData._id);
 
-            const audio = new Audio("/assets/notification.mp3");  // Path from the public folder
-
+            const audio = new Audio("/assets/notification.mp3");
             socket.current.on("message", (newMessage: Message) => {
-                if (newMessage.isFirstMessage) {
+                if (newMessage.from === userData._id) return;
+                const messageFound = chatListRef.current.find((chat) => chat._id === newMessage.from);
+                if (newMessage.from === selectedChatRef.current?._id) {
+                    setMessages((prev) => [...prev, {
+                        ...newMessage,
+                        createdAt: moment(newMessage.createdAt).format("hh:mm A"),
+                    }]);
+                } else if (
+                    messageFound
+                ) {
+                    setChatList((prev) =>
+                        prev.map((chat) =>
+                            chat._id === messageFound._id
+                                ? {
+                                    ...chat,
+                                    message: newMessage.text,
+                                    timestamp: newMessage.createdAt,
+                                    isRead: false,
+                                }
+                                : chat
+                        )
+                    );
+                    setFilteredChatList((prev) =>
+                        prev.map((chat) =>
+                            chat._id === messageFound._id
+                                ? {
+                                    ...chat,
+                                    message: newMessage.text,
+                                    timestamp: newMessage.createdAt,
+                                    isRead: false,
+                                }
+                                : chat
+                        )
+                    );
+                } else {
                     fetchChatList();
                 }
-                setMessages((prev) => [...prev, newMessage]);
                 audio.play().catch((err) => console.log("Audio play error:", err));
             });
-
             socket.current.on("activeUsers", (users) => {
-                setActiveUsers(users); // this is an array of userIds
-            });
 
+                setActiveUsers(users);
+            });
             return () => {
                 socket.current.disconnect();
             };
@@ -124,51 +177,36 @@ export default function Inbox() {
     }, [userData]);
 
 
-    const [chatSelectLoading, setChatSelectLoading] = useState(true);
+
+    const [chatSelectLoading, setChatSelectLoading] = useState(false);
     const handleSelectChat = (chat: Chat) => {
-        console.log("chat", chat)
         setSelectedChat(chat);
-        fetchMessages(chat._id); // Fetch messages for selected chat
-        fetchChatList(); // Refresh chat list
+        fetchMessages(chat._id);
+        fetchChatList();
     };
 
     const fetchMessages = async (receiverId: string) => {
         setChatSelectLoading(true);
         if (!userData) return;
-
         try {
             const response = await api.get(`/messages?sender=${userData._id}&receiver=${receiverId}`);
             setMessages(response.data);
         } catch (error) {
             console.error("Error fetching messages:", error);
         }
-
         setChatSelectLoading(false);
     };
 
     const handleSendMessage = async () => {
         if (message.trim() === "" || !selectedChat) return;
-
         const newMessage = {
-            from: userData._id, // Set actual user data here
+            from: userData._id,
             text: message,
             isSender: true,
             createdAt: moment().format("hh:mm A"),
         };
-
         setMessages((prevMessages) => [...prevMessages, newMessage]);
         setMessage("");
-
-        // // Emit message to server via socket.io
-        // if (socket.current) {
-        //     socket.current.emit("send_message", {
-        //         sender: userData._id, // Set actual sender
-        //         receiver: selectedChat._id,
-        //         message: message,
-        //         timestamp: moment().format("hh:mm A"),
-        //     });
-        // }
-
         try {
             await api.post("/messages", {
                 sender: userData._id, // Set actual sender
@@ -176,20 +214,13 @@ export default function Inbox() {
                 message: message,
                 timestamp: moment().format("hh:mm A"),
             });
-
             if (chatBodyRef.current) {
-                //    scroll to bottom
                 chatBodyRef.current.scrollTo({ top: chatBodyRef.current.scrollHeight, behavior: 'smooth' });
             }
-
-            fetchChatList(); // Refresh chat list after sending message
-
-
+            fetchChatList();
         } catch (error) {
             console.error("Error sending message:", error);
         }
-
-
     };
 
     const [search, setSearch] = useState("");
@@ -353,11 +384,9 @@ export default function Inbox() {
     }
 
     const [activeUsers, setActiveUsers] = useState([]);
- 
     useEffect(() => {
         socket?.current?.on("activeUsers", (users) => {
-        
-            setActiveUsers(users); // this is an array of userIds
+            setActiveUsers(users);
         });
 
         return () => {
@@ -365,6 +394,45 @@ export default function Inbox() {
         };
     }, []);
 
+
+    useEffect(() => {
+        if (user_id) {
+            const chat = contactList.find((chat) => chat._id === user_id);
+            if (chat) {
+                setSelectedChat(chat);
+                fetchMessages(chat._id);
+            }
+        }
+    }, [user_id, contactList]);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("sender", userData._id);
+            formData.append("receiver", selectedChat?._id);
+
+            try {
+                const res = await api.post("/messages/upload", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+                const newMessage = {
+                    from: res.data.sender,
+                    text: res.data.message,
+                    isSender: res.data.sender === userData._id,
+                    createdAt: moment(res.data.timestamp).format("hh:mm A"),
+                };
+                setMessages((prevMessages) => [...prevMessages, newMessage]);
+                fetchChatList();
+            } catch (error) {
+                console.error("Error uploading file:", error);
+            }
+        }
+    }
 
     return (
         <div className="flex flex-col md:flex-row">
@@ -425,12 +493,11 @@ export default function Inbox() {
                                                         alt={chat?.name}
                                                         className={`w-12 h-12 rounded-full object-cover
             ${selectedChat && selectedChat?._id === chat._id ? 'ring-2 ring-primary-700' : ''}
-            ${chat?.active === "online" && 'ring-2 ring-green-600'}
+            ${activeUsers.find((user => user?.userId === chat._id)) && 'ring-2 ring-green-600'}
             `}
 
                                                     />
-                                                    {
-                                                        activeUsers.includes(chat?._id) && <div className="w-3 h-3 bg-green-600 rounded-full absolute bottom-0 right-0"></div>}
+                                                    {activeUsers.find((user => user?.userId === chat._id)) && <div className="w-3 h-3 bg-green-600 rounded-full absolute bottom-0 right-0"></div>}
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
@@ -453,7 +520,6 @@ export default function Inbox() {
                                 </div>
 
                                 {/* Right Panel - Chat Window */}
-                                {/* Right Panel - Chat Window */}
                                 <div className="w-full md:w-[60%] bg-neutral-50 flex flex-col justify-between flex-1 max-h-[80vh]">
                                     {selectedChat && !chatSelectLoading ? <div className="w-full bg-neutral-50 flex flex-col justify-between flex-1 max-h-[80vh]">
                                         <div
@@ -472,12 +538,16 @@ export default function Inbox() {
                                                     <h1 className="font-semibold text-lg">{selectedChat?.name}</h1>
                                                     <p className="text-sm text-neutral-500 flex items-center gap-2">
                                                         {
-                                                            activeUsers.includes(selectedChat?._id) && <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                                                            activeUsers.find(user => user?.userId === selectedChat._id) &&
+                                                            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                                                         }
                                                         {
-                                                            activeUsers.includes(selectedChat?._id) ? "Online" : "Offline"
+                                                            activeUsers.find(user => user?.userId === selectedChat._id)
+                                                                ? "Online"
+                                                                : `Offline ${getLastSeenText(selectedChat?.lastSeen)}`
                                                         }
                                                     </p>
+
                                                 </div>
                                             </div>
                                             {selectedChat?.userType === "creator" && <div className="ml-auto">
@@ -510,10 +580,61 @@ export default function Inbox() {
                                                         {/* Message bubble */}
                                                         <div className={`flex flex-col ${msg.isSender ? "items-end" : "items-start"} w-full`}>
                                                             <div
-                                                                className={`p-3 rounded-md ${msg.isSender ? "bg-primary-600 text-white" : "bg-neutral-100 text-neutral-700"} max-w-[75%] break-words`}
+                                                                className={`p-3 rounded-md ${msg.isSender ? "bg-primary-600 text-white" : "bg-neutral-100 text-neutral-700"
+                                                                    } max-w-[75%] break-words`}
                                                             >
-                                                                <p className={`text-sm ${msg.isSender ? "text-right" : "text-left"}`}>{msg.text}</p>
+                                                                {/* If it's a link */}
+                                                                {msg.text.includes("http") ? (
+                                                                    <>
+                                                                        {/* If it's an image */}
+                                                                        {/\.(jpeg|jpg|gif|png|webp|bmp)$/i.test(msg.text) && (
+                                                                            <a href={msg.text} target="_blank" rel="noopener noreferrer">
+                                                                                <img
+                                                                                    src={msg.text}
+                                                                                    alt="Image"
+                                                                                    className="w-full h-auto rounded-md"
+                                                                                />
+                                                                            </a>
+                                                                        )}
+
+                                                                        {/* If it's a video */}
+                                                                        {/\.(mp4|webm|ogg)$/i.test(msg.text) && (
+                                                                            <video controls className="w-full h-auto rounded-md">
+                                                                                <source src={msg.text} type="video/mp4" />
+                                                                                Your browser does not support the video tag.
+                                                                            </video>
+                                                                        )}
+
+                                                                        {/* If it's a PDF */}
+                                                                        {/\.pdf$/i.test(msg.text) && (
+                                                                            <a
+                                                                                href={msg.text}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="text-blue-600 underline"
+                                                                            >
+                                                                                📄 View PDF
+                                                                            </a>
+                                                                        )}
+
+                                                                        {/* Other file types */}
+                                                                        {!/\.(jpeg|jpg|gif|png|webp|bmp|mp4|webm|ogg|pdf)$/i.test(msg.text) && (
+                                                                            <a
+                                                                                href={msg.text}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="text-blue-600 underline"
+                                                                            >
+                                                                                📎 Open File
+                                                                            </a>
+                                                                        )}
+                                                                    </>
+                                                                ) : (
+                                                                    // Plain text
+                                                                    msg.text
+                                                                )}
                                                             </div>
+
                                                             <p className={`text-xs text-neutral-500 mt-1 ${msg.isSender ? "text-right" : "text-left"}`}>
                                                                 {msg.createdAt}
                                                             </p>
@@ -534,17 +655,19 @@ export default function Inbox() {
                                                 onChange={(e) => setMessage(e.target.value)}
                                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                                             />
-                                            {/* <label className="cursor-pointer mr-2">
-                                            <PaperclipIcon className="w-6 h-6 text-primary-700" />
-                                            <input type="file" className="hidden" onChange={handleFileUpload} />
-                                        </label> */}
+                                            <label className="cursor-pointer mr-2">
+                                                <PaperclipIcon className="w-6 h-6 text-primary-700" />
+                                                <input type="file" className="hidden" onChange={handleFileUpload} />
+                                            </label>
                                             <button onClick={handleSendMessage} className="text-blue-500">
                                                 <SendIcon className="w-6 h-6 text-primary-700 cursor-pointer" />
                                             </button>
                                         </div>}
                                     </div> :
                                         <div className="flex items-center justify-center h-full">
-                                            <p className="text-neutral-500">Loading...</p>
+                                            <p className="text-neutral-500">
+                                                {chatSelectLoading ? "Loading..." : "Select a chat to start messaging."}
+                                            </p>
                                         </div>
                                     }
                                 </div>
@@ -560,3 +683,23 @@ export default function Inbox() {
 
     );
 }
+
+
+const getLastSeenText = (lastSeen) => {
+    if (!lastSeen) return "";
+
+    const now = moment();
+    const seen = moment(lastSeen);
+
+    if (now.diff(seen, 'days') === 0) {
+        return `- Last seen: Today at ${seen.format("hh:mm A")}`;
+    } else if (now.diff(seen, 'days') === 1) {
+        return `- Last seen: Yesterday at ${seen.format("hh:mm A")}`;
+    } else if (now.diff(seen, 'months') === 0) {
+        return "- Last seen: " + seen.format("MMM D [at] hh:mm A");
+    } else if (now.diff(seen, 'years') === 0) {
+        return "- Last seen: " + seen.format("MMM D [at] hh:mm A");
+    } else {
+        return "- Last seen: " + seen.format("MMM D, YYYY [at] hh:mm A");
+    }
+};

@@ -10,6 +10,7 @@ import api from "@/utils/axiosInstance";
 import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import CustomImage from "@/components/CustomImage";
+import { Tooltip } from "antd";
 
 export default function CreatorDashboard() {
     const [userData, setUserData] = useState<any>(null);
@@ -187,7 +188,7 @@ export default function CreatorDashboard() {
             <div className="flex flex-col bg-white shadow-sm p-4 rounded-md relative">
                 <p>&quot;{text}&quot;</p>
                 <div className="flex items-center mt-6 ml-auto">
-                    <img loading="lazy" alt={name} className="w-12 h-12 rounded-full"
+                    <CustomImage loading="lazy" alt={name} className="w-12 h-12 rounded-full"
                         src={
                             image?.includes("http")
                                 ? image
@@ -299,11 +300,18 @@ export default function CreatorDashboard() {
                                                 {
                                                     userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
                                                         <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                            <img loading="lazy"
-                                                                src={`/icons/${link.platform}.svg`}
-                                                                alt={link.platform}
-                                                                className="w-6 h-6"
-                                                            />
+                                                            <Tooltip
+                                                                title={link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                                                                placement="top"
+                                                                color="#000000"
+                                                                overlayInnerStyle={{ color: "#ffffff" }}
+                                                            >
+                                                                <img loading="lazy"
+                                                                    src={`/icons/${link.platform}.svg`}
+                                                                    alt={link.platform}
+                                                                    className="w-6 h-6"
+                                                                />
+                                                            </Tooltip>
                                                         </a>
                                                     ))
                                                 }
@@ -312,7 +320,7 @@ export default function CreatorDashboard() {
                                     </div>
 
                                     {/* Chat Button */}
-                                    <Link href="/dashboard/inbox">
+                                    <Link href={`/dashboard/inbox?user=${userData?._id}`}>
                                         <Button
                                             size="small"
                                             variant="primary"
@@ -320,7 +328,8 @@ export default function CreatorDashboard() {
                                         >
                                             <MessageSquare size={16} className="mr-2" />
                                             Have a Chat
-                                        </Button></Link>
+                                        </Button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

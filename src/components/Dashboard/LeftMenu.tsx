@@ -79,7 +79,6 @@ export const LeftMenu = () => {
     const audio = new Audio("/assets/notification.mp3");
 
     socketRef.current.on("newNotification", (data) => {
-      console.log("New notification received:", data);
       setNotifications((prev) => [data, ...prev]);
 
       // Decode and play audio
@@ -120,11 +119,11 @@ export const LeftMenu = () => {
         {
           key: "notification-list",
           label: (
-            <div className="max-h-80 overflow-y-auto custom-scrollbar">
+            <div className="max-h-80 overflow-y-auto custom-scrollbar max-w-[300px]">
               {notifications.map((item) => (
                 <Link
                   key={item._id}
-                  className="cursor-pointer px-3 py-2 hover:bg-gray-100 rounded-lg transition-all"
+                  className="cursor-pointer px-3 py-2 hover:bg-gray-100 rounded-lg transition-all my-4"
                   href={item.link}
                 >
                   <div className="flex items-start gap-2">
@@ -257,18 +256,30 @@ export const LeftMenu = () => {
         <div className="flex flex-col items-start h-full">
           <ul className="w-full">{renderMenuItems()}</ul>
         </div>
-        <div className="flex items-center justify-around mt-auto py-8">
-          <CustomImage loading="lazy" src={
-            userData?.profileImage?.includes("http") ?
-              userData?.profileImage :
-              process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
-          } alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+        <div className="flex flex-col md:flex-col lg:flex-row items-center lg:justify-between gap-4 mt-auto py-6 px-4 text-center lg:text-left">
+          <CustomImage
+            loading="lazy"
+            src={
+              userData?.profileImage?.includes("http")
+                ? userData?.profileImage
+                : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
+            }
+            alt="Profile"
+            className="w-12 h-12 rounded-full object-cover"
+          />
+
           <div className="flex flex-col">
             <span className="font-bold text-sm">{userData?.name}</span>
             <span className="text-xs text-neutral-500">{userData?.email}</span>
           </div>
-          <LogOut size={20} className="cursor-pointer" onClick={logout} />
+
+          <LogOut
+            size={20}
+            className="cursor-pointer"
+            onClick={logout}
+          />
         </div>
+
       </div>
     </div>
   );

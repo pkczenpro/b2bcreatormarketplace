@@ -14,6 +14,7 @@ import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { toast } from "sonner";
 import CustomImage from "@/components/CustomImage";
+import { Rate, Tooltip } from "antd";
 
 
 export default function BrandDashboard() {
@@ -45,6 +46,20 @@ export default function BrandDashboard() {
         getBrand();
     }, [params.id]);
 
+    const handleRateProduct = async (productId: string, rating: number) => {
+        try {
+            const res = await api.post(`/products/rate/${productId}`, { rating });
+            toast.success(res.data.message, {
+                position: "top-right",
+                description: "You have rated this product",
+            });
+            getBrand();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     const tabs = [
         {
             id: 1,
@@ -66,17 +81,20 @@ export default function BrandDashboard() {
                                 </p>
                                 <div className="flex justify-between items-center">
                                     <div className="flex space-x-2">
-                                        {campaign?.tags?.map((tag, index) => (
-                                            <span
-                                                key={index}
-                                                className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
+                                        {campaign
+                                            ?.tags
+                                            ?.filter((item) => item)
+                                            .map((tag, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
                                     </div>
                                     <div className="flex space-x-2">
-                                        {campaign.contentType.map((tag, index) => (
+                                        {campaign.contentType?.filter((item) => item).map((tag, index) => (
                                             <span
                                                 key={index}
                                                 className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
@@ -139,13 +157,14 @@ export default function BrandDashboard() {
 
                             <div className="border-t border-gray-200 my-6"></div>
 
-                            <div className="flex space-x-2">
+                            <div className="flex flex-wrap">
                                 {partnership?.campaigns?.map(
                                     (tag, index) => (
                                         <Link
                                             key={index}
                                             href={`/dashboard/campaigns-details/${tag._id}`}
                                             target="_blank"
+                                            className="mr-2 mb-2"
                                         >
                                             <span
                                                 className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
@@ -166,37 +185,72 @@ export default function BrandDashboard() {
             label: "Products",
             content: (
                 <div className="mt-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-h5 font-bold text-left">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold text-gray-800">
                             Product Catalogue of {userData?.profileName}
                         </h3>
-
                     </div>
 
-                    {products?.filter((item) => item.publicVisibility).map((product: any, index: number) => (
-                        <div key={index} className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer" onClick={() => {
-                            setShowProductModal(true);
-                            setSelectedProduct(product);
-                        }}>
-                            <img loading="lazy"
-                                src={product?.productLogo}
-                                alt=""
-                                className="w-48 h-48 object-cover rounded-md"
-                            />
-                            <div className="flex flex-col">
-                                <h2 className="text-h5 font-bold mb-2">
-                                    {product.productName}
-                                </h2>
-                                <p className="text-neutral-600">
-                                    {product.productDescription}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {products
+                            ?.filter((item) => item.publicVisibility)
+                            .map((product: any, index: number) => (
+                                <div
+                                    key={index}
+                                    className="bg-white shadow-sm border border-neutral-100 hover:shadow-md transition-all duration-200 rounded-xl p-5 flex flex-col gap-4 cursor-pointer"
 
+                                >
+                                    <img
+                                        loading="lazy"
+                                        src={
+                                            product.productLogo?.includes("http")
+                                                ? product.productLogo
+                                                : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo
+                                        }
+                                        alt=""
+                                        className="w-full h-48 object-cover rounded-lg"
+                                        onClick={() => {
+                                            setShowProductModal(true);
+                                            setSelectedProduct(product);
+                                        }}
+                                    />
+                                    <div className="flex flex-col" onClick={() => {
+                                        setShowProductModal(true);
+                                        setSelectedProduct(product);
+                                    }}>
+                                        <h2 className="text-lg font-semibold text-gray-800">
+                                            {product.productName}
+                                        </h2>
+                                        <p className="text-sm text-neutral-600 mt-1 line-clamp-3">
+                                            {product.productDescription}
+                                        </p>
+                                    </div>
+                                    <Tooltip
+                                        title="Rate this product"
+                                        placement="top"
+                                        arrowPointAtCenter
+                                    >
+                                        <div className="mt-auto pt-2 flex justify-between">
+                                            <Rate
+                                                allowHalf
+                                                defaultValue={product.rating}
+                                                onChange={(value) => handleRateProduct(product._id, value)}
+                                                className="text-yellow-500"
+                                            />
+
+                                            <p className="text-sm text-neutral-500 mb-1">
+                                                <span className="font-medium text-gray-700">
+                                                    {product.rating?.toFixed(1) || "Not rated yet"}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </Tooltip>
+                                </div>
+                            ))}
+                    </div>
                 </div>
             ),
-        },
+        }
     ].filter(Boolean);
 
     const [showProductModal, setShowProductModal] = useState(false);
@@ -334,7 +388,10 @@ export default function BrandDashboard() {
                         {/* Divider */}
                         <div className="border-t border-gray-200 my-6"></div>
 
-                        <Tabs tabs={tabs} />
+                        <Tabs
+                            tabs={tabs}
+                            localStorageKey="brand-dashboard-tabs"
+                        />
                     </motion.div>
                 </div>
             </div>

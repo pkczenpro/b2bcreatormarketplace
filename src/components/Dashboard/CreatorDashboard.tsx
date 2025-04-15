@@ -3,7 +3,7 @@
 
 import Button from "@/components/Button/Button";
 import PopupDropdown from "@/components/PopupDropdown/PopupDropdown";
-import { Select, Input, Modal, Button as AntdButton } from "antd";
+import { Select, Input, Modal, Button as AntdButton, Tooltip } from "antd";
 import { Check, MessageSquare, Pencil, Plus, Trash, Upload } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
@@ -426,7 +426,7 @@ export default function CreatorDashboard({
                 </button>
                 <p>&quot;{text}&quot;</p>
                 <div className="flex items-center mt-6 ml-auto">
-                    <img loading="lazy" alt={name} className="w-12 h-12 rounded-full"
+                    <CustomImage loading="lazy" alt={name} className="w-12 h-12 rounded-full"
                         src={image.includes("http") ? image : process.env.NEXT_PUBLIC_SERVER_URL + image}
                     />
                     <div className="flex flex-col ml-4">
@@ -667,7 +667,7 @@ export default function CreatorDashboard({
 
     return (
         <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50 overflow-y-auto max-h-screen max-w-[1500px]">
-                <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
+            <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -760,7 +760,7 @@ export default function CreatorDashboard({
                                 </div>
 
                                 {/* Chat Button */}
-                                <Link href="/dashboard/inbox">
+                                <Link href={`/dashboard/inbox?user=${userData?._id}`}>
                                     <Button
                                         size="small"
                                         variant="primary"
@@ -1033,12 +1033,20 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
                         }}
                         className="cursor-pointer transition duration-200 ease-in-out transform hover:bg-gray-100 rounded-full hover:scale-105"
                     >
-                        <img
-                            loading="lazy"
-                            src={`/icons/${link.platform}.svg`}
-                            alt={link.platform}
-                            className="w-6 h-6"
-                        />
+                        <Tooltip
+                            title={link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                            placement="top"
+                            color="#000000"
+                            overlayInnerStyle={{ color: "#ffffff" }}
+                        >
+                            <img
+                                loading="lazy"
+                                src={`/icons/${link.platform}.svg`}
+                                alt={link.platform}
+                                className="w-6 h-6"
+                            />
+                        </Tooltip>
+
                     </div>
                 ))}
                 {/* // dashed border cirlce for account adding  */}

@@ -165,6 +165,19 @@ export default function PostMaker({ }: PostMakerProps) {
         window.location.href = linkedInAuthUrl;
     };
 
+    const saveDraftToLocalStorage = () => {
+        const draft = {
+            postContent,
+            selectedCampaign,
+            // selectedProduct,
+            // brandName,
+            // hookType,
+            // uploadedImages
+        };
+        localStorage.setItem("draft", JSON.stringify(draft));
+        toast.success("✨ Your draft has been saved! You can come back to it anytime.");
+    };
+
     const publishToLinkedIn = async () => {
         const formData = new FormData();
         formData.append("content", postContent);
@@ -191,14 +204,17 @@ export default function PostMaker({ }: PostMakerProps) {
                     position: "top-center",
                     description: res.message,
                 });
+                saveDraftToLocalStorage();
                 handleLinkedinAccess();
-                return;
-            }
 
-            toast.success("Post shared successfully", {
-                position: "top-center",
-                description: "Your post has been shared to LinkedIn",
-            });
+            } else {
+                toast.success("Post shared successfully", {
+                    position: "top-center",
+                    description: "Your post has been shared to LinkedIn",
+                });
+
+                localStorage.removeItem("draft")
+            }
         } catch (error) {
             console.error("Error sharing post to LinkedIn:", error);
         }

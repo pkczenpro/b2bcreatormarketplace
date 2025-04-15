@@ -398,7 +398,7 @@ const CarouselEditor = () => {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Input
+                    <Input.TextArea
                         placeholder="Describe your idea..."
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}

@@ -281,20 +281,21 @@ const Template_1: React.FC<Template1Props> = ({
                                 ? `${data.editableTitle.label.slice(0, 110)}...`
                                 : data.editableTitle.label}
                         </h1>
-
+                        
+                        {data.isLastItem ? (
+                            <button className="bg-white text-black p-2 rounded-md">{data.editableButton.label}</button>
+                        ) : (
+                            <span className="text-neutral-300 text-2xl mt-1 block" style={{
+                                color: data.editableTagline.color || "#ffffff",
+                                fontSize: data.editableTagline.fontSize || 16,
+                                textAlign: data.editableTagline.textAlign || "center",
+                                display: data.editableTagline.hidden ? "none" : "block",
+                            }}>{data.editableTagline.label}</span>
+                        )}
 
                     </div>
 
-                    {data.isLastItem ? (
-                        <button className="bg-white text-black p-2 rounded-md">{data.editableButton.label}</button>
-                    ) : (
-                        <span className="text-neutral-300 text-2xl mt-1 block" style={{
-                            color: data.editableTagline.color || "#ffffff",
-                            fontSize: data.editableTagline.fontSize || 16,
-                            textAlign: data.editableTagline.textAlign || "center",
-                            display: data.editableTagline.hidden ? "none" : "block",
-                        }}>{data.editableTagline.label}</span>
-                    )}
+
                 </div>
 
                 <div className="flex justify-between items-center w-full z-10 absolute px-8 bottom-8">

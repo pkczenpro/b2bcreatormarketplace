@@ -284,7 +284,7 @@ export function CreatorTable({
                 open={viewContentModal}
                 onCancel={() => setViewContentModal(false)}
                 footer={null}
-                width={500}
+                width={"60%"}
                 centered
             >
                 <div className="space-y-4">
@@ -314,7 +314,10 @@ export function CreatorTable({
                                     <span className="font-medium text-gray-900">Content Type:</span> {content?.type || "N/A"}
                                 </li>
                                 <li>
-                                    <span className="font-medium text-gray-900">Content:</span> {content?.content || "N/A"}
+                                    <span className="font-medium text-gray-900">Content:</span>
+                                    <span className="block mt-1 text-gray-700 whitespace-pre-line">
+                                        {content?.content || "N/A"}
+                                    </span>
                                 </li>
                                 <li className="font-medium text-gray-900">Files:</li>
                                 <ul className="mt-2 space-y-2 flex overflow-x-auto max-w-[400px]">

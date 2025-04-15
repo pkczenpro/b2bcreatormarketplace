@@ -8,6 +8,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tooltip as RadixTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { title } from "process";
+import { toast } from "sonner";
 
 const schema = z.object({
     post: z.string().min(1, "Post cannot be empty"),
@@ -83,7 +84,6 @@ const PostEditor = ({
             setPostContent(updatedText); // Update state directly
         }
     };
-
     const onImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files);
@@ -91,20 +91,39 @@ const PostEditor = ({
             handleImageUpload(files); // Pass files to the parent handler
         }
     };
-
-    const handleCopy = async () => {
-        const textarea = document.getElementById("postTextarea") as HTMLTextAreaElement;
-        await navigator.clipboard.writeText(textarea.value);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-    const [copied, setCopied] = useState(false);
-
-
     const characterCount = postContent.length;
     const characterLimit = 3000;
 
+    const saveDraftToLocalStorage = () => {
+        const draft = {
+            postContent,
+            selectedCampaign,
+            selectedProduct,
+            brandName,
+            hookType,
+            uploadedImages
+        };
+        localStorage.setItem("draft", JSON.stringify(draft));
+        toast.success("✨ Your draft has been saved! You can come back to it anytime.");
+    };
 
+    const loadDraftFromLocalStorage = () => {
+        const draft = localStorage.getItem("draft");
+        if (draft) {
+            const { postContent, selectedCampaign, selectedProduct, brandName, hookType, uploadedImages } = JSON.parse(draft);
+            setPostContent(postContent);
+            setSelectedCampaign(selectedCampaign);
+            setSelectedProduct(selectedProduct);
+            setBrandName(brandName);
+            setHookType(hookType);
+            setUploadedImages(uploadedImages);
+
+            toast.success("📄 Loaded your saved draft. Ready to pick up where you left off!");
+        }
+    };
+    React.useEffect(() => {
+        loadDraftFromLocalStorage();
+    }, []);
     return (
         <div className="flex flex-col w-full max-w-xl mx-auto bg-white py-6 gap-5">
 
@@ -267,7 +286,7 @@ const PostEditor = ({
 
                     {/* Preview Uploaded Images */}
                     <div className="flex gap-2 mt-2">
-                        {uploadedImages.map((file, index) => (
+                        {uploadedImages?.map((file, index) => (
                             <div key={index} className="w-16 h-16">
                                 <img
                                     src={URL.createObjectURL(file)}
@@ -282,6 +301,14 @@ const PostEditor = ({
                 {/* Action Buttons */}
                 <div className="flex justify-between items-center gap-2">
                     <div className="flex gap-2">
+                        <Button
+                            icon={<ClipboardIcon size={16} />}
+                            onClick={() => {
+                                saveDraftToLocalStorage();
+                            }}
+                        >
+                            Save as Draft
+                        </Button>
                         <Button
                             type="primary"
                             icon={<Linkedin size={16} />}
