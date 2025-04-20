@@ -102,6 +102,21 @@ export default function CreatorDashboard({
         }
     };
 
+    const [showImageInPopup, setShowImageInPopup] = useState(false);
+    const [image, setImage] = useState("");
+    const showImageInPopupModal = () => {
+        return (
+            <Modal
+                centered
+                open={showImageInPopup}
+                onCancel={() => setShowImageInPopup(false)}
+                footer={null}
+            >
+                <img src={image} alt="Image" className="w-full h-full object-contain" />
+            </Modal>
+        )
+    }
+
 
     //done
     const ServicesDiv = () => {
@@ -230,6 +245,10 @@ export default function CreatorDashboard({
                                     }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
+                                    onClick={() => {
+                                        setImage(userData?.previousWork[index].image)
+                                        setShowImageInPopup(true)
+                                    }}
                                 />
 
 
@@ -273,6 +292,9 @@ export default function CreatorDashboard({
             </div>
         );
     };
+
+
+
     const WorkDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
@@ -294,6 +316,10 @@ export default function CreatorDashboard({
                                     }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
+                                    onClick={() => {
+                                        setImage(userData?.featuredWork[index].image)
+                                        setShowImageInPopup(true)
+                                    }}
                                 />
 
                                 {/* Hover Effect: Delete Icon with Black Opacity */}
@@ -667,6 +693,7 @@ export default function CreatorDashboard({
 
     return (
         <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50 overflow-y-auto max-h-screen max-w-[1500px]">
+            {showImageInPopupModal()}
             <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">
                 <motion.div
                     initial={{ opacity: 0 }}

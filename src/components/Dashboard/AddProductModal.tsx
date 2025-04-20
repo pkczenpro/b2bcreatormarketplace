@@ -26,6 +26,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
     capterraLink: "",
     additionalDetails: "",
     productHunt: "",
+    resources: [] as File[],
   });
 
   const [loading, setLoading] = useState(false);
@@ -86,6 +87,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
         capterraLink: "",
         additionalDetails: "",
         productHunt: "",
+        resources: [],
       });
     } catch (error) {
       message.error("Failed to add product!");
@@ -141,6 +143,17 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
           <Input name="capterraLink" value={formData.capterraLink} onChange={handleInputChange} placeholder="Capterra Link" className="p-2 border rounded-lg w-full" />
           <TextArea name="additionalDetails" value={formData.additionalDetails} onChange={handleInputChange} placeholder="Additional Details" className="p-2 border rounded-lg w-full" />
           <TextArea name="productHunt" value={formData.productHunt} onChange={handleInputChange} placeholder="Product Hunt" className="p-2 border rounded-lg w-full" />
+          <CustomInput type="file" multiple name="resources" onChange={(e) => handleFileChange("resources", e)} />
+          {formData.resources.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {formData.resources.map((file, index) => (
+                <div key={index}>
+                  <img loading="lazy" src={URL.createObjectURL(file)} alt="Product Image" className="w-full h-20 object-cover rounded-md" />
+                  <p>{file.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Modal>

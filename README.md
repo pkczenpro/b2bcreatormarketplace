@@ -1,22 +1,19 @@
-[ ] Width on big screens should be compatible
-[ ] using auth linkedin and google skip the process and login 
-[ ] Apply to campaign if applied then disable button
-[ ] Check the image uploading - Big file error messageing optimizing
-[ ] Updating user details double clicking info and updating 
+TO DO 
+Analytcis 
 
-[*] Added last seen to chats!
-[*] Option to save the post  as a draft 
+Creator /GUest user is visiting - profile visit  ( Intent data ) // 
+vGuest Request a Demo . - User 
+Anaytcis for the visitis - Which country , which device, Pesona  , category more intrest AND IP TRACKING
+Category and SUbcategory - Persona 
+Easier way to do the feature OF RATING  -- XX
+Creative inspiration library -- XX
+Payment gateway 
+Improve carosuels like caroles 
+Otion to populte and coomanies  / ccreators can claim theri ridfiel -- XXX
 
 
-[ ] Improve carousel prompt and gradient
-[ ] Persona, categories, and sub-categories will be provided by Prashant
-[ ] Payment integration (API key and documentation will be provided by Prashant)
-[*] General product ratings for brands by creators
-
-Apart form that notification and email templates set up for every communication 
-
-Like creator applied a campaign , creator invited , post generated 
-
-Have a option for seeing all the post ( few top performing post ) as inspiration . Will give around 100 post which will be embedded in the platform
-
-And making Analytics like profile visit , no of content posted , like reaction  if we can capture ,
+- Draft post  s
+- Seperating the post creation and carsoulsels creation - Directly post to linked WHICH CAN 
+- Video and Rating embedding into the product. 
+- Add the option for listing resources, case studies and other software categories for the conent 
+- Making the image bigger when featired work or anything is promoted

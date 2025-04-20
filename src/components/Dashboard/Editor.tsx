@@ -298,14 +298,11 @@ const CarouselEditor = () => {
         // After all posts are processed, update the state with the new files
         setImageFile((prevFiles) => [...(prevFiles || []), ...imageFilesToAdd]);
 
-
-        // Log the file objects to verify
-        console.log("Image Files (as File objects):", imageFilesToAdd);
-
         // Create the form data for the API request
         const formData = new FormData();
         formData.append("content", postContent);
         formData.append("type", "Carousel Maker");
+        formData.append("isCampaign", isSelectSharingModalOpenValue);
 
         for (const i of imageFilesToAdd) {
             formData.append("images", i);
@@ -320,13 +317,7 @@ const CarouselEditor = () => {
         }
 
         // Check if a campaign is selected, otherwise show an error
-        if (!selectedCampaign) {
-            toast.error("Please select a campaign to share this post", {
-                position: "top-center",
-                description: "Please select a campaign to share this post",
-            });
-            return;
-        }
+
 
         // Make the API request to submit the form data
         try {
@@ -362,7 +353,7 @@ const CarouselEditor = () => {
         }
         return new Blob([arrayBuffer], { type: 'image/png' });
     };
-    console.log("postsData", postsData);
+
     const [aiPrompt, setAiPrompt] = useState("");
     const [loading, setLoading] = useState(false);
     const generatePostWithAI = async () => {
@@ -385,10 +376,62 @@ const CarouselEditor = () => {
         setPostsData(postsData.filter((item) => item.index !== index));
     }
 
+    const [isSelectSharingModalOpenValue, setIsSelectSharingModalOpenValue] = useState("0");
+    const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(true);
+    const selectSharingModal = () => {
+        return (
+            <Modal
+                centered
+                open={isSelectSharingModalOpen}
+                footer={null}
+                width={500}
+                className="select-sharing-modal"
+                closable={false}
+            >
+                <div className="flex flex-col items-center justify-center p-6">
+                    <h2 className="text-2xl font-bold mb-6 text-center">
+                        How would you like to share this?
+                    </h2>
+
+                    <div className="w-full space-y-4">
+                        <Button
+                            className="w-full h-16 flex items-center justify-center gap-3 text-lg hover:bg-primary-50"
+                            onClick={() => {
+                                // Handle independent sharing
+                                setIsSelectSharingModalOpen(false);
+                                setIsSelectSharingModalOpenValue("0");
+                            }}
+                        >
+                            <div className="flex flex-col items-center">
+                                <span className="font-semibold">Share Post Independently</span>
+                                <span className="text-sm text-gray-500">Post directly to your profile</span>
+                            </div>
+                        </Button>
+
+                        <Button
+                            className="w-full h-16 flex items-center justify-center gap-3 text-lg hover:bg-primary-50"
+                            type="primary"
+                            onClick={() => {
+                                // Handle campaign sharing
+                                setIsSelectSharingModalOpen(false);
+                                setIsSelectSharingModalOpenValue("1");
+                            }}
+                        >
+                            <div className="flex flex-col items-center">
+                                <span className="font-semibold text-white">Share Post as a Campaign Post</span>
+                                <span className="text-sm text-white opacity-70 text-center">Include in a marketing campaign</span>
+                            </div>
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+        )
+    }
+
     return (
         <div className="w-full">
 
-
+            {selectSharingModal()}
             {/* AI Content Generator */}
             <div className="w-full bg-white p-6 rounded-md mb-4">
                 <div className="flex justify-between items-center mb-2">
@@ -420,16 +463,18 @@ const CarouselEditor = () => {
                 <div className="min-w-[15vw] max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
                     <div>
                         {/* Campaign Selection */}
-                        <h3 className="font-medium mb-2">
-                            Select a Campaign
-                        </h3>
-                        <Select className="mb-4 w-full" placeholder="Select Campaign" onChange={setSelectedCampaign}>
-                            {relatedCampaigns.map((campaign) => (
-                                <Select.Option key={campaign?._id} value={campaign?._id}>
-                                    {campaign?.title}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                        {isSelectSharingModalOpenValue === "1" && <div className="mb-4">
+                            <h3 className="font-medium mb-2">
+                                Select a Campaign
+                            </h3>
+                            <Select className="mb-4 w-full" placeholder="Select Campaign" onChange={setSelectedCampaign}>
+                                {relatedCampaigns.map((campaign) => (
+                                    <Select.Option key={campaign?._id} value={campaign?._id}>
+                                        {campaign?.title}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </div>}
                         <h3 className="font-medium mb-2">Template Size</h3>
                         <Select className="w-full mb-2" value={selectedSize} onChange={(value) => setSelectedSize(value)}>
                             {templateSizes.map((size) => (

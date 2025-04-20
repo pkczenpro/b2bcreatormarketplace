@@ -10,7 +10,7 @@ import api from "@/utils/axiosInstance";
 import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import CustomImage from "@/components/CustomImage";
-import { Tooltip } from "antd";
+import { Modal, Tooltip } from "antd";
 
 export default function CreatorDashboard() {
     const [userData, setUserData] = useState<any>(null);
@@ -52,8 +52,25 @@ export default function CreatorDashboard() {
         getUserDetails();
     }, []);
 
+    const [showImageInPopup, setShowImageInPopup] = useState(false);
+    const [image, setImage] = useState("");
+    const showImageInPopupModal = () => {
+        return (
+            <Modal
+                centered
+                open={showImageInPopup}
+                onCancel={() => setShowImageInPopup(false)}
+                footer={null}
+            >
+                <img src={image} alt="Image" className="w-full h-full object-contain" />
+            </Modal>
+        )
+    }
+
     if (!userData) return <div>Loading...</div>;
     if (userData.userType !== "creator") return <div>404</div>;
+
+
 
 
     //done
@@ -102,6 +119,10 @@ export default function CreatorDashboard() {
                                     }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
+                                    onClick={() => {
+                                        setImage(userData?.previousWork[index].image)
+                                        setShowImageInPopup(true)
+                                    }}
                                 />
 
                             </div>
@@ -111,6 +132,8 @@ export default function CreatorDashboard() {
             </div>
         );
     };
+
+
     const WorkDiv = () => {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
@@ -132,6 +155,10 @@ export default function CreatorDashboard() {
                                     }
                                     alt="Previous Work"
                                     className="w-full h-full object-cover rounded-md"
+                                    onClick={() => {
+                                        setImage(userData?.featuredWork[index].image)
+                                        setShowImageInPopup(true)
+                                    }}
                                 />
                             </div>
                         </div>
@@ -246,8 +273,11 @@ export default function CreatorDashboard() {
     };
 
 
+
+
     return (
         <div className="flex flex-col sm:flex-row">
+            {showImageInPopupModal()}
             <LeftMenu />
             <div className="flex flex-col items-center justify-start w-full h-full p-8 md:p-16 sm:p-16 min-h-screen bg-neutral-50 overflow-y-auto max-h-screen max-w-[1500px]">
                 <div className="flex flex-col bg-white rounded-md shadow-sm p-4 sm:p-8 w-full">

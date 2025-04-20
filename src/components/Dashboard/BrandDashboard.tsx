@@ -4,10 +4,10 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Check, Image, Mic, Pencil, Plus, Text, Upload, Video } from "lucide-react";
+import { ArrowRight, Check, Eye, Image, Mic, Pencil, Plus, Text, Upload, Video } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Modal, Select, Switch, Button as AntdButton } from "antd";
+import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate } from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
@@ -180,50 +180,88 @@ export default function BrandDashboard({
       id: 3,
       label: "Products",
       content: (
-        <div className="mt-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-h5 font-bold text-left">
-              Product Catalogue of {userData?.profileName}
-            </h3>
-            {!isPreview && <Button
-              onClick={() => setModal(true)}
-              variant="outline"
-              size="small"
-              className="flex items-center space-x-2 max-w-[20%]"
-            >
-              <Plus />
-              Add Product
-            </Button>}
+        <div className="mt-10 px-4 md:px-8">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8">
+            Product Catalogue of {userData?.profileName}
+          </h3>
+
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {products?.map((product: any, index: number) => {
+              console.log(product);
+              const productLogo = product.productLogo?.includes("http")
+                ? product.productLogo
+                : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col relative"
+                >
+                  <div className="absolute top-0 right-0">
+                    <Button variant="primary" size="small" className="rounded-full" onClick={() => {
+                      setShowProductModal(true);
+                      setSelectedProduct(product);
+                    }}>
+                      <Eye size={16} />
+                    </Button>
+                  </div>
+                  {/* Product Logo */}
+                  <div
+                    className="bg-gray-100 h-48 flex justify-center items-center rounded-t-2xl overflow-hidden cursor-pointer"
+                    onClick={() => {
+                      setShowProductModal(true);
+                      setSelectedProduct(product);
+                    }}
+                  >
+
+                    {productLogo.includes("null") || !product.productLogo ? (
+                      <span className="text-gray-400">No Image Available</span>
+                    ) : (
+                      <img
+                        loading="lazy"
+                        src={productLogo}
+                        alt={product.productName}
+                        className="max-h-full max-w-full object-contain p-4"
+                      />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 flex flex-col gap-3 text-sm text-gray-700">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {product.productName}
+                    </h2>
+                    <p className="text-gray-600 line-clamp-3">{product.productDescription}</p>
+
+                    {/* Quick Tags */}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className={`px-2 py-1 rounded-full bg-${product.publicVisibility ? "green" : "red"}-100 text-${product.publicVisibility ? "green" : "red"}-700 font-medium`} style={{
+                        backgroundColor: product.publicVisibility ? "#008000" : "#FFF",
+                        color: product.publicVisibility ? "#FFF" : "#008000"
+
+                      }}>
+                        {product.publicVisibility ? "Public" : "Private"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-5 pt-3 pb-4 mt-auto border-t border-gray-100">
+                    <Tooltip title="Rate this product" placement="top" arrowPointAtCenter>
+                      <div className="flex items-center justify-between">
+
+                        <span className="text-xs text-gray-500">
+                          {product.ratings?.length || 0} rating(s)
+                        </span>
+                      </div>
+                    </Tooltip>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-
-          {products?.filter((item) => item.publicVisibility).map((product: any, index: number) => (
-            <div
-              key={index}
-              className="border border-neutral-100 mt-6 p-6 rounded-md flex items-center space-x-4 mb-4 cursor-pointer"
-              onClick={() => {
-                setShowProductModal(true);
-                setSelectedProduct(product);
-              }}
-            >
-              <img
-                loading="lazy"
-                src={product?.productLogo}
-                alt=""
-                className="w-48 h-48 object-cover rounded-md"
-              />
-              <div className="flex flex-col">
-                <h2 className="text-h5 font-bold mb-2">
-                  {product.productName}
-                </h2>
-                <p className="text-neutral-600">
-                  {product.productDescription}
-                </p>
-              </div>
-            </div>
-          ))}
-
         </div>
-      ),
+      )
     },
   ].filter(Boolean);
 
