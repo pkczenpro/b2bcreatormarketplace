@@ -98,7 +98,7 @@ export default function PostMaker({ }: PostMakerProps) {
             formData.append("postContent", postContent);
             formData.append("selectedCampaign", selectedCampaign);
             formData.append("createdAt", new Date().toISOString());
-            formData.append("isCampaignPost", isSelectSharingModalOpenValue === "1" ? true : false);
+            formData.append("isCampaignPost", isSelectSharingModalOpenValue);
 
             if (imageFile) {
                 imageFile?.forEach((file) => formData.append("images", file));
@@ -118,7 +118,7 @@ export default function PostMaker({ }: PostMakerProps) {
         const formData = new FormData();
         formData.append("content", postContent);
         formData.append("hookType", "AI Text Creator");
-        formData.append("isCampaignPost", isSelectSharingModalOpenValue === "1" ? true : false);
+        formData.append("isCampaign", isSelectSharingModalOpenValue);
 
         if (imagePreview && imageFile) {
             imageFile?.forEach((file) => formData.append("images", file));
