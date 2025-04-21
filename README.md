@@ -2,6 +2,7 @@ TO DO
 
 Payment gateway 
 Improve carosuels like caroles 
+Scheduling Posts
 
 
 - Draft post  s

@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
     ChartConfig,
     ChartContainer,
@@ -6,54 +6,57 @@ import {
     ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
-const chartConfig = {
-    desktop: {
-        label: "Pending Creators",
-        color: "#2563eb",
-    },
-    mobile: {
-        label: "Active Creators",
-        color: "#60a5fa",
-    },
-}
 
-export function BarChartComponent({
-    campaignAnalytics,
-}) {
 
-    if (!campaignAnalytics || !campaignAnalytics.campaign) {
-        return <div>No data available</div>
+export function BarChartComponent({ campaignAnalytics }) {
+    console.log(campaignAnalytics)
+    if (!campaignAnalytics || !Array.isArray(campaignAnalytics)) {
+        return <div className="text-sm text-gray-500 italic">No campaign data available.</div>;
     }
-    // Prepare the data for the chart based on creator statuses
-    const pendingCreators = campaignAnalytics.campaign.selectedCreators.filter(
-        (creator) => creator.status === "pending"
-    ).length;
 
-    const activeCreators = campaignAnalytics.campaign.selectedCreators.filter(
-        (creator) => creator.status === "active"
-    ).length;
+    // Convert raw data into chart-friendly format
+    const dataKeys = campaignAnalytics.reduce((acc, curr) => {
+        Object.keys(curr).forEach((key) => {
+            if (key !== "label") acc.add(key);
+        });
+        return acc;
+    }, new Set());
 
-    const chartData = [
-        { month: "", desktop: pendingCreators, mobile: activeCreators }
-    ];
+    // Auto-generate config if not matching default
+    const chartConfig: ChartConfig = {};
+    Array.from(dataKeys).forEach((key, index) => {
+        const colors = ["#60a5fa", "#34d399", "#f87171", "#facc15"];
+        chartConfig[key] = {
+            label: key.charAt(0).toUpperCase() + key.slice(1),
+            color: colors[index % colors.length],
+        };
+    });
 
     return (
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <BarChart accessibilityLayer data={chartData}>
-                <CartesianGrid vertical={false} />
+        <ChartContainer
+            config={chartConfig}
+            className="min-h-[220px] w-full bg-white rounded-2xl shadow p-4"
+        >
+            <BarChart data={campaignAnalytics}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis
-                    dataKey="month"
+                    dataKey="label"
                     tickLine={false}
-                    tickMargin={10}
+                    tickMargin={12}
                     axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                {Object.keys(chartConfig).map((key) => (
+                    <Bar
+                        key={key}
+                        dataKey={key}
+                        fill={chartConfig[key].color}
+                        radius={[8, 8, 0, 0]}
+                    />
+                ))}
             </BarChart>
         </ChartContainer>
     );

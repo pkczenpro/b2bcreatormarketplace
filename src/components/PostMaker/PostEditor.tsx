@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const schema = z.object({
     post: z.string().min(1, "Post cannot be empty"),
@@ -39,6 +40,7 @@ const PostEditor = ({
     isSelectSharingModalOpen,
     setIsSelectSharingModalOpen,
     relatedProducts,
+    publishLoading
 }) => {
     const [aiPrompt, setAiPrompt] = useState("");
     const [loading, setLoading] = useState(false);
@@ -222,8 +224,8 @@ const PostEditor = ({
                     </div>
                 </div>
 
-                <Button type="primary" icon={<Linkedin size={16} />} onClick={publishToLinkedIn}>
-                    Publish to LinkedIn
+                <Button type="primary" icon={<Linkedin size={16} />} onClick={publishToLinkedIn} loading={publishLoading || loading}>
+                    Publish to LinkedIn {publishLoading || loading && <LoadingOutlined size={16} />}
                 </Button>
             </div>
         </div>

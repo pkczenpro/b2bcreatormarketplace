@@ -191,7 +191,6 @@ export default function BrandDashboard() {
 
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {products?.map((product: any, index: number) => {
-                            console.log(product);
                             const productLogo = product.productLogo?.includes("http")
                                 ? product.productLogo
                                 : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo;
@@ -388,7 +387,9 @@ export default function BrandDashboard() {
                                 </p>
                             </div>
                             <div key={3} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
-                                <h1 className="text-lg font-semibold">1,200</h1>
+                                <h1 className="text-lg font-semibold">
+                                    {campaigns?.filter((campaign: any) => campaign.status === "done").length || 0}
+                                </h1>
                                 <p className="text-gray-600">Campaigns Completed</p>
                             </div>
                             <div key={4} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">

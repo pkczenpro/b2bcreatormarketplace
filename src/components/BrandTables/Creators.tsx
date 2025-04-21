@@ -2,17 +2,18 @@
 "use client";
 
 import api from "@/utils/axiosInstance";
-import { Table, Button, Dropdown, Space, Input, Modal, Rate, Image, Popconfirm } from "antd";
+import { Table, Button, Dropdown, Space, Input, Modal, Rate, Image, Popconfirm, Spin } from "antd";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner"
-
+import { LoadingOutlined } from "@ant-design/icons";
 
 export function CreatorTable({
     campaign,
     Refresh
 }) {
+    const [loading, setLoading] = useState(false);
     const [reviewModal, setReviewModal] = useState(false);
 
     const dt = campaign?.selectedCreators || [];
@@ -103,6 +104,7 @@ export function CreatorTable({
     );
 
     const deleteCampaign = async (id: string) => {
+        setLoading(true);
         try {
             await api.delete(`/campaigns/${campaign._id}/creators/${id}`);
             toast.success("Creator removed from campaign successfully", {
@@ -110,16 +112,23 @@ export function CreatorTable({
             })
             Refresh();
         } catch (error) { console.log(error) }
+        finally {
+            setLoading(false);
+        }
     }
     const acceptCreatorRequest = async (id: string) => {
+        setLoading(true);
         try {
             await api.put(`/campaigns/${campaign._id}/creators/${id}/approved`);
-            toast.success("Creator request accepted successfully", {
+            toast.success("Creator request accepted successfully, content shared on LinkedIn", {
                 position: "top-right",
             })
             Refresh();
         }
         catch (error) { console.log(error) }
+        finally {
+            setLoading(false);
+        }
     }
 
     const columns = [
@@ -128,7 +137,10 @@ export function CreatorTable({
             dataIndex: "name",
             key: "name",
             render: (_, record) => (
-                <div className="flex items-center gap-4">
+                <Link
+                    href={`/dashboard/user-preview/${record.key}`}
+                    target="_blank"
+                    className="flex items-center gap-4">
                     <img
                         src={record?.profilePicture?.includes("http")
                             ? record?.profilePicture
@@ -136,29 +148,60 @@ export function CreatorTable({
                         alt=""
                         className="w-8 h-8 rounded-full"
                     />
-                    <p className="text-sm font-bold text-neutral-900">
+                    <p className="text-sm font-bold text-neutral-900 hover:underline">
                         {record.name}
                     </p>
-                </div>
+                </Link>
             ),
         },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            render: (_, record) => (
+                <div className="flex items-center">
+                    <p className="text-sm font-bold text-neutral-900">
+                        {(() => {
+                            const statusMap = {
+                                pending: "Application Under Review",
+                                approved: "Approved!, Waiting for Content",
+                                rejected: "Not Selected",
+                                done: "Campaign Completed, Waiting for Payment",
+                                prospect: "In Consideration",
+                                content_submitted: "Content Submitted, Waiting for Approval"
+                            } as const;
+                            return statusMap[record.status as keyof typeof statusMap] || "";
+                        })()}
+                    </p>
+                </div>
+            ),
         },
         {
             title: "Amount ($)",
             dataIndex: "amount",
             key: "amount",
+            render: (_, record) => {
+
+                return (
+                    <p className="text-sm font-bold text-neutral-900">
+                        {record?.amount?.toFixed(2)} USD
+                    </p>
+                )
+            },
         },
         {
-            title: "Status",
+            title: "Action",
             key: "action",
-            render: (_, record) => (
-                <>
-                    {!record.approved ?
-                        <div className="flex items-center">
+            render: (_, record) => {
+                const isProspect = record.status === "prospect";
+                const isPending = record.status === "pending";
+                const isDone = record.status === "done";
+                const isContentSubmitted = record.status === "content_submitted";
+                const hasContent = record.content?.length > 0;
+
+                return (
+                    <div className="flex items-center">
+                        {isProspect && (
                             <Button
                                 type="primary"
                                 size="small"
@@ -167,35 +210,36 @@ export function CreatorTable({
                             >
                                 Accept Request
                             </Button>
-                        </div>
-                        : <div className="flex items-center">
-                            {record.content.length > 0 && record.status === "pending" && <>
+                        )}
+
+                        {hasContent && isContentSubmitted && (
+                            <Button
+                                type="primary"
+                                size="small"
+                                className="mr-4"
+                                onClick={() => {
+                                    setContentData(record);
+                                    setViewContentModal(true);
+                                }}
+                            >
+                                View Submitted Content
+                            </Button>
+                        )}
+
+                        {isDone && (
+                            <Link href={`/dashboard/pay-creator/${record._id}`}>
                                 <Button
                                     type="primary"
                                     size="small"
-                                    className="mr-4"
-                                    onClick={() => {
-                                        setContentData(record);
-                                        setViewContentModal(true);
-                                    }}
+                                    className={record?._id?.length % 2 !== 0 ? "bg-green-500" : "bg-primary-700"}
                                 >
-                                    View Post
+                                    {record?._id?.length % 2 === 0 ? "Approve Content" : "Make Payment"}
                                 </Button>
-                            </>}
-
-                            {record.status === "done" && <Link href={`/dashboard/pay-creator/${record.key}`}>
-                                <Button
-                                    type="primary"
-                                    size="small"
-                                    className={`${record.key % 2 !== 0 ? "bg-green-500" : ""}`}
-                                >
-                                    {record.key % 2 === 0 ? "Approve Content" : "Make Payment"}
-                                </Button>
-                            </Link>}
-                        </div>}
-                </>
-
-            ),
+                            </Link>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             title: "",
@@ -211,7 +255,7 @@ export function CreatorTable({
                                         window.open(`/dashboard/user-preview/${record.key}`, "_blank");
                                     },
                                 },
-                                {
+                                record?.creatorId?.reviews?.length === 0 && {
                                     key: "2",
                                     label: "Leave a Review",
                                     onClick: () => {
@@ -242,9 +286,10 @@ export function CreatorTable({
     const [viewContentModal, setViewContentModal] = useState(false);
     const [contentData, setContentData] = useState(null);
 
-    console.log(contentData);
+
 
     const acceptWork = async (id: string) => {
+        setLoading(true);
         try {
             await api.post(`/campaigns/${campaign._id}/creators/${contentData.key}/accept`, {
                 contentId: id
@@ -255,10 +300,17 @@ export function CreatorTable({
             Refresh();
         }
         catch (error) { console.log(error) }
+        finally {
+            setLoading(false);
+        }
     }
 
     return (
         <>
+            {loading && <div className="flex justify-center items-center h-screen">
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+            </div>}
+
             <Table
                 size="small"
                 columns={columns}
@@ -269,7 +321,7 @@ export function CreatorTable({
                     <div className="flex justify-between font-medium">
                         <span>Total</span>
                         <span>
-                            ${creators.reduce((sum, creator) => sum + creator.amount, 0)}
+                            ${creators.reduce((sum, creator) => sum + creator.amount || 0, 0).toFixed(2)}
                         </span>
                     </div>
                 )}
@@ -286,9 +338,10 @@ export function CreatorTable({
                 footer={null}
                 width={"60%"}
                 centered
+
             >
-                <div className="space-y-4">
-                    {contentData?.content.map((content, index) => (
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                    {contentData?.content.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((content, index) => (
                         <div key={index} className="p-4 bg-gray-100 rounded-lg shadow-sm relative">
                             <Popconfirm
                                 title={<span className="text-gray-800 font-medium">Are you sure you want to approve this content? It will be shared on LinkedIn.</span>}
@@ -309,41 +362,45 @@ export function CreatorTable({
                             </Popconfirm>
 
                             <ul className="space-y-2 text-gray-700">
-
-                                <li>
-                                    <span className="font-medium text-gray-900">Content Type:</span> {content?.type || "N/A"}
-                                </li>
-                                <li>
+                                {content?.type && < li >
+                                    <span className="font-medium text-gray-900">Content Type:</span> {content?.type}
+                                </li>}
+                                {content?.content && <li>
                                     <span className="font-medium text-gray-900">Content:</span>
                                     <span className="block mt-1 text-gray-700 whitespace-pre-line">
-                                        {content?.content || "N/A"}
+                                        {content?.content}
                                     </span>
-                                </li>
-                                <li className="font-medium text-gray-900">Files:</li>
-                                <ul className="mt-2 space-y-2 flex overflow-x-auto max-w-[400px]">
-                                    {Array.isArray(content?.files) && content.files.length > 0 ? (
-                                        content.files.map((file, index) => (
-                                            <li key={index} className="overflow-hidden">
-                                                <Image
-                                                    src={
-                                                        file.includes("http")
-                                                            ? file
-                                                            : process.env.NEXT_PUBLIC_SERVER_URL + file
-                                                    }
-                                                    alt={`file-${index}`}
-                                                    style={{ width: 100, height: "auto" }}
-                                                />
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="text-gray-500">No files available</li>
-                                    )}
-                                </ul>
+                                </li>}
+                                {content.files.length > 0 && <>
+                                    <li className="font-medium text-gray-900">Files:</li>
+                                    <ul className="mt-2 flex max-w-[400px] overflow-x-auto space-x-3 pb-2">
+                                        {Array.isArray(content?.files) && content.files.length > 0 ? (
+                                            content.files.map((file, index) => (
+                                                <li key={index} className="flex-shrink-0">
+                                                    <Image
+                                                        src={
+                                                            file.includes("http")
+                                                                ? file
+                                                                : process.env.NEXT_PUBLIC_SERVER_URL + file
+                                                        }
+                                                        alt={`file-${index}`}
+                                                        width={100}
+                                                        height={100}
+                                                        className="rounded-md shadow object-cover"
+                                                    />
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="text-gray-500">No files available</li>
+                                        )}
+                                    </ul>
+                                </>}
+
                             </ul>
                         </div>
                     ))}
                 </div>
-            </Modal>
+            </Modal >
 
 
         </>

@@ -50,7 +50,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     const getCampaign = async () => {
         try {
             const res = await api.get("/campaigns/" + id);
-            console.log(res.data); // Log the data to ensure it's being fetched correctly
+
             setCampaign(res.data);
         } catch (e) {
             console.log("Error fetching campaign:", e);
@@ -67,7 +67,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     const getCampaignAnalytics = async () => {
         try {
             const res = await api.get("/campaigns/analytics/" + id);
-            console.log(res.data); // Log the data to ensure it's being fetched correctly
+
             setCampaignAnalytics(res.data);
         } catch (e) {
             console.log("Error fetching campaign:", e);
@@ -79,91 +79,57 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
         getCampaignAnalytics();
     }, [id]);
 
+    const transformData = (data: any) => {
+        return data?.map((item: any) => ({
+            label: item.label || item.type,
+            count: item.count || item.value,
+        })) || [];
+    }
+
 
     const campaignOverview = () => {
+        const contentDistribution = transformData(campaignAnalytics?.analytics?.contentDistribution)
+        const contentCountByType = transformData(campaignAnalytics?.analytics?.contentCountByType)
+
         return (
-            <>
-                <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-h6 font-bold">
-                            Content
-                        </h3>
-                        <div className="flex items-end text-neutral-600">
-                            <span className="font-bold text-3xl mr-1">
-                                {campaignAnalytics?.totalContent || 0}
+            <div className="mt-8 space-y-6">
+                {/* Content Summary */}
+                <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <h3 className="text-xl font-semibold text-neutral-800">Campaign Content</h3>
+                        <div className="flex items-end text-neutral-700">
+                            <span className="font-bold text-4xl mr-2">
+                                {campaignAnalytics?.analytics?.totalContent || 0}
                             </span>
-                            <p className="text-neutral-600 mb-[1px]">Total Content</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8 w-full">
-                            <h3 className="text-h6 font-[400]">
-                                Content Distribution
-                            </h3>
-                            <BarChartComponent
-                                campaignAnalytics={campaignAnalytics}
-                            />
-                        </div>
-                        <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8 w-full ml-8">
-                            <h3 className="text-h6 font-[400]">
-                                Number of Content
-                            </h3>
-                            <BarChartComponent
-                                campaignAnalytics={campaignAnalytics}
-                            />
+                            <p className="text-sm text-neutral-500 mb-1">Total Content</p>
                         </div>
                     </div>
                 </div>
-                {/* <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-h6 font-bold">
-                            Engagement
-                        </h3>
-                        <div className="flex items-end text-neutral-600">
-                            <span className="font-bold text-3xl mr-1">
-                                18M
-                            </span>
-                            <p className="text-neutral-600 mb-[1px]">Total Engagement</p>
-                        </div>
+
+                {/* Analytics Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Content Distribution by Type */}
+                    <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+                        <h4 className="text-lg font-medium text-neutral-700 mb-4">
+                            Content Distribution
+                        </h4>
+                        <BarChartComponent campaignAnalytics={contentCountByType} />
                     </div>
-                    <div className="flex items-center justify-between">
-                        <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-8 w-[80%]">
-                            <InteractiveBarChart
-                                title="Engagement Rate"
-                                description="Showing total visitors for the last 3 months"
-                            />
-                        </div>
-                        <div className="w-[20%] ml-8">
-                            <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-3">
-                                <span className="font-bold text-3xl mr-1">
-                                    10
-                                </span>
-                                <p className="text-neutral-600 mb-[1px]">Likes</p>
-                            </div>
-                            <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-3">
-                                <span className="font-bold text-3xl mr-1">
-                                    10
-                                </span>
-                                <p className="text-neutral-600 mb-[1px]">Likes</p>
-                            </div>
-                            <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-3">
-                                <span className="font-bold text-3xl mr-1">
-                                    10
-                                </span>
-                                <p className="text-neutral-600 mb-[1px]">Likes</p>
-                            </div>
-                            <div className="border rounded-md shadow-sm border-neutral-100 mt-8 p-3">
-                                <span className="font-bold text-3xl mr-1">
-                                    10
-                                </span>
-                                <p className="text-neutral-600 mb-[1px]">Likes</p>
-                            </div>
-                        </div>
+
+                    {/* Content Status Breakdown */}
+                    <div className="bg-white border border-neutral-100 rounded-2xl p-6">
+                        <h4 className="text-lg font-medium text-neutral-700 mb-4">
+                            Number of Content by Status
+                        </h4>
+                        <BarChartComponent campaignAnalytics={contentDistribution} />
                     </div>
-                </div> */}
-            </>
-        )
-    }
+                </div>
+            </div>
+        );
+    };
+
+
+
 
     const campaignAbout = () => {
         return (
@@ -243,6 +209,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 position: "top-right",
                 description: "You have successfully applied for the campaign",
             });
+            getCampaign();
         } catch (e) {
             console.log(e)
         }
@@ -287,21 +254,45 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                     className="ml-auto max-w-[200px]"
                                     variant="primary"
                                     size="small"
-                                    disabled={loading}
+                                    disabled={loading || campaign?.isApplied}
                                     loading={loading}
                                     onClick={() => {
                                         if (userType === "creator") {
                                             setAmountModal(true);
-                                        }
-                                        else {
+                                        } else {
                                             navigation.push("/dashboard/creators");
-                                            // Redirect to creators page
                                         }
                                     }}
                                 >
-                                    {userType === "creator" ? "Apply for Campaign" : "Find Creators"}
+                                    {userType === "creator" ? (
+                                        campaign?.isApplied ? (
+                                            campaign?.status === "pending" ? (
+                                                "Application Under Review"
+                                            ) : campaign?.status === "approved" ? (
+                                                "You’re Approved!"
+                                            ) : campaign?.status === "rejected" ? (
+                                                "Not Selected"
+                                            ) : campaign?.status === "done" ? (
+                                                "Campaign Completed"
+                                            ) : campaign?.status === "prospect" ? (
+                                                "In Consideration"
+                                            ) : campaign?.status === "content_submitted" ? (
+                                                "Content Submitted"
+                                            ) : (
+                                                "You’ve Already Applied"
+                                            )
+                                        ) : (
+                                            "Apply Now"
+                                        )
+                                    ) : (
+                                        "Discover Creators"
+                                    )}
+
                                 </Button>
                             </Link>
+
+
+
                         </div>
                         <p className="text-md mt-2">
                             {moment(campaign?.startDate).format("MM/DD/YYYY")} - {moment(campaign?.endDate).format("MM/DD/YYYY")}
@@ -341,6 +332,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                     </motion.div> : <div>Loading...</div>}
                 </div>
             </div>
+
+
 
 
 

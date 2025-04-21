@@ -21,6 +21,7 @@ const MainContent = ({
     setIsSelectSharingModalOpen,
     setIsDraftModalOpen,
     saveDraftToLocalStorage,
+    loading
 }) => (
     <div className="flex flex-col md:flex-row w-[90%] mt-4 space-x-0 md:space-x-4 space-y-4 md:space-y-0 sm:min-h-[80vh] bg-white p-6 rounded-md shadow-md">
         <div className="max-w-[50%] w-full">
@@ -60,7 +61,7 @@ const MainContent = ({
                 setIsModalVisible={setIsModalVisible}
                 isSelectSharingModalOpen={isSelectSharingModalOpen}
                 setIsSelectSharingModalOpen={setIsSelectSharingModalOpen}
-
+                publishLoading={loading}
             />
         </div>
         <div className="max-w-[50%] w-full">

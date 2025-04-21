@@ -94,7 +94,7 @@ export function ContentTable({ campaign, Refresh }) {
             key: "type",
             render: (text) => {
                 return (
-                    <div className="border border-primary-700 text-primary-700 text-center rounded-md w-16">
+                    <div className="border border-primary-700 text-primary-700 text-center rounded-md">
                         {text}
                     </div>
                 );
@@ -125,16 +125,6 @@ export function ContentTable({ campaign, Refresh }) {
                             }}
                         >
                             View Post
-                        </button>
-
-                        <button
-                            className="text-primary-700 hover:text-primary-900"
-                            onClick={() => {
-                                getAnalytics(record.urnli);
-                            }}
-                            disabled={!record.urnli}
-                        >
-                            get analytics
                         </button>
                     </div>
                 );

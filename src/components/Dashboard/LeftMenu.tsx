@@ -113,6 +113,25 @@ export const LeftMenu = () => {
     // setNotifications([]);
   };
 
+  const NotificationItem = ({ item }) => (
+    <div className="flex items-start gap-2">
+      <Bell size={16} className="text-primary-700 mt-1" />
+      <div className="flex-1">
+        <p className="font-semibold text-black text-sm">
+          {item.sender?.name || "Someone"}
+        </p>
+        <p className="text-gray-600 text-xs">{item.message}</p>
+        <div className="flex justify-between items-center mt-1">
+          <p className="text-gray-400 text-[10px]">
+            {moment(item.createdAt).fromNow()}
+          </p>
+          {item.link && <LinkIcon size={12} className="text-gray-400" />}
+        </div>
+      </div>
+    </div>
+  );
+
+
   const notificationDropdown = {
     items: notifications.length
       ? [
@@ -121,30 +140,24 @@ export const LeftMenu = () => {
           label: (
             <div className="max-h-80 overflow-y-auto custom-scrollbar max-w-[300px]">
               {notifications.map((item) => (
-                <Link
-                  key={item._id}
-                  className="cursor-pointer px-3 py-2 hover:bg-gray-100 rounded-lg transition-all my-4"
-                  href={item.link}
-                >
-                  <div className="flex items-start gap-2">
-                    <Bell size={16} className="text-primary-700 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-black text-sm">
-                        {item.sender?.name || "Someone"}
-                      </p>
-                      <p className="text-gray-600 text-xs">{item.message}</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <p className="text-gray-400 text-[10px]">
-                          {moment(item.createdAt).fromNow()}
-                        </p>
-                        {item.link && (
-                          <LinkIcon size={12} className="text-gray-400" />
-                        )}
-                      </div>
-                    </div>
+                item.link ? (
+                  <Link
+                    key={item._id}
+                    href={item.link}
+                    className="cursor-pointer px-3 py-2  rounded-lg transition-all my-4"
+                  >
+                    <NotificationItem item={item} />
+                  </Link>
+                ) : (
+                  <div
+                    key={item._id}
+                    className="cursor-default px-3 py-2rounded-lg transition-all my-4"
+                  >
+                    <NotificationItem item={item} />
                   </div>
-                </Link>
-              ))}
+                )
+              )
+              )}
             </div>
           ),
         },

@@ -24,6 +24,7 @@ export default function PostMaker({ }: PostMakerProps) {
     const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(true);
     const [drafts, setDrafts] = useState([]);
     const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const getUserData = async () => {
         try {
@@ -115,9 +116,10 @@ export default function PostMaker({ }: PostMakerProps) {
     };
 
     const publishToLinkedIn = async () => {
+        setLoading(true);
         const formData = new FormData();
         formData.append("content", postContent);
-        formData.append("hookType", "AI Text Creator");
+        formData.append("type", "AI Text Creator");
         formData.append("isCampaign", isSelectSharingModalOpenValue);
 
         if (imagePreview && imageFile) {
@@ -141,11 +143,13 @@ export default function PostMaker({ }: PostMakerProps) {
             } else {
                 toast.success("Post shared successfully", {
                     position: "top-center",
-                    description: "Your post has been shared to LinkedIn",
+                    description: isSelectSharingModalOpenValue === "1" ? "Post shared to campaign, waiting for brand approval" : "Post shared to LinkedIn",
                 });
             }
         } catch (error) {
             console.error("Error sharing post to LinkedIn:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -320,6 +324,7 @@ export default function PostMaker({ }: PostMakerProps) {
                 setIsSelectSharingModalOpen={setIsSelectSharingModalOpenValue}
                 setIsDraftModalOpen={setIsDraftModalOpen}
                 saveDraftToLocalStorage={saveDraftToLocalStorage}
+                loading={loading}
             />
             {selectSharingModal()}
             {draftSelectionModal()}

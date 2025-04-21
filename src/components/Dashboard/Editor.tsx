@@ -75,6 +75,7 @@ const DEFAULT_TEMPLATE = {
 }
 
 const CarouselEditor = () => {
+
     const [userData, setUserData] = useState(null);
     const getUserData = async () => {
         try {
@@ -336,7 +337,7 @@ const CarouselEditor = () => {
 
             toast.success("Post shared successfully", {
                 position: "top-center",
-                description: "Your post has been shared to LinkedIn",
+                description: isSelectSharingModalOpenValue === "0" ? "Your post has been shared to LinkedIn" : "Your post has been shared to campaign, wait for brand approval",
             });
         } catch (error) {
             console.error("Error sharing post to LinkedIn:", error);
@@ -530,8 +531,9 @@ const CarouselEditor = () => {
                             type="primary"
                             className="w-full mb-2 bg-primary-700 text-white"
                             onClick={publishToLinkedIn}
+                            disabled={loading}
                         >
-                            Publish To LinkedIn
+                            {loading ? "Publishing..." : "Publish To LinkedIn"}
                         </Button>
                     </div>
                 </div>

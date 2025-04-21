@@ -4,7 +4,7 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Check, Eye, Image, Mic, Pencil, Plus, Text, Upload, Video } from "lucide-react";
+import { ArrowRight, Check, Eye, Image, Mic, Pencil, Plus, Text, Upload, Video, View } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate } from "antd";
@@ -22,10 +22,6 @@ import { get } from "http";
 type BrandDashboardProps = {
   isPreview: boolean;
 };
-
-// userData;
-// {"_id":"67cec00dad8af47ea2b85247","name":"Omar Dakelbab","email":"omar.frontend@gmail.com","password":"$2b$10$6AJmPYVJvwXZd0Q4qxooUe6ZszC0w8s2FaSejzjpPZCx4n.Awa70K","userType":"creator","tags":["tech","instagram"],"socialMediaLinks":[{"platform":"linkedin","link":"linkedin.com/in/johndoe","_id":"67cecd317ef28615840899e7"},{"platform":"medium","link":"medium.com/@johndoe","_id":"67cecd317ef28615840899e8"},{"platform":"spotify","link":"open.spotify.com/user/johndoe","_id":"67cecd317ef28615840899e9"},{"platform":"website","link":"johndoe.com","_id":"67cecd317ef28615840899ea"},{"platform":"otherLinks","link":"","_id":"67cecd317ef28615840899eb"}],"reviews":[],"services":[],"previousWork":[],"featuredWork":[],"testimonials":[],"textBlock":[],"stats":[],"calendar":[],"createdAt":"2025-03-10T10:33:49.104Z","updatedAt":"2025-03-10T11:29:53.545Z","__v":0,"isCompletedOnboarding":true,"bio":"oosmadomsodmasofmngndgflndslgds","coverImage":null,"location":"Turkey","profileImage":null,"profileName":"Omar Dakelbab"}
-
 
 export default function BrandDashboard({
   isPreview
@@ -154,13 +150,14 @@ export default function BrandDashboard({
 
               <div className="border-t border-gray-200 my-6"></div>
 
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap">
                 {partnership?.campaigns?.map(
                   (tag, index) => (
                     <Link
                       key={index}
                       href={`/dashboard/campaigns-details/${tag._id}`}
                       target="_blank"
+                      className="mr-2 mb-2"
                     >
                       <span
                         className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
@@ -181,9 +178,23 @@ export default function BrandDashboard({
       label: "Products",
       content: (
         <div className="mt-10 px-4 md:px-8">
-          <h3 className="text-3xl font-bold text-gray-900 mb-8">
-            Product Catalogue of {userData?.profileName}
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-3xl font-bold text-gray-900 mb-8">
+              Product Catalogue of {userData?.profileName}
+            </h3>
+
+            <div className="max-w-[400px]">
+              <Button
+                variant="primary"
+                size="small"
+                className="rounded-full"
+                onClick={() => setModal(true)}
+              >
+                <Plus size={16} /> Add Product
+              </Button>
+            </div>
+          </div>
+
 
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
             {products?.map((product: any, index: number) => {
