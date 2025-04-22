@@ -1,11 +1,13 @@
-import { Button, Input, Modal, Select } from "antd";
+import { Button, DatePicker, Input, Modal, Select, Typography, Space } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
 import Template_1 from "./TEMPLATES/Template_1";
-import { ChevronLeft, ChevronRight, Clock, Send, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/axiosInstance";
+import moment from "moment";
+import { ClockCircleOutlined } from "@ant-design/icons";
 
 const TEMPLATES = [
     { id: 1, name: "Template 1", size: "288x360", component: Template_1, bgColor: "#000" },
@@ -13,6 +15,8 @@ const TEMPLATES = [
     { id: 3, name: "Template 3", size: "288x360", component: null, bgColor: "#BF8A5B" },
     { id: 4, name: "Template 4", size: "288x360", component: null, bgColor: "#814EB3" },
 ];
+
+
 
 const DEFAULT_TEMPLATE = {
     editableTopic: {
@@ -73,6 +77,11 @@ const DEFAULT_TEMPLATE = {
     emoji: null, // Emoji
     isHeadImage: false, // removes profile pic and puts it on the top instead of tagline
 }
+
+
+const { Title } = Typography;
+
+
 
 const CarouselEditor = () => {
 
@@ -429,9 +438,122 @@ const CarouselEditor = () => {
         )
     }
 
+    const [schedulePostModalOpen, setSchedulePostModalOpen] = useState(false);
+    const [scheduledDate, setScheduledDate] = useState(null);  // moment object
+    const [scheduledDateString, setScheduledDateString] = useState("");
+
+    const schedulePost = async () => {
+
+        if (!scheduledDate) {
+            toast.error("Please select a scheduled date.");
+            return;
+        }
+
+        const imageFilesToAdd = [];
+
+        setPostsData((prevPostsData) => {
+            // set showEditingDiv to false for all posts
+            return prevPostsData.map((post) => ({
+                ...post,
+                postData: {
+                    ...post.postData,
+                    showEditingDiv: false,
+                },
+            }));
+        });
+
+        // timeout 
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Process each post to extract images
+        for (const index of posts) {
+            const postElement = document.getElementById(`post-${index}`);
+            if (postElement) {
+                await html2canvas(postElement, { backgroundColor: null }).then((canvas) => {
+                    // Convert canvas to data URL
+                    const dataUrl = canvas.toDataURL("image/png");
+
+                    // Convert data URL to Blob
+                    const blob = dataURLtoBlob(dataUrl);
+
+                    // Create a File from the Blob (using a timestamp as the filename)
+                    const file = new File([blob], `image-${Date.now()}.png`, { type: "image/png" });
+
+                    // Push the file to the imageFilesToAdd array
+                    imageFilesToAdd.push(file);
+                });
+            }
+        }
+
+        // After all posts are processed, update the state with the new files
+        setImageFile((prevFiles) => [...(prevFiles || []), ...imageFilesToAdd]);
+
+
+        // Convert the selected scheduledDate (local time) to UTC using Moment.js
+        const scheduledDateUtc = moment(scheduledDateString).local().utc().toISOString();  // Convert to UTC
+
+        const formData = new FormData();
+        formData.append("textContent", postContent);
+        formData.append("type", "Carousel Maker");
+        formData.append("scheduledDate", scheduledDateUtc);
+
+        for (const i of imageFilesToAdd) {
+            formData.append("images", i);
+        }
+
+        try {
+            const response = await api.post("/campaigns/schedule-post", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            toast.success("Post scheduled successfully, your post will be shared at " + moment(scheduledDateUtc).format("DD/MM/YYYY HH:mm"));
+            setSchedulePostModalOpen(false);
+        } catch (error) {
+            console.error("Schedule Post Error:", error);
+            toast.error("Failed to schedule post");
+        }
+    };
+
+    const schedulePostModal = () => {
+        return (
+            <Modal
+                open={schedulePostModalOpen}
+                onCancel={() => setSchedulePostModalOpen(false)}
+                onOk={schedulePost}
+                okText="Schedule Post"
+                cancelText="Cancel"
+                centered
+                title={
+                    <Space>
+                        <ClockCircleOutlined />
+                        <Title level={4} style={{ margin: 0 }}>
+                            Schedule Post
+                        </Title>
+                    </Space>
+                }
+            >
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <div>
+                        Select a date and time to publish your post:
+                        <br />
+                        <DatePicker
+                            showTime
+                            style={{ width: '100%', marginTop: 8 }}
+                            onChange={(mainDate, date) => {
+                                setScheduledDate(mainDate)
+                                setScheduledDateString(date)
+                            }} // set moment object
+                            value={scheduledDate} // Make sure value is managed
+                            format="YYYY-MM-DD HH:mm:ss" // Optional, to display in a specific format
+                        />
+                    </div>
+                </Space>
+            </Modal>
+        );
+    };
+
     return (
         <div className="w-full">
-
+            {schedulePostModal()}
             {selectSharingModal()}
             {/* AI Content Generator */}
             <div className="w-full bg-white p-6 rounded-md mb-4">
@@ -525,6 +647,11 @@ const CarouselEditor = () => {
 
                         <div className="border-t border-neutral-200 my-4"></div>
                         <Button className="w-full mb-2" size="small" onClick={addPost}>Add Post</Button>
+                        {isSelectSharingModalOpenValue != 1 && <Button className="w-full mb-2" size="small" onClick={() => {
+                            setSchedulePostModalOpen(true);
+                        }}>
+                            Schedule Post
+                        </Button>}
                     </div>
                     <div>
                         <Button

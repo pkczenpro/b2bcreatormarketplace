@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, DatePicker, Modal, TimePicker } from "antd";
+import { Button, Modal, Select } from "antd";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
 import MainContent from "@/components/PostMaker/MainContent";
@@ -88,7 +88,7 @@ export default function PostMaker({ }: PostMakerProps) {
         window.location.href = linkedInAuthUrl;
     };
 
-    const saveDraftToLocalStorage = async () => {
+    const saveDraftToLocalStorage = async (selectedCategory) => {
         if (!postContent) {
             toast.error("Please write something before saving as a draft");
             return;
@@ -100,6 +100,7 @@ export default function PostMaker({ }: PostMakerProps) {
             formData.append("selectedCampaign", selectedCampaign);
             formData.append("createdAt", new Date().toISOString());
             formData.append("isCampaignPost", isSelectSharingModalOpenValue);
+            formData.append("category", selectedCategory);
 
             if (imageFile) {
                 imageFile?.forEach((file) => formData.append("images", file));
@@ -187,7 +188,27 @@ export default function PostMaker({ }: PostMakerProps) {
         }
     };
 
+    // Define the categories
+    const draftCategories = [
+        "📌 Thought Leadership",
+        "🧠 Frameworks",
+        "🛠️ Behind the Build",
+        "📚 Lessons Learned",
+        "💬 Conversations",
+        "🔍 What I'm Seeing",
+        "✍️ Content Drops",
+        "🔍 Draft/ Non Published"
+    ];
+
     const draftSelectionModal = () => {
+        // Group drafts by category
+        const groupedDrafts = drafts?.reduce((acc, draft) => {
+            const category = draft.category || "Draft/ Non Published";
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(draft);
+            return acc;
+        }, {});
+
         return (
             <Modal
                 centered
@@ -196,49 +217,58 @@ export default function PostMaker({ }: PostMakerProps) {
                 width={700}
                 okText="Save Current Post as Draft"
                 onOk={() => {
-                    saveDraftToLocalStorage();
-                    setIsDraftModalOpen(false);
+                    setCategoryModalOpen(true);
                 }}
                 title={<h2 className="text-xl font-bold">Your Drafts</h2>}
             >
-                <div className="flex flex-col gap-4" style={{
-                    maxHeight: "80vh",
-                    overflow: "auto",
-                }}>
-                    {drafts && drafts.length > 0 ? (
-                        drafts.map((draft, index) => (
-                            <div
-                                key={draft._id || index}
-                                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                            >
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-lg mb-1">
-                                            {draft.postContent.substring(0, 50)}
-                                            {draft.postContent.length > 50 ? '...' : ''}
-                                        </h3>
-                                        <p className="text-sm text-gray-500">
-                                            {draft.isCampaignPost ? `Campaign: ${draft.selectedCampaign || "-"}` : 'Independent Post'}
-                                        </p>
-                                        {draft?.createdAt && <p className="text-xs text-gray-400">
-                                            {new Date(draft.createdAt).toLocaleDateString()}
-                                        </p>}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            size="small"
-                                            onClick={() => loadDraft(draft)}
+
+
+                <div
+                    className="flex flex-col gap-6"
+                    style={{ maxHeight: "70vh", overflowY: "auto" }}
+                >
+                    {groupedDrafts ? (
+                        Object.entries(groupedDrafts).map(([category, drafts]) => (
+                            <div key={category}>
+                                <h3 className="text-lg font-semibold mb-2">{category}</h3>
+                                <div className="flex flex-col gap-3">
+                                    {drafts.map((draft, index) => (
+                                        <div
+                                            key={draft._id || index}
+                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
                                         >
-                                            Load
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            danger
-                                            onClick={() => deleteDraft(draft._id)}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex-1">
+                                                    <h3 className="font-semibold text-lg mb-1">
+                                                        {draft.postContent.substring(0, 50)}
+                                                        {draft.postContent.length > 50 ? '...' : ''}
+                                                    </h3>
+                                                    <p className="text-sm text-gray-500">
+                                                        {draft.isCampaignPost
+                                                            ? `Campaign: ${draft.selectedCampaign || "-"}`
+                                                            : "Independent Post"}
+                                                    </p>
+                                                    {draft?.createdAt && (
+                                                        <p className="text-xs text-gray-400">
+                                                            {new Date(draft.createdAt).toLocaleDateString()}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button size="small" onClick={() => loadDraft(draft)}>
+                                                        Load
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        danger
+                                                        onClick={() => deleteDraft(draft._id)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         ))
@@ -301,6 +331,8 @@ export default function PostMaker({ }: PostMakerProps) {
             </Modal>
         )
     }
+    const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+    const [category, setCategory] = useState("");
 
     return (
         <div className="w-full bg-neutral-50 flex flex-col items-center justify-start min-h-screen">
@@ -325,9 +357,41 @@ export default function PostMaker({ }: PostMakerProps) {
                 setIsDraftModalOpen={setIsDraftModalOpen}
                 saveDraftToLocalStorage={saveDraftToLocalStorage}
                 loading={loading}
+                draftCategories={draftCategories}
             />
             {selectSharingModal()}
             {draftSelectionModal()}
+
+            <Modal
+                open={categoryModalOpen}
+                onCancel={() => setCategoryModalOpen(false)}
+                footer={null}
+                centered
+                width={500}
+            >
+                <div className="flex flex-col gap-4">
+                    <h2 className="text-xl font-bold">Select Category</h2>
+                    <div className="flex flex-wrap gap-2">
+                        {draftCategories.map((cat) => (
+                            <Button
+                                key={cat}
+                                onClick={() => setCategory(cat)}
+                                className={`${category === cat ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+                            >
+                                {cat}
+                            </Button>
+                        ))}
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setCategoryModalOpen(false);
+                            saveDraftToLocalStorage(category);
+                        }}
+                    >
+                        Save
+                    </Button>
+                </div>
+            </Modal>
         </div>
     );
 }

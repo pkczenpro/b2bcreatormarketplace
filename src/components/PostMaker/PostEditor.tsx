@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-import { Button, Input, Modal, Select, Tooltip } from "antd";
+import { Button, DatePicker, Input, Modal, Select, Space, Tooltip, Typography } from "antd";
 import {
+    Clock,
     ImagePlus,
     Linkedin,
     Send,
@@ -12,7 +13,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { LoadingOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import moment from "moment";
+import dayjs from "dayjs";
+
+const { Title } = Typography;
 
 const schema = z.object({
     post: z.string().min(1, "Post cannot be empty"),
@@ -104,9 +109,85 @@ const PostEditor = ({
     const characterCount = postContent.length;
     const characterLimit = 3000;
 
+
+    const [schedulePostModalOpen, setSchedulePostModalOpen] = useState(false);
+    const [scheduledDate, setScheduledDate] = useState(null);  // moment object
+    const [scheduledDateString, setScheduledDateString] = useState("");
+
+    const schedulePost = async () => {
+        if (!scheduledDate) {
+            toast.error("Please select a scheduled date.");
+            return;
+        }
+
+        // Convert the selected scheduledDate (local time) to UTC using Moment.js
+        const scheduledDateUtc = moment(scheduledDateString).local().utc().toISOString();  // Convert to UTC
+
+        const formData = new FormData();
+        formData.append("textContent", postContent);
+        formData.append("type", "text_post");
+        formData.append("scheduledDate", scheduledDateUtc);
+
+        for (const i of uploadedImages) {
+            formData.append("images", i);
+        }
+
+        try {
+            // Send the UTC date to the backend
+            const response = await api.post("/campaigns/schedule-post", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            toast.success("Post scheduled successfully, your post will be shared at " + moment(scheduledDateUtc).format("DD/MM/YYYY HH:mm"));
+            setSchedulePostModalOpen(false);
+        } catch (error) {
+            console.error("Schedule Post Error:", error);
+            toast.error("Failed to schedule post");
+        }
+    };
+
+    const schedulePostModal = () => {
+        return (
+            <Modal
+                open={schedulePostModalOpen}
+                onCancel={() => setSchedulePostModalOpen(false)}
+                onOk={schedulePost}
+                okText="Schedule Post"
+                cancelText="Cancel"
+                centered
+                title={
+                    <Space>
+                        <ClockCircleOutlined />
+                        <Title level={4} style={{ margin: 0 }}>
+                            Schedule Post
+                        </Title>
+                    </Space>
+                }
+            >
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <div>
+                        Select a date and time to publish your post:
+                        <br />
+                        <DatePicker
+                            showTime
+                            style={{ width: '100%', marginTop: 8 }}
+                            onChange={(mainDate, date) => {
+                                console.log(mainDate, date);
+                                setScheduledDate(mainDate)
+                                setScheduledDateString(date)
+                            }} // set moment object
+                            value={scheduledDate} // Make sure value is managed
+                            format="YYYY-MM-DD HH:mm:ss" // Optional, to display in a specific format
+                        />
+                    </div>
+                </Space>
+            </Modal>
+        );
+    };
+
     return (
         <div className="flex flex-col w-full mx-auto bg-white py-6 gap-5">
-
+            {schedulePostModal()}
             {/* Campaign & Product Section */}
             {isSelectSharingModalOpen === "1" && (
                 <div className="flex gap-2">
@@ -224,10 +305,19 @@ const PostEditor = ({
                     </div>
                 </div>
 
-                <Button type="primary" icon={<Linkedin size={16} />} onClick={publishToLinkedIn} loading={publishLoading || loading}>
-                    Publish to LinkedIn {publishLoading || loading && <LoadingOutlined size={16} />}
-                </Button>
+                <div className="flex gap-2">
+                    <Button type="primary" icon={<Linkedin size={16} />} onClick={publishToLinkedIn} loading={publishLoading || loading}>
+                        Publish to LinkedIn {publishLoading || loading && <LoadingOutlined size={16} />}
+                    </Button>
+
+                    {isSelectSharingModalOpen === "0" && <Button icon={<Clock size={16} />} onClick={() => {
+                        setSchedulePostModalOpen(true);
+                    }}>
+                        Schedule Post
+                    </Button>}
+                </div>
             </div>
+
         </div>
     );
 };
