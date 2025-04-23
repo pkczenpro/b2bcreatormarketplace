@@ -113,7 +113,7 @@ const PostEditor = ({
     const [schedulePostModalOpen, setSchedulePostModalOpen] = useState(false);
     const [scheduledDate, setScheduledDate] = useState(null);  // moment object
     const [scheduledDateString, setScheduledDateString] = useState("");
-
+    const [label, setLabel] = useState("");
     const schedulePost = async () => {
         if (!scheduledDate) {
             toast.error("Please select a scheduled date.");
@@ -125,9 +125,9 @@ const PostEditor = ({
 
         const formData = new FormData();
         formData.append("textContent", postContent);
-        formData.append("type", "text_post");
+        formData.append("type", "AI Text Post");
         formData.append("scheduledDate", scheduledDateUtc);
-
+        formData.append("label", label);
         for (const i of uploadedImages) {
             formData.append("images", i);
         }
@@ -165,6 +165,10 @@ const PostEditor = ({
                 }
             >
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <div>
+                        <h3 className="font-medium mb-2">Label (optional)</h3>
+                        <Input placeholder="Label" onChange={(e) => setLabel(e.target.value)} />
+                    </div>
                     <div>
                         Select a date and time to publish your post:
                         <br />

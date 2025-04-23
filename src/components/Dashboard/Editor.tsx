@@ -441,6 +441,7 @@ const CarouselEditor = () => {
     const [schedulePostModalOpen, setSchedulePostModalOpen] = useState(false);
     const [scheduledDate, setScheduledDate] = useState(null);  // moment object
     const [scheduledDateString, setScheduledDateString] = useState("");
+    const [label, setLabel] = useState("");
 
     const schedulePost = async () => {
 
@@ -496,6 +497,7 @@ const CarouselEditor = () => {
         formData.append("textContent", postContent);
         formData.append("type", "Carousel Maker");
         formData.append("scheduledDate", scheduledDateUtc);
+        formData.append("label", label);
 
         for (const i of imageFilesToAdd) {
             formData.append("images", i);
@@ -532,6 +534,10 @@ const CarouselEditor = () => {
                 }
             >
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <div>
+                        <h3 className="font-medium mb-2">Label (optional)</h3>
+                        <Input placeholder="Label" onChange={(e) => setLabel(e.target.value)} />
+                    </div>
                     <div>
                         Select a date and time to publish your post:
                         <br />

@@ -202,6 +202,8 @@ export default function PostMaker({ }: PostMakerProps) {
 
     const draftSelectionModal = () => {
         // Group drafts by category
+        const [filterGroup, setFilterGroup] = useState("📌 Thought Leadership");
+
         const groupedDrafts = drafts?.reduce((acc, draft) => {
             const category = draft.category || "Draft/ Non Published";
             if (!acc[category]) acc[category] = [];
@@ -221,57 +223,73 @@ export default function PostMaker({ }: PostMakerProps) {
                 }}
                 title={<h2 className="text-xl font-bold">Your Drafts</h2>}
             >
-
+                {groupedDrafts && (
+                    <div className="mb-4">
+                        <div className="flex flex-wrap gap-2">
+                            {Object.keys(groupedDrafts).map((category) => (
+                                <span
+                                    key={category}
+                                    className="px-3 py-1 bg-gray-200 rounded-full text-sm font-medium text-gray-700"
+                                    onClick={() => setFilterGroup(category)}
+                                >
+                                    {category}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div
                     className="flex flex-col gap-6"
                     style={{ maxHeight: "70vh", overflowY: "auto" }}
                 >
                     {groupedDrafts ? (
-                        Object.entries(groupedDrafts).map(([category, drafts]) => (
-                            <div key={category}>
-                                <h3 className="text-lg font-semibold mb-2">{category}</h3>
-                                <div className="flex flex-col gap-3">
-                                    {drafts.map((draft, index) => (
-                                        <div
-                                            key={draft._id || index}
-                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex-1">
-                                                    <h3 className="font-semibold text-lg mb-1">
-                                                        {draft.postContent.substring(0, 50)}
-                                                        {draft.postContent.length > 50 ? '...' : ''}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500">
-                                                        {draft.isCampaignPost
-                                                            ? `Campaign: ${draft.selectedCampaign || "-"}`
-                                                            : "Independent Post"}
-                                                    </p>
-                                                    {draft?.createdAt && (
-                                                        <p className="text-xs text-gray-400">
-                                                            {new Date(draft.createdAt).toLocaleDateString()}
+                        Object.entries(groupedDrafts)
+                            .filter(([category]) => filterGroup === "All" || category === filterGroup)
+                            .map(([category, drafts]) => (
+                                <div key={category}>
+                                    <h3 className="text-lg font-semibold mb-2">{category}</h3>
+                                    <div className="flex flex-col gap-3">
+                                        {drafts.map((draft, index) => (
+                                            <div
+                                                key={draft._id || index}
+                                                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-lg mb-1">
+                                                            {draft.postContent.substring(0, 50)}
+                                                            {draft.postContent.length > 50 ? '...' : ''}
+                                                        </h3>
+                                                        <p className="text-sm text-gray-500">
+                                                            {draft.isCampaignPost
+                                                                ? `Campaign: ${draft.selectedCampaign || "-"}`
+                                                                : "Independent Post"}
                                                         </p>
-                                                    )}
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button size="small" onClick={() => loadDraft(draft)}>
-                                                        Load
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        danger
-                                                        onClick={() => deleteDraft(draft._id)}
-                                                    >
-                                                        Delete
-                                                    </Button>
+                                                        {draft?.createdAt && (
+                                                            <p className="text-xs text-gray-400">
+                                                                {new Date(draft.createdAt).toLocaleDateString()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <Button size="small" onClick={() => loadDraft(draft)}>
+                                                            Load
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            danger
+                                                            onClick={() => deleteDraft(draft._id)}
+                                                        >
+                                                            Delete
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            ))
                     ) : (
                         <div className="text-center py-8">
                             <p className="text-gray-500">You don't have any drafts yet.</p>
@@ -279,6 +297,7 @@ export default function PostMaker({ }: PostMakerProps) {
                     )}
                 </div>
             </Modal>
+
         );
     };
 
