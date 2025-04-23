@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
 import { Button, Input, Segmented, Switch, Upload, message, ColorPicker, Tabs, Slider } from "antd";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Sparkles } from "lucide-react";
 import html2canvas from "html2canvas";
 import EmojiPicker from 'emoji-picker-react';
-import CustomImage from "@/components/CustomImage";
-
+import api from "@/utils/axiosInstance";
+import { LoadingOutlined } from "@ant-design/icons";
 interface Template1Props {
     index: number;
     selectedSize: string;
@@ -212,6 +212,54 @@ const Template_1: React.FC<Template1Props> = ({
 
     const DEFAULT_IMG = process.env.NEXT_PUBLIC_SERVER_URL + "/default.png";
 
+    const [loading, setLoading] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState("");
+
+    const generatePostWithAI = async () => {
+        if (!aiPrompt.trim()) return;
+
+        setLoading(true);
+        try {
+            const { editableTopic, editableTitle, editableTagline, editableButton } = data;
+
+            const response = await api.post("/campaigns/generate-carousel", {
+                editableTopic: editableTopic?.label || "",
+                editableTitle: editableTitle?.label || "",
+                editableTagline: editableTagline?.label || "",
+                editableButton: editableButton?.label || "",
+                aiPrompt,
+            });
+
+            const {
+                editableTopic: newTopic,
+                editableTitle: newTitle,
+                editableTagline: newTagline,
+                editableButton: newButton,
+                slides,
+            } = response.data;
+
+
+            console.log(response.data)
+
+            setData({
+                ...data,
+                editableTopic: { ...editableTopic, label: newTopic },
+                editableTitle: { ...editableTitle, label: newTitle },
+                editableTagline: { ...editableTagline, label: newTagline },
+                editableButton: { ...editableButton, label: newButton },
+                slides, // <- Store slides in state if needed
+            });
+
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            // Optionally: toast.error("Failed to generate carousel content.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
     return (
         <div className="w-full h-full flex flex-col">
             <div
@@ -281,7 +329,7 @@ const Template_1: React.FC<Template1Props> = ({
                                 ? `${data.editableTitle.label.slice(0, 110)}...`
                                 : data.editableTitle.label}
                         </h1>
-                        
+
                         {data.isLastItem ? (
                             <button className="bg-white text-black p-2 rounded-md">{data.editableButton.label}</button>
                         ) : (
@@ -354,7 +402,7 @@ const Template_1: React.FC<Template1Props> = ({
             {data.showEditingDiv && (
                 <div className="mt-6 bg-white shadow-lg rounded-lg p-6 space-y-6 z-10 transition-all relative">
                     <Button className="absolute top-2 right-2" onClick={() => setData({ ...data, showEditingDiv: false })} type="primary" size="small">X</Button>
-                    <div className="z-30 absolute top-0 left-0 m-4">
+                    <div className="z-30 absolute top-0 left-0 m-6">
                         <Button
                             size="small"
                             className="mr-2 bg-red-600"
@@ -369,6 +417,23 @@ const Template_1: React.FC<Template1Props> = ({
                             setData({ ...data, showEditingDiv: false });
                             timeout(() => exportImage(), 1000);
                         }}>Export as image</Button>
+                        {/* improve using ai button */}
+
+
+                    </div>
+                    <div className="flex items-center">
+                        <Input
+                            className="w-full mt-2"
+                            placeholder="Generate with keywords, topics, etc."
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            size="small"
+                        />
+                        <Button className="ml-2 mt-2" size="small" style={{
+                            background: "linear-gradient(to right, #6a11cb, #2575fc)",
+                            color: "#ffffff",
+                        }} onClick={generatePostWithAI} loading={loading} icon={loading ? <LoadingOutlined className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}>
+                            Improve with AI
+                        </Button>
                     </div>
 
                     <Tabs defaultActiveKey="1" items={tabs} />

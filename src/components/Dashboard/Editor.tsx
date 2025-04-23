@@ -561,30 +561,7 @@ const CarouselEditor = () => {
         <div className="w-full">
             {schedulePostModal()}
             {selectSharingModal()}
-            {/* AI Content Generator */}
-            <div className="w-full bg-white p-6 rounded-md mb-4">
-                <div className="flex justify-between items-center mb-2">
-                    <p className="font-semibold text-neutral-700 flex items-center gap-2">
-                        <Sparkles size={18} className="text-yellow-500" />
-                        Generate post content with AI
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Input.TextArea
-                        placeholder="Describe your idea..."
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                    />
-                    <Button
-                        type="primary"
-                        loading={loading}
-                        icon={<Send size={16} />}
-                        onClick={generatePostWithAI}
-                    >
-                        Generate
-                    </Button>
-                </div>
-            </div>
+
 
             <div className="flex w-full min-h-[80vh]">
                 {showTemplatesModal()}
