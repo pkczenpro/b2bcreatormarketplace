@@ -181,7 +181,6 @@ export function CreatorTable({
             dataIndex: "amount",
             key: "amount",
             render: (_, record) => {
-
                 return (
                     <p className="text-sm font-bold text-neutral-900">
                         {record?.amount?.toFixed(2)} USD
@@ -199,9 +198,10 @@ export function CreatorTable({
                 const isContentSubmitted = record.status === "content_submitted";
                 const hasContent = record.content?.length > 0;
 
+
                 return (
                     <div className="flex items-center">
-                        {isProspect && (
+                        {isProspect || isPending && (
                             <Button
                                 type="primary"
                                 size="small"

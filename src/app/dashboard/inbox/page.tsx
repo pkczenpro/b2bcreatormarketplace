@@ -490,7 +490,7 @@ export default function Inbox() {
                                                     <CustomImage
                                                         loading="lazy"
                                                         src={chat?.image?.includes("http") ? chat.image : process.env.NEXT_PUBLIC_SERVER_URL + chat.image}
-                                                        alt={chat?.name}
+                                                        alt={chat?.profileName}
                                                         className={`w-12 h-12 rounded-full object-cover
             ${selectedChat && selectedChat?._id === chat._id ? 'ring-2 ring-primary-700' : ''}
             ${activeUsers.find((user => user?.userId === chat._id)) && 'ring-2 ring-green-600'}
@@ -501,7 +501,7 @@ export default function Inbox() {
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
-                                                    <h1 className="font-semibold text-base text-black truncate">{chat.name}</h1>
+                                                    <h1 className="font-semibold text-base text-black truncate">{chat.profileName}</h1>
                                                     <p className="text-sm text-neutral-500 truncate">{chat.message}</p>
                                                 </div>
 
@@ -531,11 +531,11 @@ export default function Inbox() {
                                                 {selectedChat && <CustomImage
                                                     loading="lazy"
                                                     src={selectedChat?.image?.includes("http") ? selectedChat?.image : process.env.NEXT_PUBLIC_SERVER_URL + selectedChat?.image}
-                                                    alt={selectedChat?.name || "User"}
+                                                    alt={selectedChat?.profileName || "User"}
                                                     className="w-12 h-12 rounded-full"
                                                 />}
                                                 <div>
-                                                    <h1 className="font-semibold text-lg">{selectedChat?.name}</h1>
+                                                    <h1 className="font-semibold text-lg">{selectedChat?.profileName}</h1>
                                                     <p className="text-sm text-neutral-500 flex items-center gap-2">
                                                         {
                                                             activeUsers.find(user => user?.userId === selectedChat._id) &&

@@ -65,7 +65,7 @@ const Template_1: React.FC<Template1Props> = ({
         <div className="text-xs text-left">
             <label className="block text-gray-600 font-medium mb-0.5">{label}</label>
             <div className="flex items-center gap-1">
-                <Input
+                <Input.TextArea
                     className="w-full px-1 py-0.5 text-xs"
                     value={data[valueKey]?.label}
                     onChange={(e) => {
@@ -238,21 +238,26 @@ const Template_1: React.FC<Template1Props> = ({
                 slides,
             } = response.data;
 
+            // Calculate font sizes based on content length
+            const titleFontSize = newTitle.length <= 10 ? 64 :
+                newTitle.length <= 20 ? 48 :
+                    newTitle.length <= 30 ? 36 : 32;
 
-            console.log(response.data)
+            const taglineFontSize = newTagline.length <= 20 ? 24 :
+                newTagline.length <= 40 ? 20 :
+                    newTagline.length <= 60 ? 18 : 16;
 
             setData({
                 ...data,
                 editableTopic: { ...editableTopic, label: newTopic },
-                editableTitle: { ...editableTitle, label: newTitle },
-                editableTagline: { ...editableTagline, label: newTagline },
+                editableTitle: { ...editableTitle, label: newTitle, fontSize: titleFontSize },
+                editableTagline: { ...editableTagline, label: newTagline, fontSize: taglineFontSize },
                 editableButton: { ...editableButton, label: newButton },
-                slides, // <- Store slides in state if needed
+                slides,
             });
 
         } catch (error) {
             console.error("AI Generation Error:", error);
-            // Optionally: toast.error("Failed to generate carousel content.");
         } finally {
             setLoading(false);
         }

@@ -4,7 +4,7 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight, Eye, View, Video } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -14,8 +14,56 @@ import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { toast } from "sonner";
 import CustomImage from "@/components/CustomImage";
-import { Rate, Tooltip } from "antd";
+import { Rate } from "antd";
 
+interface SocialMediaLink {
+    platform: string;
+    url: string;
+}
+
+interface Campaign {
+    _id: string;
+    title: string;
+    description: string;
+    status: string;
+    tags: string[];
+    contentType: string[];
+}
+
+interface Partnership {
+    _id: string;
+    name: string;
+    profileImage: string;
+    bio: string;
+    tags: string[];
+    user_id: string;
+    campaigns: Campaign[];
+}
+
+interface Product {
+    _id: string;
+    productName: string;
+    productLogo: string;
+    productDescription: string;
+    productLink: string;
+    loomVideoLink: string;
+    rating: number;
+    publicVisibility: boolean;
+}
+
+interface UserData {
+    profileName: string;
+    coverImage?: string;
+    profileImage?: string;
+    location?: string;
+    bio?: string;
+    tags?: string[];
+    followers?: number;
+    socialMediaLinks?: SocialMediaLink[];
+    campaigns: Campaign[];
+    products: Product[];
+    partnerships: Partnership[];
+}
 
 export default function BrandDashboard() {
     const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
@@ -24,10 +72,10 @@ export default function BrandDashboard() {
         setLoggedInUserId(JSON.parse(localStorage.getItem("user") || "{}")._id);
     }, []);
 
-    const [userData, setUserData] = useState<any>(null);
-    const [campaigns, setCampaigns] = useState<any>(null);
-    const [products, setProducts] = useState<any>(null);
-    const [partnerships, setPartnerships] = useState(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
+    const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
+    const [products, setProducts] = useState<Product[] | null>(null);
+    const [partnerships, setPartnerships] = useState<Partnership[] | null>(null);
 
     const params = useParams();
     const getBrand = async () => {
@@ -59,6 +107,10 @@ export default function BrandDashboard() {
         }
     };
 
+    const getImageUrl = (imagePath?: string) => {
+        if (!imagePath) return '';
+        return imagePath.includes('http') ? imagePath : `${process.env.NEXT_PUBLIC_SERVER_URL || ''}${imagePath}`;
+    };
 
     const tabs = [
         {
@@ -66,7 +118,7 @@ export default function BrandDashboard() {
             label: "Campaigns",
             content: (
                 <>
-                    {campaigns?.map((campaign: any, index: number) => (
+                    {campaigns?.map((campaign: Campaign, index: number) => (
                         <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
                             <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
                                 {/* Date or status if going on */}
@@ -81,10 +133,9 @@ export default function BrandDashboard() {
                                 </p>
                                 <div className="flex justify-between items-center">
                                     <div className="flex space-x-2">
-                                        {campaign
-                                            ?.tags
-                                            ?.filter((item) => item)
-                                            .map((tag, index) => (
+                                        {campaign.tags
+                                            ?.filter((tag: string) => tag)
+                                            .map((tag: string, index: number) => (
                                                 <span
                                                     key={index}
                                                     className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
@@ -94,7 +145,7 @@ export default function BrandDashboard() {
                                             ))}
                                     </div>
                                     <div className="flex space-x-2">
-                                        {campaign.contentType?.filter((item) => item).map((tag, index) => (
+                                        {campaign.contentType?.filter((tag: string) => tag).map((tag: string, index: number) => (
                                             <span
                                                 key={index}
                                                 className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
@@ -115,7 +166,7 @@ export default function BrandDashboard() {
             label: "Partnerships",
             content: (
                 <>
-                    {partnerships?.length > 0 && partnerships?.map((partnership: any, index: number) => (
+                    {partnerships && partnerships.length > 0 && partnerships.map((partnership: Partnership, index: number) => (
                         <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center space-x-4 mb-4">
@@ -189,8 +240,8 @@ export default function BrandDashboard() {
                         Product Catalogue of {userData?.profileName}
                     </h3>
 
-                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {products?.map((product: any, index: number) => {
+                    <div className="space-y-4">
+                        {products?.map((product: Product, index: number) => {
                             const productLogo = product.productLogo?.includes("http")
                                 ? product.productLogo
                                 : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo;
@@ -198,86 +249,110 @@ export default function BrandDashboard() {
                             return (
                                 <div
                                     key={index}
-                                    className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col relative"
+                                    className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
                                 >
-                                    <div className="absolute top-0 right-0">
-                                        <Button variant="primary" size="small" className="rounded-full" onClick={() => {
-                                            setShowProductModal(true);
-                                            setSelectedProduct(product);
-                                        }}>
-                                            <Eye size={16} />
-                                        </Button>
-                                    </div>
-                                    {/* Product Logo */}
-                                    <div
-                                        className="bg-gray-100 h-48 flex justify-center items-center rounded-t-2xl overflow-hidden cursor-pointer"
-                                        onClick={() => {
-                                            setShowProductModal(true);
-                                            setSelectedProduct(product);
-                                        }}
-                                    >
-
-                                        {productLogo.includes("null") || !product.productLogo ? (
-                                            <span className="text-gray-400">No Image Available</span>
-                                        ) : (
-                                            <img
-                                                loading="lazy"
-                                                src={productLogo}
-                                                alt={product.productName}
-                                                className="max-h-full max-w-full object-contain p-4"
-                                            />
-                                        )}
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="p-5 flex flex-col gap-3 text-sm text-gray-700">
-                                        <h2 className="text-xl font-semibold text-gray-800">
-                                            {product.productName}
-                                        </h2>
-                                        <p className="text-gray-600 line-clamp-3">{product.productDescription}</p>
-
-                                        {/* Quick Tags */}
-                                        <div className="flex flex-wrap gap-2 text-xs">
-                                            <span className={`px-2 py-1 rounded-full bg-${product.publicVisibility ? "green" : "red"}-100 text-${product.publicVisibility ? "green" : "red"}-700 font-medium`} style={{
-                                                backgroundColor: product.publicVisibility ? "#008000" : "#FFF",
-                                                color: product.publicVisibility ? "#FFF" : "#008000"
-
-                                            }}>
-                                                {product.publicVisibility ? "Public" : "Private"}
-                                            </span>
+                                    <div className="flex items-center p-4">
+                                        {/* Product Logo */}
+                                        <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden mr-4">
+                                            {productLogo.includes("null") || !product.productLogo ? (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                    <View size={24} />
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    loading="lazy"
+                                                    src={productLogo}
+                                                    alt={product.productName}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
                                         </div>
 
-                                    </div>
-
-                                    {/* Footer */}
-                                    <div className="px-5 pt-3 pb-4 mt-auto border-t border-gray-100">
-                                        <Tooltip title="Rate this product" placement="top" arrowPointAtCenter>
+                                        {/* Product Info */}
+                                        <div className="flex-grow">
                                             <div className="flex items-center justify-between">
-                                                <Rate
-                                                    allowHalf
-                                                    defaultValue={product.rating}
-                                                    onChange={(value) => handleRateProduct(product._id, value)}
-                                                    className="text-yellow-500"
-                                                />
-                                                <span className="text-xs text-gray-500">
-                                                    {product.ratings?.length || 0} rating(s)
+                                                <h4 className="text-lg font-semibold text-gray-900">
+                                                    {product.productName}
+                                                </h4>
+                                                <div className="flex space-x-2">
+                                                    <Button
+                                                        variant="primary"
+                                                        size="small"
+                                                        className="rounded-full"
+                                                        onClick={() => {
+                                                            setShowProductModal(true);
+                                                            setSelectedProduct(product);
+                                                        }}
+                                                    >
+                                                        <Eye size={16} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                {product.productDescription}
+                                            </p>
+
+                                            <div className="flex items-center mt-2 space-x-4">
+                                                <div className="flex items-center">
+                                                    <Rate
+                                                        allowHalf
+                                                        defaultValue={product.rating || 0}
+                                                        onChange={(value) => handleRateProduct(product._id, value)}
+                                                        className="text-sm"
+                                                    />
+                                                    <span className="text-sm text-gray-500 ml-2">
+                                                        {product.rating?.toFixed(1) || "Not rated"}
+                                                    </span>
+                                                </div>
+                                                <span
+                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${product.publicVisibility
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
+                                                        }`}
+                                                >
+                                                    {product.publicVisibility ? "Public" : "Private"}
                                                 </span>
                                             </div>
-                                        </Tooltip>
+
+                                            {/* Links */}
+                                            <div className="flex items-center mt-3 space-x-4">
+                                                {product.productLink && (
+                                                    <a
+                                                        href={product.productLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 hover:underline flex items-center"
+                                                    >
+                                                        <View size={14} className="mr-1" />
+                                                        View Product
+                                                    </a>
+                                                )}
+                                                {product.loomVideoLink && (
+                                                    <a
+                                                        href={product.loomVideoLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 hover:underline flex items-center"
+                                                    >
+                                                        <Video size={14} className="mr-1" />
+                                                        Watch Demo
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
-            )
-
-
-        }
+            ),
+        },
     ].filter(Boolean);
 
     const [showProductModal, setShowProductModal] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
 
     const followBrand = async () => {
@@ -285,13 +360,19 @@ export default function BrandDashboard() {
             const res = await api.get("/users/follow-brand/" + params.id);
             toast.success(res.data.message, {
                 position: "top-right",
-                description: "You are now following this brand",
             });
             getBrand();
         } catch (error) {
             console.log(error);
         }
     }
+
+    const formatFollowers = (count?: number) => {
+        if (!count) return '0';
+        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+        if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+        return count.toString();
+    };
 
     return (
         <div className="flex flex-col sm:flex-row w-full">
@@ -303,19 +384,33 @@ export default function BrandDashboard() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
                         <div className="relative">
                             {/* Cover Image */}
-                            <div className="relative w-full h-48 sm:h-72">
-                                <CustomImage loading="lazy" src={userData?.coverImage?.includes("http")
-                                    ? userData?.coverImage
-                                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage} alt="Cover" className="w-full h-full object-cover rounded-md" />
-                            </div>
+                            {userData?.coverImage && (
+                                <div className="relative h-64 w-full">
+                                    <img
+                                        src={getImageUrl(userData.coverImage)}
+                                        alt="Cover"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            )}
 
                             {/* Profile Section */}
                             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                                     <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        <CustomImage loading="lazy" src={userData?.profileImage?.includes("http")
-                                            ? userData?.profileImage
-                                            : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                        {userData?.profileImage && (
+                                            <div className="relative -mt-16 px-4 sm:px-6 lg:px-8">
+                                                <div className="mx-auto max-w-7xl">
+                                                    <div className="flex items-center">
+                                                        <img
+                                                            src={getImageUrl(userData.profileImage)}
+                                                            alt="Profile"
+                                                            className="h-32 w-32 rounded-full border-4 border-white bg-white"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Name and Socials */}
@@ -328,17 +423,16 @@ export default function BrandDashboard() {
                                                 {userData?.location}
                                             </h4>}
                                         <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
-                                            {
-                                                userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
-                                                    <a key={index} href={link.link} target="_blank" rel="noreferrer">
-                                                        <img loading="lazy"
-                                                            src={`/icons/${link.platform}.svg`}
-                                                            alt={link.platform}
-                                                            className="w-6 h-6"
-                                                        />
-                                                    </a>
-                                                ))
-                                            }
+                                            {userData?.socialMediaLinks?.filter((link: SocialMediaLink) => link.url).map((link: SocialMediaLink, index: number) => (
+                                                <a key={index} href={link.url} target="_blank" rel="noreferrer">
+                                                    <img
+                                                        loading="lazy"
+                                                        src={`/icons/${link.platform}.svg`}
+                                                        alt={link.platform}
+                                                        className="w-5 h-5"
+                                                    />
+                                                </a>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -360,7 +454,7 @@ export default function BrandDashboard() {
 
                         {/* Tags */}
                         <div className="mt-4 flex flex-wrap gap-2">
-                            {userData?.tags.map((tag: string, index: number) => (
+                            {userData?.tags?.map((tag: string, index: number) => (
                                 <span key={index} className="font-bold inline-block border-[1px] border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm">
                                     {tag}
                                 </span>
@@ -402,7 +496,7 @@ export default function BrandDashboard() {
                             </div>
                             <div key={5} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
                                 <h1 className="text-lg font-semibold">
-                                    {userData?.followers?.length || 0}
+                                    {formatFollowers(userData?.followers)}
                                 </h1>
                                 <p className="text-gray-600">
                                     Followers
@@ -421,6 +515,5 @@ export default function BrandDashboard() {
                 </div>
             </div>
         </div>
-
     );
 }

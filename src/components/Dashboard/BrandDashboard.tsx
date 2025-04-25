@@ -12,6 +12,7 @@ import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
 import ShowProductModal from "./ShowProductModal";
+import EditProductModal from "./EditProductModal";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
@@ -33,6 +34,8 @@ export default function BrandDashboard({
   const [products, setProducts] = useState<any>(null);
   const [partnerships, setPartnerships] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const getBrand = async () => {
     setLoading(true);
@@ -178,8 +181,8 @@ export default function BrandDashboard({
       label: "Products",
       content: (
         <div className="mt-10 px-4 md:px-8">
-          <div className="flex justify-between items-center">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-3xl font-bold text-gray-900">
               Product Catalogue of {userData?.profileName}
             </h3>
 
@@ -195,10 +198,8 @@ export default function BrandDashboard({
             </div>
           </div>
 
-
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="space-y-4">
             {products?.map((product: any, index: number) => {
-              console.log(product);
               const productLogo = product.productLogo?.includes("http")
                 ? product.productLogo
                 : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo;
@@ -206,66 +207,104 @@ export default function BrandDashboard({
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col relative"
+                  className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
                 >
-                  <div className="absolute top-0 right-0">
-                    <Button variant="primary" size="small" className="rounded-full" onClick={() => {
-                      setShowProductModal(true);
-                      setSelectedProduct(product);
-                    }}>
-                      <Eye size={16} />
-                    </Button>
-                  </div>
-                  {/* Product Logo */}
-                  <div
-                    className="bg-gray-100 h-48 flex justify-center items-center rounded-t-2xl overflow-hidden cursor-pointer"
-                    onClick={() => {
-                      setShowProductModal(true);
-                      setSelectedProduct(product);
-                    }}
-                  >
-
-                    {productLogo.includes("null") || !product.productLogo ? (
-                      <span className="text-gray-400">No Image Available</span>
-                    ) : (
-                      <img
-                        loading="lazy"
-                        src={productLogo}
-                        alt={product.productName}
-                        className="max-h-full max-w-full object-contain p-4"
-                      />
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5 flex flex-col gap-3 text-sm text-gray-700">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                      {product.productName}
-                    </h2>
-                    <p className="text-gray-600 line-clamp-3">{product.productDescription}</p>
-
-                    {/* Quick Tags */}
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className={`px-2 py-1 rounded-full bg-${product.publicVisibility ? "green" : "red"}-100 text-${product.publicVisibility ? "green" : "red"}-700 font-medium`} style={{
-                        backgroundColor: product.publicVisibility ? "#008000" : "#FFF",
-                        color: product.publicVisibility ? "#FFF" : "#008000"
-
-                      }}>
-                        {product.publicVisibility ? "Public" : "Private"}
-                      </span>
+                  <div className="flex items-center p-4">
+                    {/* Product Logo */}
+                    <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden mr-4">
+                      {productLogo.includes("null") || !product.productLogo ? (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <Image size={24} />
+                        </div>
+                      ) : (
+                        <img
+                          loading="lazy"
+                          src={productLogo}
+                          alt={product.productName}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
-                  </div>
 
-                  {/* Footer */}
-                  <div className="px-5 pt-3 pb-4 mt-auto border-t border-gray-100">
-                    <Tooltip title="Rate this product" placement="top" arrowPointAtCenter>
+                    {/* Product Info */}
+                    <div className="flex-grow">
                       <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold text-gray-900">
+                          {product.productName}
+                        </h4>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="primary"
+                            size="small"
+                            className="rounded-full"
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setEditModal(true);
+                            }}
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="small"
+                            className="rounded-full"
+                            onClick={() => {
+                              setShowProductModal(true);
+                              setSelectedProduct(product);
+                            }}
+                          >
+                            <Eye size={16} />
+                          </Button>
+                        </div>
+                      </div>
 
-                        <span className="text-xs text-gray-500">
-                          {product.ratings?.length || 0} rating(s)
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {product.productDescription}
+                      </p>
+
+                      <div className="flex items-center mt-2 space-x-4">
+                        <div className="flex items-center">
+                          <Rate disabled allowHalf defaultValue={product.rating || 0} className="text-sm" />
+                          <span className="text-sm text-gray-500 ml-2">
+                            {product.rating?.toFixed(1) || "Not rated"}
+                          </span>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${product.publicVisibility
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {product.publicVisibility ? "Public" : "Private"}
                         </span>
                       </div>
-                    </Tooltip>
+
+                      {/* Links */}
+                      <div className="flex items-center mt-3 space-x-4">
+                        {product.productLink && (
+                          <a
+                            href={product.productLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline flex items-center"
+                          >
+                            <View size={14} className="mr-1" />
+                            View Product
+                          </a>
+                        )}
+                        {product.loomVideoLink && (
+                          <a
+                            href={product.loomVideoLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline flex items-center"
+                          >
+                            <Video size={14} className="mr-1" />
+                            Watch Demo
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
@@ -524,7 +563,6 @@ export default function BrandDashboard({
 
   const [modal, setModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
 
   const userFileInputRef = useRef(null);
@@ -557,12 +595,21 @@ export default function BrandDashboard({
     }
   }
 
+  const handleProductUpdated = () => {
+    getBrand(); // Refresh the products list
+  };
 
   return (
     <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8">
       {createCampaign()}
       <AddProductModal modal={modal} setModal={setModal} />
       <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
+      <EditProductModal
+        modal={editModal}
+        setModal={setEditModal}
+        product={selectedProduct}
+        onProductUpdated={handleProductUpdated}
+      />
       <LoadingOverlay loading={loading} />
       <div
         style={{

@@ -127,10 +127,6 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
             </div>
         );
     };
-
-
-
-
     const campaignAbout = () => {
         return (
             <>
@@ -171,7 +167,6 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
             </>
         )
     }
-
     const campaignCreators = () => {
         return (
             <div className="mt-4">
@@ -183,7 +178,6 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
             </div>
         )
     }
-
     const campaignContent = () => {
         return (
             <div className="mt-4">
