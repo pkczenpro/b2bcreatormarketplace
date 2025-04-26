@@ -62,7 +62,7 @@ export default function CreatorDashboard() {
                 onCancel={() => setShowImageInPopup(false)}
                 footer={null}
             >
-                <img src={image} alt="Image" className="w-full h-full object-contain" />
+                <img src={image} alt="Image" className="w-full h-full object-cover" />
             </Modal>
         )
     }
@@ -300,7 +300,7 @@ export default function CreatorDashboard() {
                                                 : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
                                         }
                                         alt="Cover"
-                                        className="w-full h-full object-contain rounded-md"
+                                        className="w-full h-full object-cover rounded-md"
                                     />
                                 </div>
 

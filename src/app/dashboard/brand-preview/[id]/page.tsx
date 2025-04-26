@@ -392,7 +392,7 @@ export default function BrandDashboard() {
                                     <img
                                         src={getImageUrl(userData.coverImage)}
                                         alt="Cover"
-                                        className="w-full h-full object-contain"
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                             )}

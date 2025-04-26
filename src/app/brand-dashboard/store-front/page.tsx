@@ -159,7 +159,7 @@ export default function StoreFront({ }: DashboardProps) {
                     <img loading="lazy"
                       src="/images/wallpaper.png"
                       alt="Cover"
-                      className="w-full h-full object-contain rounded-md"
+                      className="w-full h-full object-cover rounded-md"
                     />
                   </div>
 

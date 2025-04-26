@@ -94,7 +94,7 @@ export default function ShowProductModal({
                                     : `${process.env.NEXT_PUBLIC_SERVER_URL}${product.productLogo}`
                             }
                             alt={product.productName}
-                            className="h-48 object-contain"
+                            className="h-48 object-cover"
                         /> : <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <ImageIcon size={24} />
                         </div>}
