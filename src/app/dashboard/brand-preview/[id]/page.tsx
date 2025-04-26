@@ -124,7 +124,7 @@ export default function BrandDashboard() {
                             <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
                                 {/* Date or status if going on */}
                                 <span className="text-md font-bold text-success-500 rounded-sm">
-                                    {campaign.status}
+                                    {campaign.status ? "Active" : "Inactive"}
                                 </span>
                                 <h3 className="text-h5 font-bold text-left mb-1">
                                     {campaign.title}

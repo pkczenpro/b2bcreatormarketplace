@@ -153,7 +153,7 @@ export default function BrandDashboard({
 
               {/* Campaign Content */}
               <span className="text-md font-bold text-success-500 rounded-sm">
-                {campaign.status}
+                {campaign.status ? "Active" : "Inactive"}
               </span>
               <h3 className="text-h5 font-bold text-left mb-1">
                 {campaign.title}
