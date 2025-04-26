@@ -179,10 +179,7 @@ export default function Dashboard() {
                                 render: (_, record) => (
                                     <div className="flex flex-col gap-2">
                                         <Link href={`/dashboard/brand-preview/${record._id}`}>
-                                            <Button className="bg-black text-white w-full">View Campaigns</Button>
-                                        </Link>
-                                        <Link href={`/dashboard/store-front`}>
-                                            <Button className="border border-gray-400 w-full">I'm Interested</Button>
+                                            <Button size="small" className="bg-black text-white w-full">View Campaigns</Button>
                                         </Link>
                                     </div>
                                 ),
@@ -270,30 +267,6 @@ const BrandFilters = ({
                     </select>
                 </div>
             </div>
-
-            {/* Toggle Buttons */}
-            <div className="flex flex-wrap gap-4">
-                {/* <ToggleCard
-                    label="Social Media Linked"
-                    icon={<Share2 className="w-4 h-4" />}
-                    active={filters.socialMediaLinked}
-                    onClick={() => handleChange("socialMediaLinked", !filters.socialMediaLinked)}
-                /> */}
-                {/* Future filters like Verified or Active Campaigns can be added here */}
-            </div>
         </div>
     );
 };
-
-const ToggleCard = ({ label, icon, active, onClick }) => {
-    return (
-        <button
-            onClick={onClick}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm transition
-        ${active ? "bg-blue-100 border-blue-500 text-blue-700" : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50"}`}
-        >
-            {icon}
-            {label}
-        </button>
-    );
-}

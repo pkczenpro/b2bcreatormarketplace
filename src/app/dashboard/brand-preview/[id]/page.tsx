@@ -4,7 +4,7 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Eye, View, Video } from "lucide-react";
+import { ArrowRight, Eye, View, Video, Image } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -28,6 +28,7 @@ interface Campaign {
     status: string;
     tags: string[];
     contentType: string[];
+    visibility: boolean;
 }
 
 interface Partnership {
@@ -118,7 +119,7 @@ export default function BrandDashboard() {
             label: "Campaigns",
             content: (
                 <>
-                    {campaigns?.map((campaign: Campaign, index: number) => (
+                    {campaigns?.filter((campaign: Campaign) => campaign.visibility).map((campaign: Campaign, index: number) => (
                         <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
                             <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
                                 {/* Date or status if going on */}
@@ -235,7 +236,7 @@ export default function BrandDashboard() {
             id: 3,
             label: "Products",
             content: (
-                <div className="mt-10 px-4 md:px-8">
+                <div className="mt-10">
                     <h3 className="text-3xl font-bold text-gray-900 mb-8">
                         Product Catalogue of {userData?.profileName}
                     </h3>
@@ -245,6 +246,8 @@ export default function BrandDashboard() {
                             const productLogo = product.productLogo?.includes("http")
                                 ? product.productLogo
                                 : process.env.NEXT_PUBLIC_SERVER_URL + product.productLogo;
+
+
 
                             return (
                                 <div
@@ -256,12 +259,12 @@ export default function BrandDashboard() {
                                         <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden mr-4">
                                             {productLogo.includes("null") || !product.productLogo ? (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                    <View size={24} />
+                                                    <Image size={24} />
                                                 </div>
                                             ) : (
                                                 <img
                                                     loading="lazy"
-                                                    src={productLogo}
+                                                    src={productLogo || "/images/product.png"}
                                                     alt={product.productName}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -371,7 +374,7 @@ export default function BrandDashboard() {
         if (!count) return '0';
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
         if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-        return count.toString();
+        return count.toString() || "0";
     };
 
     return (
@@ -380,12 +383,12 @@ export default function BrandDashboard() {
             <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8 w-full overflow-y-auto max-h-screen">
                 <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
 
-                <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
+                <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
                         <div className="relative">
                             {/* Cover Image */}
                             {userData?.coverImage && (
-                                <div className="relative h-64 w-full">
+                                <div className="relative h-64 w-full z-0">
                                     <img
                                         src={getImageUrl(userData.coverImage)}
                                         alt="Cover"
@@ -395,57 +398,59 @@ export default function BrandDashboard() {
                             )}
 
                             {/* Profile Section */}
-                            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-85px] px-4 sm:px-12">
-                                <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
-                                    <div className="w-24 sm:w-40 rounded-sm overflow-hidden">
-                                        {userData?.profileImage && (
-                                            <div className="relative -mt-16 px-4 sm:px-6 lg:px-8">
-                                                <div className="mx-auto max-w-7xl">
-                                                    <div className="flex items-center">
-                                                        <img
-                                                            src={getImageUrl(userData.profileImage)}
-                                                            alt="Profile"
-                                                            className="h-32 w-32 rounded-full border-4 border-white bg-white"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="absolute bottom-[-50px] sm:bottom-[-85px] w-full flex flex-col sm:flex-row items-center sm:items-end justify-between px-4 sm:px-12">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left space-x-0 sm:space-x-4">
+
+                                    {/* Profile Image */}
+                                    {userData?.profileImage && (
+                                        <div className="relative z-50">
+                                            <img
+                                                src={getImageUrl(userData.profileImage)}
+                                                alt="Profile"
+                                                className="h-32 w-32"
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Name and Socials */}
                                     <div className="mt-3 sm:mt-0">
-                                        {userData?.profileName && <h2 className="text-xl sm:text-2xl font-semibold">
-                                            {userData?.profileName}
-                                        </h2>}
-                                        {userData?.location != "undefined" && userData?.location &&
-                                            <h4 className="text-gray-500 text-sm">
-                                                {userData?.location}
-                                            </h4>}
+                                        {userData?.profileName && (
+                                            <h2 className="text-xl sm:text-2xl font-semibold">
+                                                {userData.profileName}
+                                            </h2>
+                                        )}
+                                        {userData?.location !== "undefined" && userData?.location && (
+                                            <h4 className="text-gray-500 text-sm">{userData.location}</h4>
+                                        )}
                                         <div className="flex justify-center sm:justify-start space-x-3 mt-1 text-gray-500">
-                                            {userData?.socialMediaLinks?.filter((link: SocialMediaLink) => link.url).map((link: SocialMediaLink, index: number) => (
-                                                <a key={index} href={link.url} target="_blank" rel="noreferrer">
-                                                    <img
-                                                        loading="lazy"
-                                                        src={`/icons/${link.platform}.svg`}
-                                                        alt={link.platform}
-                                                        className="w-5 h-5"
-                                                    />
-                                                </a>
-                                            ))}
+                                            {userData?.socialMediaLinks
+                                                ?.filter((link: SocialMediaLink) => link.url)
+                                                .map((link: SocialMediaLink, index: number) => (
+                                                    <a key={index} href={link.url} target="_blank" rel="noreferrer">
+                                                        <img
+                                                            loading="lazy"
+                                                            src={`/icons/${link.platform}.svg`}
+                                                            alt={link.platform}
+                                                            className="w-5 h-5"
+                                                        />
+                                                    </a>
+                                                ))}
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Follow Button */}
                                 <Button
                                     onClick={followBrand}
                                     size="small"
                                     variant={userData?.followers.includes(loggedInUserId) ? "outline" : "primary"}
-                                    className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]">
+                                    className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]"
+                                >
                                     {userData?.followers.includes(loggedInUserId) ? "Following" : "Follow"}
                                 </Button>
                             </div>
                         </div>
+
 
                         {/* Bio */}
                         <p className="mt-20 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">

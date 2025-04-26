@@ -268,7 +268,7 @@ export default function Inbox() {
                         onChange={(value) => setSelectedCampaign(value)}
                         value={selectedCampaign}
                     >
-                        {campaigns.map((campaign, index) => (
+                        {campaigns.filter((campaign) => campaign.visibility).map((campaign, index) => (
                             <Option key={index} value={campaign._id}>{campaign.title}</Option>
                         ))}
                     </Select>
@@ -303,6 +303,7 @@ export default function Inbox() {
                     description: `${creator.name} has been added to Campaign` + res.data.title,
                 })
                 setAddToCampaign(false);
+                setSelectedCampaign(null);
             }
             catch (ex) {
                 console.log(ex)

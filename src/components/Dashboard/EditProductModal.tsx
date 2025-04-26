@@ -49,6 +49,12 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
         resources: [],
     });
 
+    const [filesToDelete, setFilesToDelete] = useState<{
+        productLogo?: string;
+        productImages?: string[];
+        resources?: string[];
+    }>({});
+
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -100,6 +106,17 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
         setLoading(true);
         const formDataToSend = new FormData();
 
+        // Add files to delete
+        if (filesToDelete.productLogo) {
+            formDataToSend.append('productLogo', '');
+        }
+        if (filesToDelete.productImages?.length) {
+            formDataToSend.append('productImages', formData.productImages.filter((file) => !filesToDelete.productImages?.includes(file)));
+        }
+        if (filesToDelete.resources?.length) {
+            formDataToSend.append('resources', formData.resources.filter((file) => !filesToDelete.resources?.includes(file)));
+        }
+
         Object.entries(formData).forEach(([key, value]) => {
             if (key === "productImages") {
                 (value as File[]).forEach((file) => formDataToSend.append("productImages", file));
@@ -124,6 +141,37 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
             message.error("Failed to update product!");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteFile = (type: 'productLogo' | 'productImages' | 'resources', fileUrl?: string, index?: number) => {
+        if (type === 'productLogo' && product?.productLogo) {
+            setFilesToDelete(prev => ({
+                ...prev,
+                productLogo: product.productLogo
+            }));
+            setFormData(prev => ({
+                ...prev,
+                productLogo: null
+            }));
+        } else if (type === 'productImages' && fileUrl && index !== undefined) {
+            setFilesToDelete(prev => ({
+                ...prev,
+                productImages: [...(prev.productImages || []), fileUrl]
+            }));
+            setFormData(prev => ({
+                ...prev,
+                productImages: prev.productImages.filter((_, i) => i !== index)
+            }));
+        } else if (type === 'resources' && fileUrl && index !== undefined) {
+            setFilesToDelete(prev => ({
+                ...prev,
+                resources: [...(prev.resources || []), fileUrl]
+            }));
+            setFormData(prev => ({
+                ...prev,
+                resources: prev.resources.filter((_, i) => i !== index)
+            }));
         }
     };
 
@@ -212,9 +260,18 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
                                 <label className="font-medium">
                                     Product Logo <span className="text-red-500">*</span>
                                 </label>
-                                {product?.productLogo && (
-                                    <div className="mb-2">
+                                {product?.productLogo && !filesToDelete.productLogo && (
+                                    <div className="mb-2 relative group">
                                         {renderFilePreview(product.productLogo)}
+                                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                            <Button
+                                                type="text"
+                                                danger
+                                                onClick={() => handleDeleteFile('productLogo')}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                                 <CustomInput type="file" onChange={(e) => handleFileChange("productLogo", e)} name="productLogo" />
@@ -265,9 +322,20 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
                                 {product?.productImages?.length > 0 && (
                                     <div className="grid grid-cols-3 gap-2 mb-2">
                                         {product.productImages.map((image: string, index: number) => (
-                                            <div key={index}>
-                                                {renderFilePreview(image)}
-                                            </div>
+                                            !filesToDelete.productImages?.includes(image) && (
+                                                <div key={index} className="relative group">
+                                                    {renderFilePreview(image)}
+                                                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                                        <Button
+                                                            type="text"
+                                                            danger
+                                                            onClick={() => handleDeleteFile('productImages', image, index)}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )
                                         ))}
                                     </div>
                                 )}
@@ -383,9 +451,20 @@ export default function EditProductModal({ modal, setModal, product, onProductUp
                                 {product?.resources?.length > 0 && (
                                     <div className="grid grid-cols-1 gap-2 mb-2">
                                         {product.resources.map((resource: string, index: number) => (
-                                            <div key={index}>
-                                                {renderFilePreview(resource)}
-                                            </div>
+                                            !filesToDelete.resources?.includes(resource) && (
+                                                <div key={index} className="relative group">
+                                                    {renderFilePreview(resource)}
+                                                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                                        <Button
+                                                            type="text"
+                                                            danger
+                                                            onClick={() => handleDeleteFile('resources', resource, index)}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )
                                         ))}
                                     </div>
                                 )}

@@ -46,6 +46,10 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
     resources: [],
   });
 
+  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(null);
+  const [productImagesPreview, setProductImagesPreview] = useState<string[]>([]);
+  const [resourcesPreview, setResourcesPreview] = useState<string[]>([]);
+
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -66,11 +70,61 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
         ...prevData,
         productImages: [...prevData.productImages, ...Array.from(files)],
       }));
-    } else {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProductImagesPreview(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    } else if (name === "productLogo") {
       setFormData((prevData) => ({
         ...prevData,
         [name]: files[0],
       }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(files[0]);
+    } else if (name === "resources") {
+      setFormData((prevData) => ({
+        ...prevData,
+        resources: [...prevData.resources, ...Array.from(files)],
+      }));
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setResourcesPreview(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeFile = (field: string, index?: number) => {
+    switch (field) {
+      case "productImages":
+        setFormData(prev => ({
+          ...prev,
+          productImages: prev.productImages.filter((_, i) => i !== index)
+        }));
+        setProductImagesPreview(prev => prev.filter((_, i) => i !== index));
+        break;
+      case "productLogo":
+        setFormData(prev => ({
+          ...prev,
+          productLogo: null
+        }));
+        setProductLogoPreview(null);
+        break;
+      case "resources":
+        setFormData(prev => ({
+          ...prev,
+          resources: prev.resources.filter((_, i) => i !== index)
+        }));
+        setResourcesPreview(prev => prev.filter((_, i) => i !== index));
+        break;
     }
   };
 
@@ -165,6 +219,24 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
                 <label className="font-medium">
                   Product Logo <span className="text-red-500">*</span>
                 </label>
+                {productLogoPreview && (
+                  <div className="mb-2 relative group">
+                    <img
+                      src={productLogoPreview}
+                      alt="Product Logo Preview"
+                      className="w-24 h-24 object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => removeFile("productLogo")}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <CustomInput type="file" onChange={(e) => handleFileChange("productLogo", e)} name="productLogo" />
                 <p className="text-xs text-neutral-500">Recommended size: 200x200px</p>
               </div>
@@ -210,28 +282,22 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
 
               <div className="flex flex-col space-y-2">
                 <label className="font-medium">Product Images</label>
-                <CustomInput type="file" multiple name="productImages" onChange={(e) => handleFileChange("productImages", e)} />
-                <p className="text-xs text-neutral-500">Upload multiple images to showcase your product</p>
-                {formData.productImages.length > 0 && (
+                <CustomInput type="file" multiple onChange={(e) => handleFileChange("productImages", e)} name="productImages" />
+                <p className="text-xs text-neutral-500">Upload multiple product images</p>
+                {productImagesPreview.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
-                    {formData.productImages.map((file, index) => (
+                    {productImagesPreview.map((preview, index) => (
                       <div key={index} className="relative group">
                         <img
-                          loading="lazy"
-                          src={URL.createObjectURL(file)}
-                          alt="Product Image"
-                          className="w-full h-24 object-cover rounded-md"
+                          src={preview}
+                          alt={`Product Image ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                           <Button
                             type="text"
                             danger
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                productImages: prev.productImages.filter((_, i) => i !== index),
-                              }));
-                            }}
+                            onClick={() => removeFile("productImages", index)}
                           >
                             Remove
                           </Button>
@@ -321,24 +387,19 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
                 <label className="font-medium">Resources</label>
                 <CustomInput type="file" multiple name="resources" onChange={(e) => handleFileChange("resources", e)} />
                 <p className="text-xs text-neutral-500">Upload additional resources like PDFs, docs, etc.</p>
-                {formData.resources.length > 0 && (
+                {resourcesPreview.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
-                    {formData.resources.map((file, index) => (
+                    {resourcesPreview.map((preview, index) => (
                       <div key={index} className="border rounded-md p-2 group relative">
                         <div className="flex items-center space-x-2">
                           <FaLink className="text-neutral-400" />
-                          <p className="text-sm text-neutral-600 truncate">{file.name}</p>
+                          <p className="text-sm text-neutral-600 truncate">{formData.resources[index].name}</p>
                         </div>
                         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
                           <Button
                             type="text"
                             danger
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                resources: prev.resources.filter((_, i) => i !== index),
-                              }));
-                            }}
+                            onClick={() => removeFile("resources", index)}
                           >
                             Remove
                           </Button>

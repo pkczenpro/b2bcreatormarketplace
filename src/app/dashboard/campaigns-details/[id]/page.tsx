@@ -48,9 +48,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
     const [campaign, setCampaign] = React.useState(null);
     const getCampaign = async () => {
-        try {
+    try {
             const res = await api.get("/campaigns/" + id);
-
             setCampaign(res.data);
         } catch (e) {
             console.log("Error fetching campaign:", e);

@@ -45,7 +45,7 @@ const LoginForm = ({ userType }: LoginFormProps) => {
                 password: inputs.password,
                 userType,
             });
-            if (response.status === 200) {                
+            if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('userType', response.data.user.userType); // temp
@@ -91,7 +91,7 @@ const LoginForm = ({ userType }: LoginFormProps) => {
 
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${userType}`;
 
-       window.location.href = googleAuthUrl; // Redirect to Google login
+        window.location.href = googleAuthUrl; // Redirect to Google login
     };
 
     return (

@@ -4,10 +4,10 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Check, Eye, Image, Mic, Pencil, Plus, Text, Upload, Video, View } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Eye, Image, Mic, Pencil, Plus, Text, Trash, Upload, Video, View } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate } from "antd";
+import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate, Popconfirm } from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import LoadingOverlay from "../LoadingOverlay/LoadingOverlay";
 import CustomImage from "../CustomImage";
 import { get } from "http";
+import { FaLink } from "react-icons/fa";
+import { message } from "antd";
 
 type BrandDashboardProps = {
   isPreview: boolean;
@@ -36,6 +38,16 @@ export default function BrandDashboard({
   const [loading, setLoading] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
+  const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [selectedProductLogo, setSelectedProductLogo] = useState<File | null>(null);
+  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(null);
+  const [selectedProductImages, setSelectedProductImages] = useState<File[]>([]);
+  const [productImagesPreview, setProductImagesPreview] = useState<string[]>([]);
+  const [selectedResources, setSelectedResources] = useState<File[]>([]);
+  const [resourcesPreview, setResourcesPreview] = useState<string[]>([]);
 
   const getBrand = async () => {
     setLoading(true);
@@ -55,10 +67,34 @@ export default function BrandDashboard({
     }
   }
 
+  const updateCampaignStatus = async (campaignId: string, status: boolean) => {
+    try {
+      await api.put(`/campaigns/${campaignId}/hide`, { status });
+      setCampaigns((prev: any) =>
+        prev.map((campaign: any) =>
+          campaign._id === campaignId ? { ...campaign, visibility: status } : campaign
+        )
+      );
+      message.success(`Campaign ${status ? 'activated' : 'deactivated'} successfully!`);
+    } catch (error) {
+      console.error('Error updating campaign status:', error);
+      message.error('Failed to update campaign status');
+    }
+  };
+
+  const deleteCampaign = async (campaignId: string) => {
+    try {
+      await api.delete(`/campaigns/${campaignId}`);
+      setCampaigns((prev: any) => prev.filter((campaign: any) => campaign._id !== campaignId));
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      message.error('Failed to delete campaign');
+    }
+  };
+
   React.useEffect(() => {
     getBrand();
   }, []);
-
 
   const tabs = [
     {
@@ -67,42 +103,88 @@ export default function BrandDashboard({
       content: (
         <>
           {campaigns?.map((campaign: any, index: number) => (
-            <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
-              <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
-                {/* Date or status if going on */}
-                <span className="text-md font-bold text-success-500 rounded-sm">
-                  {campaign.status}
-                </span>
-                <h3 className="text-h5 font-bold text-left mb-1">
-                  {campaign.title}
-                </h3>
-                <p className="text-neutral-600 text-left mb-6">
-                  {campaign.description}
-                </p>
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    {campaign?.tags?.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex space-x-2">
-                    {campaign.contentType.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+            <div
+              key={index}
+              className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md cursor-pointer"
+            >
+
+
+              {/* Status Switch */}
+              <div className="absolute top-2 right-2 flex items-center gap-4 p-2">
+                {/* Status Switch */}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={campaign.visibility === true}
+                    onChange={(checked: boolean) => {
+                      updateCampaignStatus(campaign._id, checked);
+                    }}
+                    className="data-[state=checked]:bg-primary-500"
+                  />
+                  <p className="text-xs font-medium text-neutral-700">
+                    {campaign.visibility ? "Active" : "Inactive"}
+                  </p>
+                </div>
+                {/* External Link Icon */}
+                <Tooltip title="View Campaign">
+                  <Link
+                    href={`/dashboard/campaigns-details/${campaign._id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className=" text-neutral-400 hover:text-primary-500 transition-colors"
+                  >
+                    <ExternalLink size={18} />
+                  </Link>
+                </Tooltip>
+
+                {/* Delete Campaign */}
+                <Tooltip title="Delete Campaign">
+
+                  <Popconfirm
+                    title="Are you sure you want to delete this campaign?"
+                    onConfirm={() => deleteCampaign(campaign._id)}
+                  >
+                    <Trash size={18}
+                      className="text-neutral-400 hover:text-primary-500 transition-colors"
+                    />
+
+                  </Popconfirm>
+                </Tooltip>
+              </div>
+
+
+              {/* Campaign Content */}
+              <span className="text-md font-bold text-success-500 rounded-sm">
+                {campaign.status}
+              </span>
+              <h3 className="text-h5 font-bold text-left mb-1">
+                {campaign.title}
+              </h3>
+              <p className="text-neutral-600 text-left mb-6">
+                {campaign.description}
+              </p>
+
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
+                  {campaign?.tags?.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  {campaign?.contentType?.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </>
       ),
@@ -180,7 +262,7 @@ export default function BrandDashboard({
       id: 3,
       label: "Products",
       content: (
-        <div className="mt-10 px-4 md:px-8">
+        <div className="mt-10">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-3xl font-bold text-gray-900">
               Product Catalogue of {userData?.profileName}
@@ -354,7 +436,7 @@ export default function BrandDashboard({
       const res = await api.post("/campaigns", formData);
       console.log(res.data);
       setVisible(false);
-      getCampaigns();
+      getBrand();
     }
     catch (error) {
       console.log(error);
@@ -444,7 +526,7 @@ export default function BrandDashboard({
                 Content Type
               </label>
               <Select
-                value={formData.contentType}
+                value={formData.contentType == "" ? null : formData.contentType}
                 onChange={handleSelectChange}
                 style={{ width: "100%" }}
                 className="mt-1"
@@ -568,32 +650,95 @@ export default function BrandDashboard({
   const userFileInputRef = useRef(null);
   const userFileInputRef2 = useRef(null);
 
-  const handleUserFilesChange = (event, field) => {
-    const file = event.target.files[0];
+  const handleUserFilesChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = event.target.files?.[0];
     if (file) {
-      updateUserImages(field, file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        switch (field) {
+          case "profileImage":
+            setSelectedProfileFile(file);
+            setProfilePreview(reader.result as string);
+            break;
+          case "coverImage":
+            setSelectedCoverFile(file);
+            setCoverPreview(reader.result as string);
+            break;
+          case "productLogo":
+            setSelectedProductLogo(file);
+            setProductLogoPreview(reader.result as string);
+            break;
+          case "productImages":
+            const files = Array.from(event.target.files || []);
+            setSelectedProductImages(prev => [...prev, ...files]);
+            files.forEach(file => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setProductImagesPreview(prev => [...prev, reader.result as string]);
+              };
+              reader.readAsDataURL(file);
+            });
+            break;
+          case "resources":
+            const resourceFiles = Array.from(event.target.files || []);
+            setSelectedResources(prev => [...prev, ...resourceFiles]);
+            resourceFiles.forEach(file => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setResourcesPreview(prev => [...prev, reader.result as string]);
+              };
+              reader.readAsDataURL(file);
+            });
+            break;
+        }
+      };
+      reader.readAsDataURL(file);
     }
-    event.target.value = null;
   };
 
-  const updateUserImages = async (field: string, image: File) => {
+  const updateUserImages = async (field: string, file: File) => {
     const formData = new FormData();
-    formData.append(field, image);
+    formData.append(field, file);
 
     try {
       const res = await api.put(`/users/user-update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-
       if (res.data.success) {
-        // toast.success(res.data.message, { position: "top-center" });
         getBrand();
+        switch (field) {
+          case "profileImage":
+            setSelectedProfileFile(null);
+            setProfilePreview(null);
+            break;
+          case "coverImage":
+            setSelectedCoverFile(null);
+            setCoverPreview(null);
+            break;
+          case "productLogo":
+            setSelectedProductLogo(null);
+            setProductLogoPreview(null);
+            break;
+        }
       }
     } catch (err) {
-      console.error("Error in updateUserImages:", err.response?.data || err.message);
+      console.error("Error in updateUserImages:", err);
     }
-  }
+  };
+
+  const removeFile = (field: string, index?: number) => {
+    switch (field) {
+      case "productImages":
+        setSelectedProductImages(prev => prev.filter((_, i) => i !== index));
+        setProductImagesPreview(prev => prev.filter((_, i) => i !== index));
+        break;
+      case "resources":
+        setSelectedResources(prev => prev.filter((_, i) => i !== index));
+        setResourcesPreview(prev => prev.filter((_, i) => i !== index));
+        break;
+    }
+  };
 
   const handleProductUpdated = () => {
     getBrand(); // Refresh the products list
@@ -620,14 +765,11 @@ export default function BrandDashboard({
           <div className="relative">
             {/* Cover Image */}
             <div className="relative w-full h-48 sm:h-72 group">
-              {/* Cover Image */}
               <CustomImage
                 loading="lazy"
-                src={
-                  userData?.coverImage?.includes("http")
-                    ? userData?.coverImage
-                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
-                }
+                src={coverPreview || (userData?.coverImage?.includes("http")
+                  ? userData?.coverImage
+                  : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage)}
                 alt="Cover"
                 className="w-full h-full object-cover rounded-md"
               />
@@ -635,7 +777,7 @@ export default function BrandDashboard({
               {/* Hover Overlay */}
               <div
                 className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer rounded-md"
-                onClick={() => userFileInputRef2.current.click()}
+                onClick={() => userFileInputRef2.current?.click()}
               >
                 <Upload size={32} className="text-white" />
               </div>
@@ -645,41 +787,65 @@ export default function BrandDashboard({
                 className="hidden"
                 ref={userFileInputRef2}
                 onChange={(event) => handleUserFilesChange(event, "coverImage")}
+                accept="image/*"
               />
 
+              {selectedCoverFile && (
+                <div className="absolute bottom-4 right-4 bg-white bg-opacity-90 p-2 rounded-md">
+                  <p className="text-sm text-gray-700">Selected: {selectedCoverFile.name}</p>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    className="mt-2"
+                    onClick={() => updateUserImages("coverImage", selectedCoverFile)}
+                  >
+                    Upload Cover
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Profile Section */}
             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-90px] px-4 sm:px-12">
               <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                 <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
-                  {/* Profile Image */}
                   <CustomImage
                     loading="lazy"
-                    src={
-                      userData?.profileImage?.includes("http")
-                        ? userData?.profileImage
-                        : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage
-                    }
+                    src={profilePreview || (userData?.profileImage?.includes("http")
+                      ? userData?.profileImage
+                      : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage)}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
 
-                  {/* Hover Overlay */}
                   <div
                     className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                    onClick={() => userFileInputRef.current.click()}
+                    onClick={() => userFileInputRef.current?.click()}
                   >
                     <Upload size={32} className="text-white" />
                   </div>
 
-                  {/* Hidden File Input */}
                   <input
                     type="file"
                     className="hidden"
                     ref={userFileInputRef}
                     onChange={(event) => handleUserFilesChange(event, "profileImage")}
+                    accept="image/*"
                   />
+
+                  {selectedProfileFile && (
+                    <div className="absolute bottom-4 right-4 bg-white bg-opacity-90 p-2 rounded-md">
+                      <p className="text-sm text-gray-700">Selected: {selectedProfileFile.name}</p>
+                      <Button
+                        variant="primary"
+                        size="small"
+                        className="mt-2"
+                        onClick={() => updateUserImages("profileImage", selectedProfileFile)}
+                      >
+                        Upload Profile
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Name and Socials */}

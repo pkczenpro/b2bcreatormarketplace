@@ -89,7 +89,7 @@ export default function Creators() {
                         onChange={(value) => setSelectedCampaign(value)}
                         value={selectedCampaign}
                     >
-                        {campaigns.map((campaign, index) => (
+                        {campaigns.filter((campaign) => campaign.visibility).map((campaign, index) => (
                             <Option key={index} value={campaign._id}>{campaign.title}</Option>
                         ))}
                     </Select>
@@ -139,6 +139,7 @@ export default function Creators() {
                     description: `${creator.name} has been added to Campaign` + res.data.title,
                 })
                 setAddToCampaign(false);
+                setSelectedCampaign(null);
             }
             catch (ex) {
                 console.log(ex)
@@ -256,7 +257,7 @@ export default function Creators() {
                                                     ? creator.image
                                                     : process.env.NEXT_PUBLIC_SERVER_URL + creator.image
                                             } alt={creator.name} className="w-14 h-14 rounded-full" />
-                                            
+
                                             {activeUsers.includes(creator._id) && <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>}
                                         </div>
 

@@ -1,6 +1,7 @@
 import { Modal, Divider, Image } from "antd";
 import { Rate } from "antd";
 import { ExternalLink, FileText, Video } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 
 interface Product {
     productName: string;
@@ -84,8 +85,8 @@ export default function ShowProductModal({
             <div className="grid md:grid-cols-2 gap-6">
                 {/* Left Section: Logo + Description */}
                 <div className="flex flex-col gap-4">
-                    <div className="w-full flex justify-center bg-neutral-100 rounded-lg p-4">
-                        <img
+                    <div className="w-full flex justify-center bg-neutral-100 rounded-lg p-4 h-full">
+                        {product.productLogo ? <img
                             loading="lazy"
                             src={
                                 product?.productLogo?.includes("http")
@@ -94,7 +95,9 @@ export default function ShowProductModal({
                             }
                             alt={product.productName}
                             className="h-48 object-contain"
-                        />
+                        /> : <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <ImageIcon size={24} />
+                        </div>}
                     </div>
                     <p className="text-sm text-gray-700">{product.productDescription}</p>
                 </div>
