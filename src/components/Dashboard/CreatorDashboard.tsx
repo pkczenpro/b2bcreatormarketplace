@@ -713,7 +713,7 @@ export default function CreatorDashboard({
                                             : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage
                                     }
                                     alt="Cover"
-                                    className="w-full h-full object-cover rounded-md"
+                                    className="w-full h-full object-contain rounded-md"
                                 />
 
                                 {/* Hover Overlay */}
