@@ -371,6 +371,7 @@ export default function BrandDashboard() {
     }
 
     const formatFollowers = (count?: number) => {
+        console.log(count);
         if (!count) return '0';
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
         if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
@@ -501,7 +502,7 @@ export default function BrandDashboard() {
                             </div>
                             <div key={5} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
                                 <h1 className="text-lg font-semibold">
-                                    {formatFollowers(userData?.followers)}
+                                    {formatFollowers(userData?.followers?.length)}
                                 </h1>
                                 <p className="text-gray-600">
                                     Followers

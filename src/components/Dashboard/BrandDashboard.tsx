@@ -105,7 +105,7 @@ export default function BrandDashboard({
           {campaigns?.map((campaign: any, index: number) => (
             <div
               key={index}
-              className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md cursor-pointer"
+              className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md "
             >
 
 
@@ -155,9 +155,11 @@ export default function BrandDashboard({
               <span className="text-md font-bold text-success-500 rounded-sm">
                 {campaign.status ? "Active" : "Inactive"}
               </span>
-              <h3 className="text-h5 font-bold text-left mb-1">
-                {campaign.title}
-              </h3>
+              <Link href={"/dashboard/campaigns-details/" + campaign._id}>
+                <h3 className="text-h5 font-bold text-left mb-1 underline cursor-pointer">
+                  {campaign.title}
+                </h3>
+              </Link>
               <p className="text-neutral-600 text-left mb-6">
                 {campaign.description}
               </p>

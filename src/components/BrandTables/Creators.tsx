@@ -170,7 +170,7 @@ export function CreatorTable({
                                 prospect: "In Consideration",
                                 content_submitted: "Content Submitted, Waiting for Approval"
                             } as const;
-                            return statusMap[record.status as keyof typeof statusMap] || "";
+                            return statusMap[record.status as keyof typeof statusMap] || record.status;
                         })()}
                     </p>
                 </div>

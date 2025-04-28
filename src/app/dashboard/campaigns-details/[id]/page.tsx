@@ -18,6 +18,7 @@ import { useParams } from "next/navigation";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 
+
 type CampaignDetailsProps = object;
 
 export default function CampaignDetails({ }: CampaignDetailsProps) {
@@ -48,7 +49,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
     const [campaign, setCampaign] = React.useState(null);
     const getCampaign = async () => {
-    try {
+        try {
             const res = await api.get("/campaigns/" + id);
             setCampaign(res.data);
         } catch (e) {
@@ -79,6 +80,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     }, [id]);
 
     const transformData = (data: any) => {
+        console.log("Transforming data:", data);
         return data?.map((item: any) => ({
             label: item.label || item.type,
             count: item.count || item.value,
@@ -87,9 +89,28 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
 
     const campaignOverview = () => {
-        const contentDistribution = transformData(campaignAnalytics?.analytics?.contentDistribution)
-        const contentCountByType = transformData(campaignAnalytics?.analytics?.contentCountByType)
+        const contentDistribution = transformData(campaignAnalytics?.analytics?.contentDistribution);
+        const contentCountByType = transformData(campaignAnalytics?.analytics?.contentCountByType);
+        const statusMap = {
+            pending: "Pending",
+            approved: "Approved",
+            rejected: "Rejected",
+            done: "Done",
+            prospect: "prospect",
+            content_submitted: "Submitted",
+        } as const;
 
+        // Adjust content distribution into an array format that is compatible with the chart
+        const adjustedContentDistribution = contentDistribution.map(item => ({
+            label: item.label,
+            count: item.count || 0,
+        }));
+
+        // Adjust content count by type for better clarity
+        const adjustedContentCountByType = contentCountByType.map(item => ({
+            label: statusMap[item.label as keyof typeof statusMap] || item.label,
+            count: item.count || 0,
+        }));
         return (
             <div className="mt-8 space-y-6">
                 {/* Content Summary */}
@@ -109,10 +130,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Content Distribution by Type */}
                     <div className="bg-white border border-neutral-100 rounded-2xl p-6">
-                        <h4 className="text-lg font-medium text-neutral-700 mb-4">
-                            Content Distribution
-                        </h4>
-                        <BarChartComponent campaignAnalytics={contentCountByType} />
+                        <h4 className="text-lg font-medium text-neutral-700 mb-4">Content Distribution</h4>
+                        <BarChartComponent campaignAnalytics={adjustedContentDistribution} />
                     </div>
 
                     {/* Content Status Breakdown */}
@@ -120,12 +139,13 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                         <h4 className="text-lg font-medium text-neutral-700 mb-4">
                             Number of Content by Status
                         </h4>
-                        <BarChartComponent campaignAnalytics={contentDistribution} />
+                        <BarChartComponent campaignAnalytics={adjustedContentCountByType} />
                     </div>
                 </div>
             </div>
         );
     };
+
     const campaignAbout = () => {
         return (
             <>
