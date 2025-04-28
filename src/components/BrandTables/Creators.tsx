@@ -192,8 +192,7 @@ export function CreatorTable({
             title: "Action",
             key: "action",
             render: (_, record) => {
-                const isProspect = record.status === "prospect";
-                const isPending = record.status === "pending";
+                const isPending = record.status === "pending" || record.status === "prospect";
                 const isDone = record.status === "done";
                 const isContentSubmitted = record.status === "content_submitted";
                 const hasContent = record.content?.length > 0;
@@ -201,7 +200,7 @@ export function CreatorTable({
 
                 return (
                     <div className="flex items-center">
-                        {isProspect || isPending && (
+                        {isPending && (
                             <Button
                                 type="primary"
                                 size="small"
@@ -312,8 +311,10 @@ export function CreatorTable({
             </div>}
 
             <Table
+                style={{ width: "100%" }}
                 size="small"
                 columns={columns}
+                tableLayout="auto"
                 dataSource={creators}
                 bordered
                 pagination={false}

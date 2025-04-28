@@ -186,7 +186,7 @@ export default function Creators() {
 
 
     return (
-        <div className="flex">
+        <div className="flex flex-col sm:flex-row">
             {addToCampaignModal()}
             <LeftMenu />
             <div className="flex flex-col w-full min-h-screen bg-neutral-50 px-4 py-12 overflow-y-auto max-h-screen">
@@ -206,7 +206,7 @@ export default function Creators() {
                 </div>
 
                 {/* Tags */}
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-4 flex-wrap">
                     {
                         creators.reduce((acc, campaign) => {
                             campaign.tags.forEach((tag) => {

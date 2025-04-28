@@ -65,10 +65,10 @@ const PostContent = ({ postContent, imagePreview, isReadMore, setIsReadMore }) =
             {/* Post Actions */}
             <div className="flex items-center mt-4 space-x-6">
                 {[
-                    { icon: <ThumbsUp size={20} />, text: "Like" },
-                    { icon: <MessageCircleMore size={20} />, text: "Comment" },
-                    { icon: <Forward size={20} />, text: "Share" },
-                    { icon: <Send size={20} />, text: "Send" },
+                    { icon: <ThumbsUp size={18} />, text: "Like" },
+                    { icon: <MessageCircleMore size={18} />, text: "Comment" },
+                    { icon: <Forward size={18} />, text: "Share" },
+                    { icon: <Send size={18} />, text: "Send" },
                 ].map(({ icon, text }) => (
                     <div key={text} className="flex items-center space-x-2">
                         {icon}

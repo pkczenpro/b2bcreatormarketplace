@@ -371,7 +371,6 @@ export default function BrandDashboard() {
     }
 
     const formatFollowers = (count?: number) => {
-        console.log(count);
         if (!count) return '0';
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
         if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
@@ -379,9 +378,9 @@ export default function BrandDashboard() {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row w-full">
+        <div className="flex flex-col sm:flex-row">
             <LeftMenu />
-            <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8 w-full overflow-y-auto max-h-screen">
+            <div className="bg-neutral-50 flex flex-col items-center justify-start h-full py-8 px-6 sm:px-6 lg:px-8 w-full overflow-y-auto max-h-screen">
                 <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
 
                 <div className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md">
@@ -399,7 +398,7 @@ export default function BrandDashboard() {
                             )}
 
                             {/* Profile Section */}
-                            <div className="absolute bottom-[-50px] sm:bottom-[-85px] w-full flex flex-col sm:flex-row items-center sm:items-end justify-between px-4 sm:px-12">
+                            <div className="absolute bottom-[-70%] sm:bottom-[-85px] w-full flex flex-col sm:flex-row items-center sm:items-end justify-between px-4 sm:px-12">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-end text-center sm:text-left space-x-0 sm:space-x-4">
 
                                     {/* Profile Image */}
@@ -454,7 +453,7 @@ export default function BrandDashboard() {
 
 
                         {/* Bio */}
-                        <p className="mt-20 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
+                        <p className="mt-48 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
                             {userData?.bio}
                         </p>
 

@@ -204,7 +204,7 @@ export default function CreatorDashboard() {
     };
     const StatCard = ({ value, title, _id }: { value: number; title: string; _id: string }) => {
         return (
-            <div className="flex flex-col w-full sm:w-1/4 bg-white shadow-sm p-4 rounded-md relative">
+            <div className="flex flex-col w-full sm:w-1/5 bg-white shadow-sm p-4 rounded-md relative">
                 <h1 className="text-lg font-semibold">{value?.toLocaleString()}</h1>
                 <p className="text-gray-600">{title}</p>
             </div>
@@ -251,7 +251,7 @@ export default function CreatorDashboard() {
         return (
             <div className="w-full bg-neutral-50 p-6 rounded-sm">
                 <h2 className="uppercase mb-4">Statistics</h2>
-                <div className="flex gap-4 mt-4">
+                <div className="flex gap-4 mt-4 flex-wrap">
                     {stats?.map((stat, index) => (
                         <StatCard key={index} {...stat} />
                     ))}

@@ -172,7 +172,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
 
   return (
     <Modal
-      width="60%"
+      width={800}
       centered
       title={
         <div className="flex items-center space-x-2">

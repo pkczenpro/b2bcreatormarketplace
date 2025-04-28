@@ -81,7 +81,7 @@ export default function Campaign() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col sm:flex-row">
       <LeftMenu />
       <div className="flex flex-col w-full min-h-screen bg-neutral-50 px-4 py-8 md:px-8 md:py-12 overflow-y-auto max-h-screen">
         {/* Header Section */}

@@ -563,10 +563,10 @@ const CarouselEditor = () => {
             {selectSharingModal()}
 
 
-            <div className="flex w-full min-h-[80vh]">
+            <div className="flex w-full min-h-[80vh] flex-col sm:flex-row">
                 {showTemplatesModal()}
 
-                <div className="min-w-[15vw] max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
+                <div className="sm:min-w-[15vw] sm:max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
                     <div>
                         {/* Campaign Selection */}
                         {isSelectSharingModalOpenValue === "1" && <div className="mb-4">
@@ -587,7 +587,7 @@ const CarouselEditor = () => {
                                 <Select.Option key={size.value} value={size.value}>{size.label}</Select.Option>
                             ))}
                         </Select>
-                        <Select className="w-full mb-2" value={selectedTemplate.name} onChange={(value) => {
+                        {/* <Select className="w-full mb-2" value={selectedTemplate.name} onChange={(value) => {
                             const template = TEMPLATES.find((template) => template.name === value);
                             if (template) {
                                 setSelectedTemplate(template);
@@ -606,7 +606,7 @@ const CarouselEditor = () => {
                             {TEMPLATES.map((template) => (
                                 <Select.Option key={template.id} value={template.name}>{template.name}</Select.Option>
                             ))}
-                        </Select>
+                        </Select> */}
 
                         {/* <Button
                         className="w-full"
@@ -662,7 +662,7 @@ const CarouselEditor = () => {
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>
-                    <div className="min-w-[100%] max-w-[79vw] flex justify-start items-center overflow-x-hidden scroll-smooth h-[100%] px-24 py-12" ref={scrollContainerRef}>
+                    <div className="min-w-[100%] max-w-[79vw] flex justify-start items-center overflow-x-hidden scroll-smooth h-[100%] sm:px-24 sm:py-12 px-6 py-6" ref={scrollContainerRef}>
                         <div className="flex space-x-6">
                             {posts.map((index) => {
                                 return (

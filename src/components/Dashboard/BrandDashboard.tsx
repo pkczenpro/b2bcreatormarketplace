@@ -457,14 +457,14 @@ export default function BrandDashboard({
   const createCampaign = () => {
     return (
       <Modal
-        width={"60%"}
+        width={800}
         centered
         title="Create Campaign"
         open={visible}
         okText="Create Campaign"
-        onOk={() => {
-          handleAddCampaign();
-          getBrand();
+        onOk={async () => {
+          await handleAddCampaign();
+          await getBrand();
         }}
         onCancel={() => setVisible(false)}
       >
@@ -808,7 +808,7 @@ export default function BrandDashboard({
             </div>
 
             {/* Profile Section */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-50px] sm:bottom-[-90px] px-4 sm:px-12">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full absolute bottom-[-90%] sm:bottom-[-90px] px-4 sm:px-12">
               <div className="flex flex-col sm:flex-row items-center sm:items-end space-x-0 sm:space-x-4 text-center sm:text-left">
                 <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
                   <CustomImage
@@ -880,7 +880,7 @@ export default function BrandDashboard({
           </div>
 
           {/* Bio */}
-          <p className="mt-20 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
+          <p className="mt-48 sm:mt-28 text-gray-600 text-sm px-2 sm:px-0">
             <EditableHeading
               initialName={userData?.bio || "Add a bio here"}
               onChange={(e) => {

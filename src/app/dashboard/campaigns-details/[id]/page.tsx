@@ -188,7 +188,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     }
     const campaignCreators = () => {
         return (
-            <div className="mt-4">
+            <div className="mt-4 ">
                 <CreatorTable campaign={campaign} Refresh={
                     () => {
                         getCampaign();
@@ -231,7 +231,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     const [amountModal, setAmountModal] = React.useState(false);
 
     return (
-        <div className="flex">
+        <div className="flex flex-col sm:flex-row">
             <LeftMenu />
             <div className="flex flex-col w-full min-h-screen bg-neutral-50 p-12 overflow-y-auto max-h-screen">
                 <Breadcrumb
