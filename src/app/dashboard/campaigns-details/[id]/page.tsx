@@ -2,7 +2,7 @@
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
-import { Breadcrumb, Input, Modal } from "antd";
+import { Breadcrumb, Card, Input, Modal } from "antd";
 import React from "react";
 import Button from "@/components/Button/Button";
 import { motion } from "framer-motion";
@@ -17,6 +17,7 @@ import api from "@/utils/axiosInstance";
 import { useParams } from "next/navigation";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import { CheckCircle, Images, Sparkle } from "lucide-react";
 
 
 type CampaignDetailsProps = object;
@@ -80,7 +81,6 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
     }, [id]);
 
     const transformData = (data: any) => {
-        console.log("Transforming data:", data);
         return data?.map((item: any) => ({
             label: item.label || item.type,
             count: item.count || item.value,
@@ -230,6 +230,8 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
     const [amountModal, setAmountModal] = React.useState(false);
 
+
+    const [creatingContentModal, setCreatingContentModal] = React.useState(false);
     return (
         <div className="flex flex-col sm:flex-row">
             <LeftMenu />
@@ -259,50 +261,65 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                             <h1 className="text-2xl font-bold">
                                 {campaign?.title}
                             </h1>
-                            <Link
-                                className="ml-auto max-w-[200px]"
-                                href={userType === "brand" ? "/dashboard/creators" : ""}
-                            >
-                                <Button
-                                    className="ml-auto max-w-[200px]"
-                                    variant="primary"
-                                    size="small"
-                                    disabled={loading || campaign?.isApplied}
-                                    loading={loading}
-                                    onClick={() => {
-                                        if (userType === "creator") {
-                                            setAmountModal(true);
-                                        } else {
-                                            navigation.push("/dashboard/creators");
-                                        }
-                                    }}
+                            <div className="ml-auto">
+                                <Link
+                                    className="max-w-[200px]"
+                                    href={userType === "brand" ? "/dashboard/creators" : ""}
                                 >
-                                    {userType === "creator" ? (
-                                        campaign?.isApplied ? (
-                                            campaign?.status === "pending" ? (
-                                                "Application Under Review"
-                                            ) : campaign?.status === "approved" ? (
-                                                "You’re Approved!"
-                                            ) : campaign?.status === "rejected" ? (
-                                                "Not Selected"
-                                            ) : campaign?.status === "done" ? (
-                                                "Campaign Completed"
-                                            ) : campaign?.status === "prospect" ? (
-                                                "In Consideration"
-                                            ) : campaign?.status === "content_submitted" ? (
-                                                "Content Submitted"
+                                    <Button
+                                        className="ml-auto w-[200px]"
+                                        variant="primary"
+                                        size="small"
+                                        disabled={loading || campaign?.isApplied}
+                                        loading={loading}
+                                        onClick={() => {
+                                            if (userType === "creator") {
+                                                setAmountModal(true);
+                                            } else {
+                                                navigation.push("/dashboard/creators");
+                                            }
+                                        }}
+                                    >
+                                        {userType === "creator" ? (
+                                            campaign?.isApplied ? (
+                                                campaign?.status === "pending" ? (
+                                                    "Application Under Review"
+                                                ) : campaign?.status === "approved" ? (
+                                                    "You’re Approved!"
+                                                ) : campaign?.status === "rejected" ? (
+                                                    "Not Selected"
+                                                ) : campaign?.status === "done" ? (
+                                                    "Campaign Completed"
+                                                ) : campaign?.status === "prospect" ? (
+                                                    "In Consideration"
+                                                ) : campaign?.status === "content_submitted" ? (
+                                                    "Content Submitted"
+                                                ) : (
+                                                    "You’ve Already Applied"
+                                                )
                                             ) : (
-                                                "You’ve Already Applied"
+                                                "Apply Now"
                                             )
                                         ) : (
-                                            "Apply Now"
-                                        )
-                                    ) : (
-                                        "Discover Creators"
-                                    )}
+                                            "Discover Creators"
+                                        )}
 
-                                </Button>
-                            </Link>
+
+                                    </Button>
+                                </Link>
+                                {campaign.status === "approved" && <Button className="ml-auto mt-2 w-[200px]"
+                                    variant="primary"
+                                    size="small"
+                                    icon={<Sparkle className="text-white" />}
+                                    onClick={() => {
+                                        setCreatingContentModal(true);
+                                    }}
+                                >
+                                    Start Creating Your Content
+                                </Button>}
+                            </div>
+
+
 
 
 
@@ -329,9 +346,17 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                         },
                                         {
                                             id: 3,
-                                            label: "Creators",
+                                            label: (
+                                                <div className="relative inline-flex items-center">
+                                                    <span className="font-medium">Creators</span>
+                                                    <span className="absolute -top-3 -right-5 bg-primary-600 text-white text-xs font-medium px-1.5 py-0.5 rounded-full">
+                                                        {campaign?.selectedCreators?.length}
+                                                    </span>
+                                                </div>
+                                            ),
                                             content: campaignCreators()
                                         },
+                                    
                                         {
                                             id: 4,
                                             label: "Content",
@@ -377,6 +402,41 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 />
             </Modal>
 
+
+            <Modal
+                title="Start creating your Brand collaboration 🚀"
+                open={creatingContentModal}
+                onOk={() => setCreatingContentModal(false)}
+                onCancel={() => setCreatingContentModal(false)}
+                centered
+                footer={null}
+            >
+                <Card>
+                    <div className="flex flex-col items-center justify-center gap-4 w-full p-4">
+                        <h2 className="text-xl font-semibold text-center">
+                            🎉 Congratulations! <br /> You have been approved by <span className="text-primary-600">
+                                {campaign?.brandId?.profileName}
+                            </span>
+                        </h2>
+
+                        <div className="flex flex-col items-center justify-center gap-3 w-full mt-4">
+                            <Link href="/dashboard/post-maker" className="w-full">
+                                <Button className="w-full flex items-center justify-center gap-2" variant="primary" size="small">
+                                    <CheckCircle size={16} /> Post Maker
+                                </Button>
+                            </Link>
+
+                            <p className="text-center text-neutral-500">OR</p>
+
+                            <Link href="/dashboard/carousel-maker" className="w-full">
+                                <Button className="w-full flex items-center justify-center gap-2" variant="primary" size="small">
+                                    <Images size={16} /> Carousel Maker
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </Card>
+            </Modal>
         </div>
     );
 }

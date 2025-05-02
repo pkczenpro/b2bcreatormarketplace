@@ -96,98 +96,111 @@ export default function BrandDashboard({
     getBrand();
   }, []);
 
+  console.log(partnerships)
+
   const tabs = [
     {
       id: 1,
       label: "Campaigns",
       content: (
         <>
-          {campaigns?.map((campaign: any, index: number) => (
-            <div
-              key={index}
-              className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md "
-            >
+          {campaigns ?
+            campaigns.sort((a: any, b: any) => {
+              const dateA = new Date(a.createdAt);
+              const dateB = new Date(b.createdAt);
+              return dateB.getTime() - dateA.getTime();
+            })
+              .map((campaign: any, index: number) => (
+                <div
+                  key={index}
+                  className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md "
+                >
+
+                  {/* {campaign?.createdAt && (
+                    <span className="text-sm text-neutral-500 font-medium ml-2">
+                      {campaign?.createdAt}
+                    </span>
+                  )} */}
+                  {/* Status Switch */}
+                  <div className="absolute top-2 right-2 flex items-center gap-4 p-2">
+                    {/* Status Switch */}
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={campaign.visibility === true}
+                        onChange={(checked: boolean) => {
+                          updateCampaignStatus(campaign._id, checked);
+                        }}
+                        className="data-[state=checked]:bg-primary-500"
+                      />
+                      <p className="text-xs font-medium text-neutral-700">
+                        {campaign.visibility ? "Active" : "Inactive"}
+                      </p>
+                    </div>
+                    {/* External Link Icon */}
+                    <Tooltip title="View Campaign">
+                      <Link
+                        href={`/dashboard/campaigns-details/${campaign._id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className=" text-neutral-400 hover:text-primary-500 transition-colors"
+                      >
+                        <ExternalLink size={18} />
+                      </Link>
+                    </Tooltip>
+
+                    {/* Delete Campaign */}
+                    <Tooltip title="Delete Campaign">
+
+                      <Popconfirm
+                        title="Are you sure you want to delete this campaign?"
+                        onConfirm={() => deleteCampaign(campaign._id)}
+                      >
+                        <Trash size={18}
+                          className="text-neutral-400 hover:text-primary-500 transition-colors"
+                        />
+
+                      </Popconfirm>
+                    </Tooltip>
+                  </div>
 
 
-              {/* Status Switch */}
-              <div className="absolute top-2 right-2 flex items-center gap-4 p-2">
-                {/* Status Switch */}
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={campaign.visibility === true}
-                    onChange={(checked: boolean) => {
-                      updateCampaignStatus(campaign._id, checked);
-                    }}
-                    className="data-[state=checked]:bg-primary-500"
-                  />
-                  <p className="text-xs font-medium text-neutral-700">
-                    {campaign.visibility ? "Active" : "Inactive"}
-                  </p>
-                </div>
-                {/* External Link Icon */}
-                <Tooltip title="View Campaign">
-                  <Link
-                    href={`/dashboard/campaigns-details/${campaign._id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className=" text-neutral-400 hover:text-primary-500 transition-colors"
-                  >
-                    <ExternalLink size={18} />
+                  {/* Campaign Content */}
+                  <span className="text-md font-bold text-success-500 rounded-sm">
+                    {campaign.status ? "Active" : "Inactive"}
+                  </span>
+                  <Link href={"/dashboard/campaigns-details/" + campaign._id}>
+                    <h3 className="text-h5 font-bold text-left mb-1 underline cursor-pointer">
+                      {campaign.title}
+                    </h3>
                   </Link>
-                </Tooltip>
+                  <p className="text-neutral-600 text-left mb-6">
+                    {campaign.description}
+                  </p>
 
-                {/* Delete Campaign */}
-                <Tooltip title="Delete Campaign">
-
-                  <Popconfirm
-                    title="Are you sure you want to delete this campaign?"
-                    onConfirm={() => deleteCampaign(campaign._id)}
-                  >
-                    <Trash size={18}
-                      className="text-neutral-400 hover:text-primary-500 transition-colors"
-                    />
-
-                  </Popconfirm>
-                </Tooltip>
-              </div>
-
-
-              {/* Campaign Content */}
-              <span className="text-md font-bold text-success-500 rounded-sm">
-                {campaign.status ? "Active" : "Inactive"}
-              </span>
-              <Link href={"/dashboard/campaigns-details/" + campaign._id}>
-                <h3 className="text-h5 font-bold text-left mb-1 underline cursor-pointer">
-                  {campaign.title}
-                </h3>
-              </Link>
-              <p className="text-neutral-600 text-left mb-6">
-                {campaign.description}
-              </p>
-
-              <div className="flex justify-between items-center">
-                <div className="flex space-x-2">
-                  {campaign?.tags?.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <div className="flex justify-between items-center">
+                    <div className="flex space-x-2">
+                      {campaign?.tags?.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex space-x-2">
+                      {campaign?.contentType?.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  {campaign?.contentType?.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+              ))
+            : <p className="text-center text-neutral-600">No campaigns found.</p>}
         </>
       ),
     },
@@ -238,23 +251,24 @@ export default function BrandDashboard({
               <div className="border-t border-gray-200 my-6"></div>
 
               <div className="flex flex-wrap">
-                {partnership?.campaigns?.map(
-                  (tag, index) => (
-                    <Link
-                      key={index}
-                      href={`/dashboard/campaigns-details/${tag._id}`}
-                      target="_blank"
-                      className="mr-2 mb-2"
+                {Array.from(
+                  new Map(partnership?.campaigns?.map(c => [c._id, c])).values()
+                ).map((tag) => (
+                  <Link
+                    key={tag._id}
+                    href={`/dashboard/campaigns-details/${tag._id}`}
+                    target="_blank"
+                    className="mr-2 mb-2"
+                  >
+                    <span
+                      className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
                     >
-                      <span
-                        className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
-                      >
-                        {tag.title}
-                      </span>
-                    </Link>
-                  )
-                )}
+                      {tag.title}
+                    </span>
+                  </Link>
+                ))}
               </div>
+
             </div>
           ))}
         </>
@@ -749,7 +763,9 @@ export default function BrandDashboard({
   return (
     <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8">
       {createCampaign()}
-      <AddProductModal modal={modal} setModal={setModal} />
+      <AddProductModal modal={modal} setModal={setModal} getProducts={() => {
+        getBrand();
+      }} />
       <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
       <EditProductModal
         modal={editModal}

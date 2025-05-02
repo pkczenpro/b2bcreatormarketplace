@@ -44,13 +44,18 @@ const PostEditor = ({
     publishToLinkedIn,
     isSelectSharingModalOpen,
     setIsSelectSharingModalOpen,
-    relatedProducts,
-    publishLoading
+    publishLoading,
+
+    setRelatedProducts,
+    relatedProduct,
+    relatedProductsOptions,
+
+    brandName,
+    setBrandName,
 }) => {
     const [aiPrompt, setAiPrompt] = useState("");
     const [loading, setLoading] = useState(false);
     const [uploadedImages, setUploadedImages] = useState<any[]>([]);
-    const [brandName, setBrandName] = useState("");
     const [selectedProduct, setSelectedProduct] = useState("");
     const [hookType, setHookType] = useState("");
 
@@ -207,12 +212,14 @@ const PostEditor = ({
                     </div>
                     <div className="w-full">
                         <p className="font-semibold text-neutral-700 mb-2">Select Product</p>
-                        <Input
+                        <Select
                             className="w-full"
                             placeholder="Choose product"
-                            value={selectedProduct}
-                            onChange={(e) => setSelectedProduct(e.target.value)}
+                            value={relatedProduct}
+                            onChange={setRelatedProducts}
+                            options={relatedProductsOptions?.map(p => ({ label: p.productName, value: p._id }))}
                         />
+
                     </div>
                     <div className="w-full">
                         <p className="font-semibold text-neutral-700 mb-2">Brand Name</p>

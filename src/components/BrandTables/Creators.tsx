@@ -2,25 +2,30 @@
 "use client";
 
 import api from "@/utils/axiosInstance";
-import { Table, Button, Dropdown, Space, Input, Modal, Rate, Image, Popconfirm, Spin } from "antd";
+import { Table, Button, Dropdown, Space, Input, Modal, Rate, Image, Popconfirm, Spin, Alert } from "antd";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner"
 import { LoadingOutlined } from "@ant-design/icons";
+import { useRouter } from 'next/navigation';
 
 export function CreatorTable({
     campaign,
     Refresh
 }) {
+    const router = useRouter();
+
     const [loading, setLoading] = useState(false);
     const [reviewModal, setReviewModal] = useState(false);
 
     const dt = campaign?.selectedCreators || [];
 
-    const creators = dt.map((creator) => ({
-        key: creator?.creatorId._id,
+    const creators = dt.map((creator, index) => ({
+        _id: creator?.creatorId._id,
+        key: index,
         name: creator?.creatorId.name,
+        email: creator?.creatorId.email,
         status: creator?.status,
         amount: creator?.amount,
         approved: creator?.approved,
@@ -35,7 +40,7 @@ export function CreatorTable({
     });
     const postReview = async () => {
         try {
-            await api.post(`/campaigns/${campaign._id}/creators/${selectedCreator.key}/rate`, reviewState);
+            await api.post(`/campaigns/${campaign._id}/creators/${selectedCreator._id}/rate`, reviewState);
             toast.success("Review posted successfully", {
                 position: "top-right",
             });
@@ -138,7 +143,7 @@ export function CreatorTable({
             key: "name",
             render: (_, record) => (
                 <Link
-                    href={`/dashboard/user-preview/${record.key}`}
+                    href={`/dashboard/user-preview/${record._id}`}
                     target="_blank"
                     className="flex items-center gap-4">
                     <img
@@ -197,6 +202,9 @@ export function CreatorTable({
                 const isContentSubmitted = record.status === "content_submitted";
                 const hasContent = record.content?.length > 0;
 
+                const invoiceId = record?.invoiceId;
+
+                const isAmountSet = record?.amount > 0;
 
                 return (
                     <div className="flex items-center">
@@ -205,7 +213,7 @@ export function CreatorTable({
                                 type="primary"
                                 size="small"
                                 className="mr-4"
-                                onClick={() => acceptCreatorRequest(record.key)}
+                                onClick={() => acceptCreatorRequest(record._id)}
                             >
                                 Accept Request
                             </Button>
@@ -225,16 +233,40 @@ export function CreatorTable({
                             </Button>
                         )}
 
-                        {isDone && (
-                            <Link href={`/dashboard/pay-creator/${record._id}`}>
-                                <Button
-                                    type="primary"
-                                    size="small"
-                                    className={record?._id?.length % 2 !== 0 ? "bg-green-500" : "bg-primary-700"}
-                                >
-                                    {record?._id?.length % 2 === 0 ? "Approve Content" : "Make Payment"}
-                                </Button>
-                            </Link>
+                        {isDone && isAmountSet && (
+                            <Button
+                                onClick={() => {
+                                    if (record?.amount) {
+                                        router.push(`/dashboard/pay-creator/${campaign._id}?creator=${record._id}&&invoiceId=${invoiceId}`);
+                                    }
+                                    else {
+                                        toast.error("No amount specified for this creator", {
+                                            position: "top-right",
+                                        })
+                                        setAmountModal(true);
+                                        setContentData(record);
+                                    }
+                                }}
+                                type="primary"
+                                size="small"
+                                className={"bg-green-500"}
+                            >
+                                Make Payment
+                            </Button>
+                        )}
+
+                        {isDone && !isAmountSet && (
+                            <Button
+                                onClick={() => {
+                                    setAmountModal(true);
+                                    setContentData(record);
+                                }}
+                                type="primary"
+                                size="small"
+                                className={"bg-green-500"}
+                            >
+                                Set Amount
+                            </Button>
                         )}
                     </div>
                 );
@@ -251,7 +283,7 @@ export function CreatorTable({
                                     key: "1",
                                     label: "View Storefront",
                                     onClick: () => {
-                                        window.open(`/dashboard/user-preview/${record.key}`, "_blank");
+                                        window.open(`/dashboard/user-preview/${record._id}`, "_blank");
                                     },
                                 },
                                 record?.creatorId?.reviews?.length === 0 && {
@@ -266,7 +298,7 @@ export function CreatorTable({
                                     key: "3",
                                     label: "Remove from Campaign",
                                     style: { color: "red" },
-                                    onClick: () => deleteCampaign(record.key),
+                                    onClick: () => deleteCampaign(record._id),
                                 },
                             ].filter(Boolean),
                         }}
@@ -290,7 +322,7 @@ export function CreatorTable({
     const acceptWork = async (id: string) => {
         setLoading(true);
         try {
-            await api.post(`/campaigns/${campaign._id}/creators/${contentData.key}/accept`, {
+            await api.post(`/campaigns/${campaign._id}/creators/${contentData._id}/accept`, {
                 contentId: id
             });
             toast.success("Work accepted successfully", {
@@ -304,11 +336,81 @@ export function CreatorTable({
         }
     }
 
+
+    const [newAmount, setNewAmount] = useState(0);
+    const giveAmount = async () => {
+        setLoading(true);
+        try {
+            await api.put(`/campaigns/${campaign._id}/creators/${contentData._id}/update-amount`, {
+                amount: newAmount
+            });
+            toast.success("Work accepted successfully", {
+                position: "top-right",
+            })
+            Refresh();
+        }
+        catch (error) { console.log(error) }
+        finally {
+            setAmountModal(false);
+            setLoading(false);
+        }
+    }
+
+    const [amountModal, setAmountModal] = useState(false);
+
+    const modalOfAmount = (
+        <Modal
+            title="Set Amount"
+            open={amountModal}
+            onCancel={() => setAmountModal(false)}
+            footer={null}
+            width={400}
+            centered
+        >
+            <div className="flex items-center gap-4 bg-neutral-50 p-2 px-4 rounded-xl">
+                <h2 className="text-md font-bold text-neutral-600">
+                    {contentData?.name}
+                </h2>
+            </div>
+            <Alert
+                message="No amount specified for this creator. Please enter the amount to proceed with payment."
+                type="warning"
+                showIcon
+                className="mt-4"
+            />
+            <div className="mt-4">
+                <p className="text-neutral-900 text-md mb-2">
+                    Amount</p>
+                <Input
+                    placeholder="Enter amount"
+                    type="number"
+                    className="w-full"
+                    onChange={(e) => setNewAmount(Number(e.target.value))}
+                />
+            </div>
+
+            <div className="mt-4">
+                <Button
+                    size="large"
+                    className="bg-primary-700 text-white w-full"
+                    onClick={() => {
+                        giveAmount();
+
+                    }}
+                >
+                    Set Amount
+                </Button>
+            </div>
+        </Modal>
+    )
+
     return (
         <>
             {loading && <div className="flex justify-center items-center h-screen">
                 <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
             </div>}
+
+            {modalOfAmount}
 
             <Table
                 style={{ width: "100%" }}
@@ -316,6 +418,7 @@ export function CreatorTable({
                 columns={columns}
                 tableLayout="auto"
                 dataSource={creators}
+                key="rowKey"
                 bordered
                 pagination={false}
                 footer={() => (
@@ -326,12 +429,17 @@ export function CreatorTable({
                         </span>
                     </div>
                 )}
+                expandable={{
+                    expandedRowRender: (record) => (
+                        <div className="flex flex-col gap-4">
+                            <pre>
+                                {JSON.stringify(record, null, 2)}
+                            </pre>
+                        </div>
+                    ),
+                }}
             />
             {reviewModalComponent}
-
-
-
-
             <Modal
                 title={<h2 className="text-lg font-semibold text-gray-800">View Content</h2>}
                 open={viewContentModal}
@@ -402,8 +510,6 @@ export function CreatorTable({
                     ))}
                 </div>
             </Modal >
-
-
         </>
     );
 }

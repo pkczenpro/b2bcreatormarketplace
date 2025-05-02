@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
@@ -7,25 +5,53 @@ import { Breadcrumb, Button, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Tabs from "@/components/Tabs/Tabs";
-import Input from "@/components/Input/Input";
-import { useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
-import Script from "next/script";
+import CustomImage from "@/components/CustomImage";
+import { useRouter } from "next/navigation";
 
 type CampaignDetailsProps = object;
 
 export default function PayCreator({ }: CampaignDetailsProps) {
     const router = useRouter();
+    const [amount, setAmount] = useState(null);
+
+    const searchParams = useSearchParams();
+    const email = searchParams.get("creator");
+    const invoiceId = searchParams.get("invoiceId");
+
+    const params = useParams();
+    const id = params?.id;
+
+    const [paymentDetails, setPaymentDetails] = useState<any>(null);
+    const getPaymentDetails = async () => {
+        try {
+            const res = await api.get(`/invoices/invoice-details/${id}/${email}`);
+            setPaymentDetails(res.data);
+            setAmount(res.data.amount);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to fetch payment details");
+        }
+    }
+    useEffect(() => {
+        if (id) {
+            getPaymentDetails();
+        }
+    }, [id]);
+
     const [loading, setLoading] = useState(false);
-    const [orderId, setOrderId] = useState(null);
-    const [amount, setAmount] = useState(200.59); // This should come from your data
+    const [isRazorpayReady, setIsRazorpayReady] = useState(false);
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
             const script = document.createElement("script");
             script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = () => resolve(true);
+            script.onload = () => {
+                setIsRazorpayReady(true);
+                resolve(true);
+            };
             script.onerror = () => resolve(false);
             document.body.appendChild(script);
         });
@@ -33,21 +59,35 @@ export default function PayCreator({ }: CampaignDetailsProps) {
 
     const displayRazorpay = async () => {
         setLoading(true);
+
+        const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+        if (!razorpayKey) {
+            toast.error("Razorpay key is not defined");
+            setLoading(false);
+            return;
+        }
+
+        if (typeof (window as any).Razorpay === "undefined") {
+            toast.error("Razorpay SDK not loaded");
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await api.post("/invoices/create-order", {
-                amount: amount * 100, // Convert to paise
+                amount: amount * 100,
             });
 
-            const { id, currency, amount } = res.data;
+            const { id, currency, amount: orderAmount } = res.data;
 
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: amount,
-                currency: currency,
+                key: razorpayKey,
+                amount: orderAmount,
+                currency,
                 name: "B2B Platform",
                 description: "Payment for creator services",
                 order_id: id,
-                handler: async function (response) {
+                handler: async function (response: any) {
                     try {
                         const result = await api.post("/invoices/verify-payment", {
                             razorpay_order_id: response.razorpay_order_id,
@@ -62,6 +102,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                             toast.error("Payment verification failed");
                         }
                     } catch (error) {
+                        console.error(error);
                         toast.error("Payment verification failed");
                     }
                 },
@@ -77,7 +118,8 @@ export default function PayCreator({ }: CampaignDetailsProps) {
             const paymentObject = new (window as any).Razorpay(options);
             paymentObject.open();
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            toast.error("Payment initiation failed");
         } finally {
             setLoading(false);
         }
@@ -93,17 +135,9 @@ export default function PayCreator({ }: CampaignDetailsProps) {
             <div className="flex flex-col w-full min-h-screen bg-neutral-50 p-12 overflow-y-auto max-h-screen">
                 <Breadcrumb
                     items={[
-                        {
-                            title: "Campaigns",
-                            href: "/dashboard/campaigns"
-                        },
-                        {
-                            title: 'Campaign Name',
-                            href: "/dashboard/campaigns-details/1"
-                        },
-                        {
-                            title: 'Pay Creators'
-                        }
+                        { title: "Campaigns", href: "/dashboard/campaigns" },
+                        { title: paymentDetails?.campaignName, href: `/dashboard/campaigns-details/${id}` },
+                        { title: "Pay Creators" },
                     ]}
                 />
                 <div className="mt-4 flex flex-col w-full px-8 py-8 bg-white rounded-lg shadow-sm">
@@ -116,14 +150,15 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                         <div>
                             <div className="flex items-center justify-between gap-4 bg-neutral-50 p-4 rounded-xl">
                                 <div className="flex items-center gap-4">
-                                    <img loading="lazy" src="/images/profile.png" alt="" />
+                                    <CustomImage loading="lazy" src={paymentDetails?.profileImage} alt=""
+                                        className="w-16 h-16 rounded-full object-cover"
+                                    />
                                     <h2 className="text-md font-bold text-neutral-600">
-                                        Tony Dunbar
+                                        {paymentDetails?.userName}
                                     </h2>
                                 </div>
-
                                 <span className="text-lg font-bold text-black">
-                                    $ {amount}
+                                    $ {amount?.toFixed(2)}
                                 </span>
                             </div>
 
@@ -133,61 +168,68 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                                         {
                                             id: 1,
                                             label: "Payment",
-                                            content: <>
+                                            content: (
                                                 <div className="mt-8 w-1/3">
                                                     <Button
                                                         className="w-full bg-primary-700 text-white"
                                                         size="large"
                                                         onClick={displayRazorpay}
                                                         loading={loading}
+                                                        disabled={!isRazorpayReady}
                                                     >
-                                                        Pay ${amount}
+                                                        Pay ${amount?.toFixed(2)}
                                                     </Button>
                                                 </div>
-                                            </>
+                                            ),
                                         },
                                         {
                                             id: 2,
                                             label: "Price Breakdown",
-                                            content: <div className="mt-8">
-                                                <Table
-                                                    size="small"
-                                                    pagination={false}
-                                                    bordered
-                                                    columns={[
-                                                        {
-                                                            title: "Work",
-                                                            dataIndex: "work",
-                                                            key: "work"
-                                                        },
-                                                        {
-                                                            title: "Date",
-                                                            dataIndex: "date",
-                                                            key: "date"
-                                                        },
-                                                        {
-                                                            title: "Amount ($)",
-                                                            dataIndex: "amount",
-                                                            key: "amount"
-                                                        }
-                                                    ]}
-                                                    dataSource={[
-                                                        {
-                                                            key: "1",
-                                                            work: "Instagram Post",
-                                                            date: "12th August 2024",
-                                                            amount: 100
-                                                        },
-                                                        {
-                                                            key: "2",
-                                                            work: "Youtube Video",
-                                                            date: "12th August 2024",
-                                                            amount: 100
-                                                        }
-                                                    ]}
-                                                />
-                                            </div>
-                                        }
+                                            content: (
+                                                <div className="mt-8">
+                                                    <Table
+                                                        size="small"
+                                                        pagination={false}
+                                                        bordered
+                                                        columns={[
+                                                            {
+                                                                title: "Work",
+                                                                dataIndex: "work",
+                                                                key: "work",
+                                                            },
+                                                            {
+                                                                title: "Content",
+                                                                dataIndex: "content",
+                                                                key: "content",
+                                                            },
+                                                            {
+                                                                title: "Files",
+                                                                dataIndex: "files",
+                                                                key: "files",
+                                                                render: (text: any, record: any) => (
+                                                                    <div className="flex gap-2">
+                                                                        {record.files.map((file: any, index: number) => (
+                                                                            <CustomImage
+                                                                                key={index}
+                                                                                src={file}
+                                                                                alt=""
+                                                                                className="w-10 h-10 rounded-md object-cover"
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                ),
+                                                            }
+                                                        ]}
+                                                        dataSource={paymentDetails?.content.map((item: any) => ({
+                                                            key: item.id,
+                                                            content: item.work,
+                                                            date: new Date(item.createdAt).toLocaleDateString(),
+                                                            files: item.files,
+                                                        })) || []}
+                                                    />
+                                                </div>
+                                            ),
+                                        },
                                     ]}
                                 />
                             </div>

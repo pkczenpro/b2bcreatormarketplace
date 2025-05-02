@@ -13,6 +13,7 @@ const { TextArea } = Input;
 interface AddProductModalProps {
   modal: boolean;
   setModal: (value: boolean) => void;
+  getProducts: () => void;
 }
 
 interface FormData {
@@ -30,7 +31,7 @@ interface FormData {
   resources: File[];
 }
 
-export default function AddProduct({ modal, setModal }: AddProductModalProps) {
+export default function AddProduct({ modal, setModal, getProducts }: AddProductModalProps) {
   const [formData, setFormData] = useState<FormData>({
     productName: "",
     productLogo: null,
@@ -162,6 +163,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
         productHunt: "",
         resources: [],
       });
+      getProducts();
     } catch (error: unknown) {
       console.error("Error adding product:", error);
       message.error("Failed to add product!");
@@ -393,7 +395,7 @@ export default function AddProduct({ modal, setModal }: AddProductModalProps) {
                       <div key={index} className="border rounded-md p-2 group relative">
                         <div className="flex items-center space-x-2">
                           <FaLink className="text-neutral-400" />
-                          <p className="text-sm text-neutral-600 truncate">{formData.resources[index].name}</p>
+                          <p className="text-sm text-neutral-600 truncate">{formData?.resources[index]?.name}</p>
                         </div>
                         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
                           <Button

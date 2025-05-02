@@ -23,7 +23,13 @@ const MainContent = ({
     setIsDraftModalOpen,
     saveDraftToLocalStorage,
     loading,
-    draftCategories
+    draftCategories,
+    setRelatedProducts,
+    relatedProduct,
+    relatedProductsOptions,
+    brandName,
+    setBrandName,
+
 }) => {
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [category, setCategory] = useState("");
@@ -67,6 +73,11 @@ const MainContent = ({
                     isSelectSharingModalOpen={isSelectSharingModalOpen}
                     setIsSelectSharingModalOpen={setIsSelectSharingModalOpen}
                     publishLoading={loading}
+                    setRelatedProducts={setRelatedProducts}
+                    relatedProduct={relatedProduct}
+                    relatedProductsOptions={relatedProductsOptions}
+                    brandName={brandName}
+                    setBrandName={setBrandName}
                 />
             </div>
             <div className="sm:max-w-[50%] w-full">

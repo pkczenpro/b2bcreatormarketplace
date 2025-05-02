@@ -25,6 +25,9 @@ export default function PostMaker({ }: PostMakerProps) {
     const [drafts, setDrafts] = useState([]);
     const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState("");
+    const [relatedProducts, setRelatedProducts] = useState([]);
+    const [brandName, setBrandName] = useState("");
 
     const getUserData = async () => {
         try {
@@ -45,9 +48,20 @@ export default function PostMaker({ }: PostMakerProps) {
         }
     };
 
+
+    const getRelatedProducts = async (userId) => {
+        if (!userId) return; // Prevent unnecessary API calls
+        try {
+            const response = await api.get(`/campaigns/related-products/${userId}`);
+            setRelatedProducts(response.data.products || []);
+            setBrandName(response.data?.brandName || ""); // Set the brand name from the first product
+        } catch (error) {
+            console.error("Error fetching related campaigns:", error);
+        }
+    };
+
     useEffect(() => {
         getUserData();
-
     }, []);
 
     useEffect(() => {
@@ -55,6 +69,12 @@ export default function PostMaker({ }: PostMakerProps) {
             getRelatedCampaigns(userData._id);
         }
     }, [userData]);
+
+    useEffect(() => {
+        if (selectedCampaign) {
+            getRelatedProducts(selectedCampaign);
+        }
+    }, [selectedCampaign]);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event
@@ -370,13 +390,20 @@ export default function PostMaker({ }: PostMakerProps) {
                 setImagePreview={setImagePreview}
                 isReadMore={isReadMore}
                 setIsReadMore={setIsReadMore}
-                relatedProducts={[]}
+
                 isSelectSharingModalOpen={isSelectSharingModalOpenValue}
                 setIsSelectSharingModalOpen={setIsSelectSharingModalOpenValue}
                 setIsDraftModalOpen={setIsDraftModalOpen}
                 saveDraftToLocalStorage={saveDraftToLocalStorage}
                 loading={loading}
                 draftCategories={draftCategories}
+
+                setRelatedProducts={setSelectedProduct}
+                relatedProduct={selectedProduct}
+                relatedProductsOptions={relatedProducts}
+
+                brandName={brandName}
+                setBrandName={setBrandName}
             />
             {selectSharingModal()}
             {draftSelectionModal()}

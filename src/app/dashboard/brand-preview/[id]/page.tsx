@@ -119,24 +119,45 @@ export default function BrandDashboard() {
             label: "Campaigns",
             content: (
                 <>
-                    {campaigns?.filter((campaign: Campaign) => campaign.visibility).map((campaign: Campaign, index: number) => (
-                        <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
-                            <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
-                                {/* Date or status if going on */}
-                                <span className="text-md font-bold text-success-500 rounded-sm">
-                                    {campaign.status ? "Active" : "Inactive"}
-                                </span>
-                                <h3 className="text-h5 font-bold text-left mb-1">
-                                    {campaign.title}
-                                </h3>
-                                <p className="text-neutral-600 text-left mb-6">
-                                    {campaign.description}
-                                </p>
-                                <div className="flex justify-between items-center">
-                                    <div className="flex space-x-2">
-                                        {campaign.tags
-                                            ?.filter((tag: string) => tag)
-                                            .map((tag: string, index: number) => (
+                    {campaigns
+                        ?.sort((a, b) => new Date(b?.createdAt).getTime() - new Date(a?.createdAt).getTime())
+                        .filter((campaign: Campaign) => campaign.visibility).map((campaign: Campaign, index: number) => (
+                            <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
+                                <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
+                                    {/* Date or status if going on */}
+                                    <span className="text-md font-bold text-success-500 rounded-sm">
+                                        {campaign.status ? "Active" : "Inactive"}
+                                    </span>
+                                    {/* {campaign?.createdAt && (
+                                        <span className="text-sm text-neutral-500 font-medium ml-2">
+                                            {new Date(campaign?.createdAt).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            })}
+                                        </span>
+                                    )} */}
+                                    <h3 className="text-h5 font-bold text-left mb-1">
+                                        {campaign.title}
+                                    </h3>
+                                    <p className="text-neutral-600 text-left mb-6">
+                                        {campaign.description}
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex space-x-2">
+                                            {campaign.tags
+                                                ?.filter((tag: string) => tag)
+                                                .map((tag: string, index: number) => (
+                                                    <span
+                                                        key={index}
+                                                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            {campaign.contentType?.filter((tag: string) => tag).map((tag: string, index: number) => (
                                                 <span
                                                     key={index}
                                                     className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
@@ -144,21 +165,11 @@ export default function BrandDashboard() {
                                                     {tag}
                                                 </span>
                                             ))}
-                                    </div>
-                                    <div className="flex space-x-2">
-                                        {campaign.contentType?.filter((tag: string) => tag).map((tag: string, index: number) => (
-                                            <span
-                                                key={index}
-                                                className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </Link>
-                    ))}
+                            </Link>
+                        ))}
                 </>
             ),
         },
@@ -210,23 +221,24 @@ export default function BrandDashboard() {
                             <div className="border-t border-gray-200 my-6"></div>
 
                             <div className="flex flex-wrap">
-                                {partnership?.campaigns?.map(
-                                    (tag, index) => (
-                                        <Link
-                                            key={index}
-                                            href={`/dashboard/campaigns-details/${tag._id}`}
-                                            target="_blank"
-                                            className="mr-2 mb-2"
+                                {Array.from(
+                                    new Map(partnership?.campaigns?.map(c => [c._id, c])).values()
+                                ).map((tag) => (
+                                    <Link
+                                        key={tag._id}
+                                        href={`/dashboard/campaigns-details/${tag._id}`}
+                                        target="_blank"
+                                        className="mr-2 mb-2"
+                                    >
+                                        <span
+                                            className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
                                         >
-                                            <span
-                                                className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
-                                            >
-                                                {tag.title}
-                                            </span>
-                                        </Link>
-                                    )
-                                )}
+                                            {tag.title}
+                                        </span>
+                                    </Link>
+                                ))}
                             </div>
+
                         </div>
                     ))}
                 </>
@@ -273,7 +285,13 @@ export default function BrandDashboard() {
 
                                         {/* Product Info */}
                                         <div className="flex-grow">
-                                            <div className="flex items-center justify-between">
+                                            <div
+                                                className="flex items-center justify-between cursor-pointer"
+                                                onClick={() => {
+                                                    setShowProductModal(true);
+                                                    setSelectedProduct(product);
+                                                }}
+                                            >
                                                 <h4 className="text-lg font-semibold text-gray-900">
                                                     {product.productName}
                                                 </h4>
@@ -292,7 +310,10 @@ export default function BrandDashboard() {
                                                 </div>
                                             </div>
 
-                                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                            <p className="text-sm text-gray-600 mt-1 line-clamp-2 cursor-pointer" onClick={() => {
+                                                setShowProductModal(true);
+                                                setSelectedProduct(product);
+                                            }}>
                                                 {product.productDescription}
                                             </p>
 
