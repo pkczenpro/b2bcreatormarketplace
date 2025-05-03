@@ -239,7 +239,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                 <Breadcrumb
                     items={[
                         {
-                            title: campaign?.brandId?.name,
+                            title: campaign?.brandId?.profileName,
                             href: "/dashboard/brand-preview/" + campaign?.brandId?._id
                         },
                         {
@@ -307,16 +307,18 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
                                     </Button>
                                 </Link>
-                                {campaign.status === "approved" && <Button className="ml-auto mt-2 w-[200px]"
-                                    variant="primary"
-                                    size="small"
-                                    icon={<Sparkle className="text-white" />}
-                                    onClick={() => {
-                                        setCreatingContentModal(true);
-                                    }}
-                                >
-                                    Start Creating Your Content
-                                </Button>}
+                                {campaign.status === "approved" &&
+                                    <Button className="ml-auto mt-2 w-[200px]"
+                                        variant="primary"
+                                        size="small"
+                                        icon={<Sparkle className="text-white" />}
+                                        onClick={() => {
+                                            setCreatingContentModal(true);
+                                        }}
+                                    >
+                                        Start Creating Your Content
+                                    </Button>
+                                }
                             </div>
 
 
@@ -356,7 +358,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                                             ),
                                             content: campaignCreators()
                                         },
-                                    
+
                                         {
                                             id: 4,
                                             label: "Content",
@@ -420,7 +422,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
                         </h2>
 
                         <div className="flex flex-col items-center justify-center gap-3 w-full mt-4">
-                            <Link href="/dashboard/post-maker" className="w-full">
+                            <Link href={`/dashboard/post-maker?campaign=${id}`} className="w-full">
                                 <Button className="w-full flex items-center justify-center gap-2" variant="primary" size="small">
                                     <CheckCircle size={16} /> Post Maker
                                 </Button>
@@ -428,7 +430,7 @@ export default function CampaignDetails({ }: CampaignDetailsProps) {
 
                             <p className="text-center text-neutral-500">OR</p>
 
-                            <Link href="/dashboard/carousel-maker" className="w-full">
+                            <Link href={`/dashboard/carousel-maker?campaign=${id}`} className="w-full">
                                 <Button className="w-full flex items-center justify-center gap-2" variant="primary" size="small">
                                     <Images size={16} /> Carousel Maker
                                 </Button>

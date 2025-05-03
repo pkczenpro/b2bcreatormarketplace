@@ -15,7 +15,7 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, localStorageKey }) => {
   const getInitialTab = (): number => {
-    if (!tabs.length) return 0; // fallback if no tabs provided
+    if (!tabs.length) return 0;
 
     if (localStorageKey && typeof window !== "undefined") {
       const storedTab = localStorage.getItem(localStorageKey);
@@ -40,12 +40,12 @@ const Tabs: React.FC<TabsProps> = ({ tabs, localStorageKey }) => {
   return (
     <>
       {/* Tab Buttons */}
-      <div className="bg-neutral-50 rounded flex flex-row w-full sm:w-1/2">
+      <div className="bg-neutral-50 rounded flex flex-wrap sm:flex-nowrap sm:w-full">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`w-full text-neutral-800 text-text-medium font-bold py-3 rounded m-1 ${activeTab === tab.id ? "bg-white" : "bg-transparent"
+            className={`flex-1 text-neutral-800 text-text-medium font-bold py-3 rounded m-1 ${activeTab === tab.id ? "bg-white" : "bg-transparent"
               }`}
           >
             {tab.label}

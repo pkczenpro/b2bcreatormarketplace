@@ -93,6 +93,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
+                            invoiceId: invoiceId,
                         });
 
                         if (result.data.success) {
@@ -103,7 +104,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                         }
                     } catch (error) {
                         console.error(error);
-                        toast.error("Payment verification failed");
+                        toast.error("Payment verification failed:", error);
                     }
                 },
                 prefill: {
@@ -119,7 +120,6 @@ export default function PayCreator({ }: CampaignDetailsProps) {
             paymentObject.open();
         } catch (error) {
             console.error(error);
-            toast.error("Payment initiation failed");
         } finally {
             setLoading(false);
         }

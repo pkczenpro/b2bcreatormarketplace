@@ -4,7 +4,7 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Check, ExternalLink, Eye, Image, Mic, Pencil, Plus, Text, Trash, Upload, Video, View } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Eye, Image, Pencil, Plus, Trash, Upload, Video, View } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate, Popconfirm } from "antd";
@@ -15,11 +15,8 @@ import ShowProductModal from "./ShowProductModal";
 import EditProductModal from "./EditProductModal";
 import Link from "next/link";
 import api from "@/utils/axiosInstance";
-import { toast } from "sonner";
 import LoadingOverlay from "../LoadingOverlay/LoadingOverlay";
 import CustomImage from "../CustomImage";
-import { get } from "http";
-import { FaLink } from "react-icons/fa";
 import { message } from "antd";
 
 type BrandDashboardProps = {
@@ -96,14 +93,15 @@ export default function BrandDashboard({
     getBrand();
   }, []);
 
-  console.log(partnerships)
-
   const tabs = [
     {
       id: 1,
       label: "Campaigns",
       content: (
         <>
+          <h3 className="text-3xl font-bold text-gray-900">
+            Campaigns
+          </h3>
           {campaigns ?
             campaigns.sort((a: any, b: any) => {
               const dateA = new Date(a.createdAt);
@@ -168,7 +166,7 @@ export default function BrandDashboard({
                     {campaign.status ? "Active" : "Inactive"}
                   </span>
                   <Link href={"/dashboard/campaigns-details/" + campaign._id}>
-                    <h3 className="text-h5 font-bold text-left mb-1 underline cursor-pointer">
+                    <h3 className="text-h5 font-bold text-left mb-1 underline cursor-pointer break-words">
                       {campaign.title}
                     </h3>
                   </Link>
@@ -209,6 +207,9 @@ export default function BrandDashboard({
       label: "Partnerships",
       content: (
         <>
+          <h3 className="text-3xl font-bold text-gray-900">
+            Product Catalogue of {userData?.profileName}
+          </h3>
           {partnerships?.length > 0 && partnerships?.map((partnership: any, index: number) => (
             <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
               <div className="flex justify-between items-center">

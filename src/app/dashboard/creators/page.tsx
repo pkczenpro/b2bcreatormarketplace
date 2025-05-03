@@ -290,17 +290,20 @@ export default function Creators() {
                                     ))}
                                 </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
                                 <Link href="/dashboard/inbox" className="w-full">
                                     <Button className="w-full px-4 py-2 border border-neutral-300 rounded-lg">Message</Button>
                                 </Link>
                                 <Button
+                                    type="primary"
                                     onClick={() => {
                                         setAddToCampaign(true)
                                         setCreator(creator);
                                     }}
                                     className="w-full px-4 py-2 border border-neutral-300 rounded-lg"
-                                >Add to Campaign</Button>
+                                >
+                                    Add to Campaign
+                                </Button>
                             </div>
                         </div>
                     ))}

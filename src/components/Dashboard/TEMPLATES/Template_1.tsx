@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
-import { Button, Input, Segmented, Switch, Upload, message, ColorPicker, Tabs, Slider } from "antd";
+import { Button, Input, Segmented, Switch, Upload, message, ColorPicker, Tabs, Slider, Select } from "antd";
 import { ArrowRightCircle, Sparkles } from "lucide-react";
 import html2canvas from "html2canvas";
 import EmojiPicker from 'emoji-picker-react';
 import api from "@/utils/axiosInstance";
 import { LoadingOutlined } from "@ant-design/icons";
+import AiLoaderOverlay from "@/components/LoadingOverlay/AiLoaderOverlay";
+import CustomImage from "@/components/CustomImage";
 interface Template1Props {
     index: number;
     selectedSize: string;
@@ -13,6 +15,7 @@ interface Template1Props {
     backgroundColor: string;
     template: number;
     deleteItem: (index: number) => void;
+    GRADIENT_COLORS: { name: string; value: string }[];
 }
 
 const Template_1: React.FC<Template1Props> = ({
@@ -22,7 +25,8 @@ const Template_1: React.FC<Template1Props> = ({
     backgroundColor,
     data,
     setData,
-    deleteItem
+    deleteItem,
+    GRADIENT_COLORS
 }) => {
     const [userData, setUserData] = useState(null);
     useEffect(() => {
@@ -147,7 +151,7 @@ const Template_1: React.FC<Template1Props> = ({
             key: "3",
             label: "Design",
             children: (
-                <div className="space-y-4">
+                <div className="space-y-2">
                     {["Background Color"].map((label, i) => (
                         <div key={i} className="text-left">
                             <h3 className="font-medium mb-2">{label}</h3>
@@ -159,6 +163,27 @@ const Template_1: React.FC<Template1Props> = ({
                             />
                         </div>
                     ))}
+
+                    <h3 className="font-medium mb-2 mt-2 text-left">Gradient</h3>
+                    <Select
+                        className="w-full"
+                        defaultValue={data.bgColor}
+                        onChange={(value) => {
+                            setData({ ...data, bgColor: value });
+                        }}
+                    >
+                        {GRADIENT_COLORS.map((grad, index) => (
+                            <Select.Option key={index} value={grad.value}>
+                                <div className="flex items-center">
+                                    <div
+                                        className="w-6 h-4 rounded mr-2"
+                                        style={{ background: grad.value }}
+                                    ></div>
+                                    {grad.name}
+                                </div>
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </div>
             ),
         },
@@ -264,7 +289,6 @@ const Template_1: React.FC<Template1Props> = ({
     };
 
 
-
     return (
         <div className="w-full h-full flex flex-col">
             <div
@@ -275,7 +299,7 @@ const Template_1: React.FC<Template1Props> = ({
                     width: `${width}px`,
                     height: `${height}px`,
                     fontFamily,
-                    backgroundColor: data.bgColor || "#7CA3C2",
+                    background: data.bgColor,
                     justifyContent: data.isHeadImage ? "flex-start" : "center",
                     paddingTop: data.isHeadImage ? "30px" : "0",
                 }}
@@ -355,7 +379,7 @@ const Template_1: React.FC<Template1Props> = ({
                     {data.showProfileImage && (
                         <div className="flex items-center space-x-4">
                             {!data.isHeadImage &&
-                                <img
+                                <CustomImage
                                     loading="lazy"
                                     src={
                                         data?.profileImage?.image ||
@@ -440,6 +464,9 @@ const Template_1: React.FC<Template1Props> = ({
                             Improve with AI
                         </Button>
                     </div>
+                    {loading && <AiLoaderOverlay
+                        loading={loading}
+                    />}
 
                     <Tabs defaultActiveKey="1" items={tabs} />
                 </div>

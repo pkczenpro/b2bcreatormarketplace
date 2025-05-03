@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Modal, Select } from "antd";
+import { Button, Modal } from "antd";
 import api from "@/utils/axiosInstance";
 import { toast } from "sonner";
 import MainContent from "@/components/PostMaker/MainContent";
@@ -21,13 +21,27 @@ export default function PostMaker({ }: PostMakerProps) {
     const [isReadMore, setIsReadMore] = useState(false);
     const [userData, setUserData] = useState(null);
     const [isSelectSharingModalOpenValue, setIsSelectSharingModalOpenValue] = useState("0");
-    const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(true);
+    const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(false);
     const [drafts, setDrafts] = useState([]);
     const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState("");
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [brandName, setBrandName] = useState("");
+
+    // get from query campaign the id of campaign
+    useEffect(() => {
+        // get from query campaign the id of campaign
+        const query = new URLSearchParams(window.location.search);
+        const campaignId = query.get("campaign");
+        if (campaignId) {
+            setSelectedCampaign(campaignId);
+            setIsSelectSharingModalOpenValue("1");
+            setIsSelectSharingModalOpen(false);
+        } else {
+            setIsSelectSharingModalOpen(true);
+        }
+    }, [])
 
     const getUserData = async () => {
         try {

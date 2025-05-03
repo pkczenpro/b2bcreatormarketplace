@@ -18,7 +18,7 @@ export default function Login() {
         },
     ];
 
-   
+
 
     return (
         <div className="p-6 flex flex-col md:flex-row justify-center items-center min-h-screen mx-auto">
@@ -33,7 +33,7 @@ export default function Login() {
                     loading="lazy"
                     src="/images/wallpaper.png"
                     alt="Signup"
-                    className="object-cover w-full max-w-[600px] h-auto sm:h-[95vh] rounded-lg"
+                    className="object-cover w-screen h-auto sm:h-[95vh] rounded-lg"
                 />
             </div>
         </div>

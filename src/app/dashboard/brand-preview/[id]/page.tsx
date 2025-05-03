@@ -119,27 +119,22 @@ export default function BrandDashboard() {
             label: "Campaigns",
             content: (
                 <>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-8">
+                        Product Catalogue of {userData?.profileName}
+                    </h3>
                     {campaigns
                         ?.sort((a, b) => new Date(b?.createdAt).getTime() - new Date(a?.createdAt).getTime())
                         .filter((campaign: Campaign) => campaign.visibility).map((campaign: Campaign, index: number) => (
                             <Link href={`/dashboard/campaigns-details/${campaign._id}`} key={index}>
                                 <div className="border border-neutral-100 mt-6 rounded-md p-6 cursor-pointer transition-all hover:shadow-md hover:transition-all">
-                                    {/* Date or status if going on */}
+
                                     <span className="text-md font-bold text-success-500 rounded-sm">
                                         {campaign.status ? "Active" : "Inactive"}
                                     </span>
-                                    {/* {campaign?.createdAt && (
-                                        <span className="text-sm text-neutral-500 font-medium ml-2">
-                                            {new Date(campaign?.createdAt).toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            })}
-                                        </span>
-                                    )} */}
-                                    <h3 className="text-h5 font-bold text-left mb-1">
+                                    <h3 className="text-h5 font-bold text-left mb-1 break-words">
                                         {campaign.title}
                                     </h3>
+
                                     <p className="text-neutral-600 text-left mb-6">
                                         {campaign.description}
                                     </p>
@@ -178,6 +173,9 @@ export default function BrandDashboard() {
             label: "Partnerships",
             content: (
                 <>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-8">
+                        Product Catalogue of {userData?.profileName}
+                    </h3>
                     {partnerships && partnerships.length > 0 && partnerships.map((partnership: Partnership, index: number) => (
                         <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
                             <div className="flex justify-between items-center">

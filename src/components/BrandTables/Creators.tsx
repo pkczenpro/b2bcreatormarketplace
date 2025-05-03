@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner"
 import { LoadingOutlined } from "@ant-design/icons";
 import { useRouter } from 'next/navigation';
+import moment from "moment";
 
 export function CreatorTable({
     campaign,
@@ -31,6 +32,9 @@ export function CreatorTable({
         approved: creator?.approved,
         profilePicture: creator?.creatorId.profileImage,
         content: creator?.content,
+        invoiceId: creator?.invoiceId?._id,
+        invoiceStatus: creator?.invoiceId?.status,
+        invoice: creator?.invoiceId,
     }));
 
     const [selectedCreator, setSelectedCreator] = useState(null);
@@ -203,6 +207,7 @@ export function CreatorTable({
                 const hasContent = record.content?.length > 0;
 
                 const invoiceId = record?.invoiceId;
+                const isPaymentMade = record?.invoiceStatus === "paid";
 
                 const isAmountSet = record?.amount > 0;
 
@@ -237,7 +242,7 @@ export function CreatorTable({
                             <Button
                                 onClick={() => {
                                     if (record?.amount) {
-                                        router.push(`/dashboard/pay-creator/${campaign._id}?creator=${record._id}&&invoiceId=${invoiceId}`);
+                                        router.push(`/dashboard/pay-creator/${campaign._id}?creator=${record._id}&invoiceId=${invoiceId}`);
                                     }
                                     else {
                                         toast.error("No amount specified for this creator", {
@@ -250,8 +255,9 @@ export function CreatorTable({
                                 type="primary"
                                 size="small"
                                 className={"bg-green-500"}
+                                disabled={isPaymentMade}
                             >
-                                Make Payment
+                                {isPaymentMade ? "Paid" : "Make Payment"}
                             </Button>
                         )}
 
@@ -429,15 +435,47 @@ export function CreatorTable({
                         </span>
                     </div>
                 )}
+
                 expandable={{
                     expandedRowRender: (record) => (
-                        <div className="flex flex-col gap-4">
-                            <pre>
-                                {JSON.stringify(record, null, 2)}
-                            </pre>
+                        <div className="bg-neutral-50 p-4 rounded-xl shadow-sm space-y-3">
+                            <div className="flex justify-between">
+                                <span className="text-sm text-neutral-500">Invoice ID</span>
+                                <span className="text-sm font-medium text-neutral-900">
+                                    {record.invoice?.invoiceNumber}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-neutral-500">Invoice Date</span>
+                                <span className="text-sm font-medium text-neutral-900">
+                                    {
+                                        moment(record.invoice?.createdAt).format("DD/MM/YYYY HH:mm A")
+                                    }
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-neutral-500">Invoice Status</span>
+                                <span className="text-sm font-medium text-neutral-900">
+                                    {record.invoice?.status === "paid" ? (
+                                        <span className="text-green-700">Paid</span>
+                                    ) : record.invoice?.status === "pending" ? (
+                                        <span className="text-yellow-500">
+                                            Waiting for Payment
+                                        </span>
+                                    ) : <span className="text-red-700">Payment Failed</span>}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-neutral-500">Invoice Amount</span>
+                                <span className="text-sm font-medium text-green-700">
+                                    {record.invoice?.totalAmount?.toFixed(2)} USD
+                                </span>
+                            </div>
                         </div>
                     ),
+                    rowExpandable: (record) => record.invoiceId,
                 }}
+
             />
             {reviewModalComponent}
             <Modal

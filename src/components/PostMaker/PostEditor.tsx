@@ -13,9 +13,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ClockCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import moment from "moment";
-import dayjs from "dayjs";
+import AiLoaderOverlay from "@/components/LoadingOverlay/AiLoaderOverlay";
 
 const { Title } = Typography;
 
@@ -66,9 +66,11 @@ const PostEditor = ({
         defaultValues: { post: "" },
     });
 
+    const [aiLoader, setAiLoader] = useState(false);
+
     const generatePostWithAI = async () => {
         if (!aiPrompt) return;
-        setLoading(true);
+        setAiLoader(true);
         try {
             const response = await api.post("/campaigns/generate-post", {
                 prompt: aiPrompt,
@@ -81,7 +83,7 @@ const PostEditor = ({
         } catch (error) {
             console.error("AI Generation Error:", error);
         } finally {
-            setLoading(false);
+            setAiLoader(false);
         }
     };
 
@@ -157,26 +159,28 @@ const PostEditor = ({
                 open={schedulePostModalOpen}
                 onCancel={() => setSchedulePostModalOpen(false)}
                 onOk={schedulePost}
-                okText="Schedule Post"
-                cancelText="Cancel"
+                okText="🚀 Schedule Now"
+                cancelText="❌ Cancel"
                 centered
                 title={
                     <Space>
-                        <ClockCircleOutlined />
                         <Title level={4} style={{ margin: 0 }}>
-                            Schedule Post
+                            ⏰ Schedule Your Post!
                         </Title>
                     </Space>
                 }
             >
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     <div>
-                        <h3 className="font-medium mb-2">Label (optional)</h3>
-                        <Input placeholder="Label" onChange={(e) => setLabel(e.target.value)} />
+                        <h3 className="font-semibold mb-2 text-lg">🏷️ Add a Label <span className="text-gray-500">(optional)</span></h3>
+                        <Input
+                            placeholder="e.g. Monday Motivation 💪"
+                            onChange={(e) => setLabel(e.target.value)}
+                            className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
                     </div>
                     <div>
-                        Select a date and time to publish your post:
-                        <br />
+                        <p className="font-medium text-base mb-2">📅 Pick a date & time to go live!</p>
                         <DatePicker
                             showTime
                             style={{ width: '100%', marginTop: 8 }}
@@ -184,9 +188,10 @@ const PostEditor = ({
                                 console.log(mainDate, date);
                                 setScheduledDate(mainDate)
                                 setScheduledDateString(date)
-                            }} // set moment object
-                            value={scheduledDate} // Make sure value is managed
-                            format="YYYY-MM-DD HH:mm:ss" // Optional, to display in a specific format
+                            }}
+                            value={scheduledDate}
+                            format="YYYY-MM-DD HH:mm:ss"
+                            className="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                     </div>
                 </Space>
@@ -194,14 +199,15 @@ const PostEditor = ({
         );
     };
 
+
     return (
         <div className="flex flex-col w-full mx-auto bg-white py-6 gap-5">
             {schedulePostModal()}
             {/* Campaign & Product Section */}
             {isSelectSharingModalOpen === "1" && (
-                <div className="flex gap-2">
-                    <div className="w-full">
-                        <p className="font-semibold text-neutral-700 mb-2">Select Campaign</p>
+                <div className="flex gap-2 justify-between">
+                    <div className="w-full max-w-[30%]">
+                        <p className="font-semibold text-neutral-700 mb-2 text-sm">Select Campaign</p>
                         <Select
                             className="w-full"
                             placeholder="Choose campaign"
@@ -210,8 +216,8 @@ const PostEditor = ({
                             options={relatedCampaigns.map(c => ({ label: c.title, value: c._id }))}
                         />
                     </div>
-                    <div className="w-full">
-                        <p className="font-semibold text-neutral-700 mb-2">Select Product</p>
+                    <div className="w-full max-w-[30%]">
+                        <p className="font-semibold text-neutral-700 mb-2 text-sm">Select Product</p>
                         <Select
                             className="w-full"
                             placeholder="Choose product"
@@ -221,11 +227,10 @@ const PostEditor = ({
                         />
 
                     </div>
-                    <div className="w-full">
-                        <p className="font-semibold text-neutral-700 mb-2">Brand Name</p>
+                    <div className="w-full max-w-[30%]">
+                        <p className="font-semibold text-neutral-700 mb-2 text-sm">Brand Name</p>
                         <Input
                             className="w-full"
-                            placeholder="Enter brand name"
                             value={brandName}
                             onChange={(e) => setBrandName(e.target.value)}
                         />
@@ -235,7 +240,7 @@ const PostEditor = ({
 
             {/* Hook Type */}
             <div className="w-full">
-                <p className="font-semibold text-neutral-700 mb-2">Hook Type</p>
+                <p className="font-semibold text-neutral-700 mb-2 text-sm">Hook Type</p>
                 <Select
                     className="w-full"
                     value={hookType}
@@ -244,11 +249,14 @@ const PostEditor = ({
                 />
             </div>
 
+
+            {aiLoader && (
+                <AiLoaderOverlay loading={aiLoader} />
+            )}
             {/* AI Prompt */}
             <div>
-                <p className="font-semibold text-neutral-700 mb-2 flex items-center gap-2">
-                    <Sparkles size={18} className="text-yellow-500" />
-                    Generate post with AI
+                <p className="font-semibold text-neutral-700 mb-2 flex items-center gap-2 text-sm">
+                    Create with AI in Seconds ⚡
                 </p>
                 <div className="flex gap-2">
                     <Input
@@ -264,7 +272,7 @@ const PostEditor = ({
 
             {/* Post Editor */}
             <div>
-                <p className="font-semibold text-neutral-700 mb-2">Write your Post</p>
+                <p className="font-semibold text-neutral-700 mb-2 text-sm">Write your Post</p>
                 <Input.TextArea
                     id="postTextarea"
                     rows={12}

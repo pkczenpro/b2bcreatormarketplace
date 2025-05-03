@@ -91,14 +91,20 @@ const MainContent = ({
                 centered
                 width={500}
             >
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-xl font-bold">Select Category</h2>
-                    <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-5">
+                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                        🗂️ Select a Category
+                    </h2>
+                    <p className="text-gray-600">✨ Choose the best category that fits your post!</p>
+                    <div className="flex flex-wrap gap-3">
                         {draftCategories.map((cat) => (
                             <Button
                                 key={cat}
                                 onClick={() => setCategory(cat)}
-                                className={`${category === cat ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+                                className={`
+                        ${category === cat ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}
+                        rounded-full px-4 py-2 transition-all duration-200 hover:scale-105
+                    `}
                             >
                                 {cat}
                             </Button>
@@ -109,11 +115,13 @@ const MainContent = ({
                             saveDraftToLocalStorage(category);
                             setCategoryModalOpen(false);
                         }}
+                        className="mt-4 bg-green-500 text-white hover:bg-green-600 rounded-lg px-5 py-2 text-lg flex items-center gap-2 justify-center"
                     >
-                        Save
+                        Save Category
                     </Button>
                 </div>
             </Modal>
+
         </div>
     )
 };

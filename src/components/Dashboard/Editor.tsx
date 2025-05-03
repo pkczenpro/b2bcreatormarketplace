@@ -3,11 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
 import Template_1 from "./TEMPLATES/Template_1";
-import { ChevronLeft, ChevronRight, Send, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/axiosInstance";
 import moment from "moment";
-import { ClockCircleOutlined } from "@ant-design/icons";
 
 const TEMPLATES = [
     { id: 1, name: "Template 1", size: "288x360", component: Template_1, bgColor: "#000" },
@@ -16,6 +15,25 @@ const TEMPLATES = [
     { id: 4, name: "Template 4", size: "288x360", component: null, bgColor: "#814EB3" },
 ];
 
+const GRADIENT_COLORS = [
+    { name: 'Black Solid', value: '#000' },
+
+    { name: 'Sunset', value: 'linear-gradient(to right, #ff7e5f, #feb47b)' },
+    { name: 'Ocean Blue', value: 'linear-gradient(to top, #2193b0, #6dd5ed)' },
+    { name: 'Purple Bliss', value: 'linear-gradient(to bottom, #360033, #0b8793)' },
+    { name: 'Green Oasis', value: 'linear-gradient(to left, #56ab2f, #a8e063)' },
+    { name: 'Pink Dream', value: 'linear-gradient(to top right, #ff758c, #ff7eb3)' },
+    { name: 'Golden Hour', value: 'linear-gradient(to bottom left, #fceabb, #f8b500)' },
+    { name: 'Royal Blue', value: 'linear-gradient(to top left, #00c6ff, #0072ff)' },
+    { name: 'Night Sky', value: 'linear-gradient(to bottom right, #000428, #004e92)' },
+    { name: 'Desert Dusk', value: 'linear-gradient(to left, #d53369, #cbad6d)' },
+    { name: 'Cherry Blossom', value: 'linear-gradient(to right, #f8cdda, #1d2b64)' },
+    { name: 'Lavender Fields', value: 'linear-gradient(to top, #e0c3fc, #8ec5fc)' },
+    { name: 'Minty Fresh', value: 'linear-gradient(to bottom, #a8edea, #fed6e3)' },
+    { name: 'Coral Reef', value: 'linear-gradient(to top right, #ff9966, #ff5e62)' },
+    { name: 'Skyline', value: 'linear-gradient(to bottom left, #00c6ff, #0072ff)' },
+    { name: 'Autumn Leaves', value: 'linear-gradient(to top left, #f12711, #f5af19)' },
+];
 
 
 const DEFAULT_TEMPLATE = {
@@ -122,9 +140,6 @@ const CarouselEditor = () => {
             }
         }
     ]);
-
-    console.log("postsData", postsData);
-
     const [selectedSize, setSelectedSize] = useState("288x360");
 
     const addPost = () => {
@@ -143,18 +158,6 @@ const CarouselEditor = () => {
         ]);
     };
 
-    const deletePost = (index) => {
-        setPosts(posts.filter((_, i) => i !== index));
-    };
-
-    const exportPost = (index) => {
-        const postElement = document.getElementById(`post-${index}`);
-        if (postElement) {
-            html2canvas(postElement, { backgroundColor: null }).then((canvas) => {
-                setImageFile([...imageFile, canvas.toDataURL("image/png")]);
-            });
-        }
-    };
 
     const [showTemplates, setShowTemplates] = useState(false);
     const showTemplatesModal = () => {
@@ -364,22 +367,7 @@ const CarouselEditor = () => {
         return new Blob([arrayBuffer], { type: 'image/png' });
     };
 
-    const [aiPrompt, setAiPrompt] = useState("");
     const [loading, setLoading] = useState(false);
-    const generatePostWithAI = async () => {
-        // if (!aiPrompt) return;
-        setLoading(true);
-        try {
-            const response = await api.post("/campaigns/generate-carousel",
-                { keywords: aiPrompt, posts: postsData, campaignId: selectedCampaign }
-            );
-            setPostsData(response.data);
-        } catch (error) {
-            console.error("AI Generation Error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const deleteItem = (index) => {
         setPosts(posts.filter((_, i) => i !== index));
@@ -387,7 +375,22 @@ const CarouselEditor = () => {
     }
 
     const [isSelectSharingModalOpenValue, setIsSelectSharingModalOpenValue] = useState("0");
-    const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(true);
+    const [isSelectSharingModalOpen, setIsSelectSharingModalOpen] = useState(false);
+
+
+    useEffect(() => {
+        // get from query campaign the id of campaign
+        const query = new URLSearchParams(window.location.search);
+        const campaignId = query.get("campaign");
+        if (campaignId) {
+            setSelectedCampaign(campaignId);
+            setIsSelectSharingModalOpenValue("1");
+            setIsSelectSharingModalOpen(false);
+        } else {
+            setIsSelectSharingModalOpen(true);
+        }
+    }, [])
+
     const selectSharingModal = () => {
         return (
             <Modal
@@ -521,41 +524,46 @@ const CarouselEditor = () => {
                 open={schedulePostModalOpen}
                 onCancel={() => setSchedulePostModalOpen(false)}
                 onOk={schedulePost}
-                okText="Schedule Post"
-                cancelText="Cancel"
+                okText="🚀 Schedule Now"
+                cancelText="❌ Cancel"
                 centered
                 title={
                     <Space>
-                        <ClockCircleOutlined />
+
                         <Title level={4} style={{ margin: 0 }}>
-                            Schedule Post
+                            ⏰ Schedule Your Post!
                         </Title>
                     </Space>
                 }
             >
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     <div>
-                        <h3 className="font-medium mb-2">Label (optional)</h3>
-                        <Input placeholder="Label" onChange={(e) => setLabel(e.target.value)} />
+                        <h3 className="font-semibold mb-2 text-lg">🏷️ Add a Label <span className="text-gray-500">(optional)</span></h3>
+                        <Input
+                            placeholder="e.g. Weekend Promo 🎉"
+                            onChange={(e) => setLabel(e.target.value)}
+                            className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
                     </div>
                     <div>
-                        Select a date and time to publish your post:
-                        <br />
+                        <p className="font-medium text-base mb-2">📅 Pick a date & time to go live!</p>
                         <DatePicker
                             showTime
                             style={{ width: '100%', marginTop: 8 }}
                             onChange={(mainDate, date) => {
                                 setScheduledDate(mainDate)
                                 setScheduledDateString(date)
-                            }} // set moment object
-                            value={scheduledDate} // Make sure value is managed
-                            format="YYYY-MM-DD HH:mm:ss" // Optional, to display in a specific format
+                            }}
+                            value={scheduledDate}
+                            format="YYYY-MM-DD HH:mm:ss"
+                            className="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                     </div>
                 </Space>
             </Modal>
         );
     };
+
 
     return (
         <div className="w-full">
@@ -566,14 +574,14 @@ const CarouselEditor = () => {
             <div className="flex w-full min-h-[80vh] flex-col sm:flex-row">
                 {showTemplatesModal()}
 
-                <div className="sm:min-w-[15vw] sm:max-w-[15vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
+                <div className="sm:min-w-[20vw] sm:max-w-[20vw] max-h-[80vh] border-r border-neutral-200 p-6 flex flex-col justify-between bg-white">
                     <div>
                         {/* Campaign Selection */}
                         {isSelectSharingModalOpenValue === "1" && <div className="mb-4">
                             <h3 className="font-medium mb-2">
                                 Select a Campaign
                             </h3>
-                            <Select className="mb-4 w-full" placeholder="Select Campaign" onChange={setSelectedCampaign}>
+                            <Select value={selectedCampaign} className="mb-4 w-full" placeholder="Select Campaign" onChange={setSelectedCampaign}>
                                 {relatedCampaigns.map((campaign) => (
                                     <Select.Option key={campaign?._id} value={campaign?._id}>
                                         {campaign?.title}
@@ -587,36 +595,6 @@ const CarouselEditor = () => {
                                 <Select.Option key={size.value} value={size.value}>{size.label}</Select.Option>
                             ))}
                         </Select>
-                        {/* <Select className="w-full mb-2" value={selectedTemplate.name} onChange={(value) => {
-                            const template = TEMPLATES.find((template) => template.name === value);
-                            if (template) {
-                                setSelectedTemplate(template);
-                                setPostsData((prevPostsData) => {
-                                    // set showEditingDiv to false for all posts
-                                    return prevPostsData.map((post) => ({
-                                        ...post,
-                                        postData: {
-                                            ...post.postData,
-                                            bgColor: template.bgColor,
-                                        },
-                                    }));
-                                });
-                            }
-                        }}>
-                            {TEMPLATES.map((template) => (
-                                <Select.Option key={template.id} value={template.name}>{template.name}</Select.Option>
-                            ))}
-                        </Select> */}
-
-                        {/* <Button
-                        className="w-full"
-                        onClick={() => {
-                            setShowTemplates(true);
-                        }}
-                    >
-                        Change Carousel Template
-                    </Button> */}
-
                         <div className="border-t border-neutral-200 my-4"></div>
 
                         <h3 className="font-medium mb-2">Font</h3>
@@ -625,6 +603,36 @@ const CarouselEditor = () => {
                                 <Select.Option key={index} value={font}>{font}</Select.Option>
                             ))}
                         </Select>
+
+                        <h3 className="font-medium mb-2 mt-4">Gradient</h3>
+                        <Select className="w-full mb-2" value={backgroundColor}
+                            onChange={(value) => {
+                                setPostsData((prevPostsData) =>
+                                    prevPostsData.map((post) => ({
+                                        ...post,
+                                        postData: {
+                                            ...post.postData,
+                                            bgColor: value,
+                                        },
+                                    }))
+                                );
+                                setBackgroundColor(value);
+                            }}>
+                            {GRADIENT_COLORS.map((grad, index) => (
+                                <Select.Option key={index} value={grad.value}>
+                                    <div className="flex items-center">
+                                        <div
+                                            className="w-6 h-4 rounded mr-2"
+                                            style={{ background: grad.value }}
+                                        ></div>
+                                        {grad.name}
+                                    </div>
+                                </Select.Option>
+                            ))}
+                        </Select>
+
+
+
 
 
 
@@ -684,6 +692,7 @@ const CarouselEditor = () => {
                                                 setPostsData(updatedPostsData);
                                             }}
                                             deleteItem={deleteItem}
+                                            GRADIENT_COLORS={GRADIENT_COLORS}
                                         />
 
                                     </div>
