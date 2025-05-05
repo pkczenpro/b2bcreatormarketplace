@@ -99,8 +99,8 @@ export default function BrandDashboard({
       label: "Campaigns",
       content: (
         <>
-          <h3 className="text-3xl font-bold text-gray-900">
-            Campaigns
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
+            Our Latest Campaigns
           </h3>
           {campaigns ?
             campaigns.sort((a: any, b: any) => {
@@ -207,8 +207,8 @@ export default function BrandDashboard({
       label: "Partnerships",
       content: (
         <>
-          <h3 className="text-3xl font-bold text-gray-900">
-            Product Catalogue of {userData?.profileName}
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
+            Discover Our Partnerships
           </h3>
           {partnerships?.length > 0 && partnerships?.map((partnership: any, index: number) => (
             <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">

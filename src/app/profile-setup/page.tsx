@@ -507,7 +507,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       <div className="w-full max-w-lg md:w-[40vw] ml-0 md:ml-24">
         <h1 className="text-h3 font-bold text-left mb-1">Setup Your Profile</h1>
         <p className="text-neutral-600 text-left mb-6 md:mb-10">
-          Welcome to B2B Creator! Let’s get a head start on your profile.
+          Welcome to Linkish! Let’s get a head start on your profile.
         </p>
 
         {sections

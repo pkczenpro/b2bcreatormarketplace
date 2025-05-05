@@ -242,7 +242,7 @@ export function CreatorTable({
                             <Button
                                 onClick={() => {
                                     if (record?.amount) {
-                                        router.push(`/dashboard/pay-creator/${campaign._id}?creator=${record._id}&invoiceId=${invoiceId}`);
+                                        router.push(`/dashboard/pay-creator/${campaign._id}?creator=${record._id}&invoiceId=${invoiceId}&name=${record.name}`);
                                     }
                                     else {
                                         toast.error("No amount specified for this creator", {

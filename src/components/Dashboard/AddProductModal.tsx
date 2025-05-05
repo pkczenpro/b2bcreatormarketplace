@@ -174,7 +174,7 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
 
   return (
     <Modal
-      width={800}
+      width={1200}
       centered
       title={
         <div className="flex items-center space-x-2">
@@ -321,7 +321,14 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
             </h3>
             <div className="space-y-4">
               <div className="flex flex-col space-y-2">
-                <label className="font-medium">Loom Video Link</label>
+                <div className="flex items-center gap-2">
+                  <img
+                    src="/images/loom.jpeg"
+                    alt="Loom Logo"
+                    className="w-12 mb-2"
+                  />
+                  <label className="font-medium">Loom Video Link</label>
+                </div>
                 <Input
                   name="loomVideoLink"
                   value={formData.loomVideoLink}
@@ -334,7 +341,17 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="font-medium">G2 Link</label>
+                <div className="flex gap-2 items-center">
+                  <img
+                    src="/images/g2.jpeg"
+                    alt="G2 Logo"
+                    className="w-8 mb-2"
+                  />
+
+
+                  <label className="font-medium">G2 Link</label>
+
+                </div>
                 <Input
                   name="g2Link"
                   value={formData.g2Link}
@@ -347,7 +364,14 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="font-medium">Capterra Link</label>
+                <div className="flex items-center gap-2">
+                  <img
+                    src="/images/arrow.jpeg"
+                    alt="Capterra Logo"
+                    className="w-8 mb-2"
+                  />
+                  <label className="font-medium">Capterra Link</label>
+                </div>
                 <Input
                   name="capterraLink"
                   value={formData.capterraLink}
@@ -373,7 +397,14 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="font-medium">Product Hunt</label>
+                <div className="items-center gap-2 flex">
+                  <img
+                    src="/images/producthunt.jpeg"
+                    alt="Product Hunt Logo"
+                    className="w-8 mb-2"
+                  />
+                  <label className="font-medium">Product Hunt</label>
+                </div>
                 <Input
                   name="productHunt"
                   value={formData.productHunt}

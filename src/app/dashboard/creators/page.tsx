@@ -283,7 +283,14 @@ export default function Creators() {
                                         </Link>
                                     </div>
                                 </div>
-                                <p className="text-sm text-neutral-700 mt-4">{creator?.description}</p>
+                                <p className="text-sm text-neutral-700 mt-4">
+                                    {creator?.description
+                                        ? creator.description.length > 200
+                                            ? creator.description.slice(0, 200) + "..."
+                                            : creator.description
+                                        : ""}
+                                </p>
+
                                 <div className="flex flex-wrap gap-2 mt-4">
                                     {creator?.tags.map((tag, index) => (
                                         <span key={index} className="text-neutral-600  text-sm px-3 py-1 rounded-full border border-neutral-200 bg-neutral-50">{tag}</span>

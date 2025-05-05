@@ -2,7 +2,7 @@
 "use client";
 
 import Button from "@/components/Button/Button";
-import { MessageSquare } from "lucide-react";
+import { Link2, MessageSquare } from "lucide-react";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -265,7 +265,7 @@ export default function CreatorDashboard() {
                 <div className="flex justify-between">
                     <h2 className="uppercase mb-4">About Me</h2>
                 </div>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 text-sm whitespace-pre-wrap">
                     {userData?.textBlock[0]?.description}
                 </p>
             </div>
@@ -331,16 +331,22 @@ export default function CreatorDashboard() {
                                                     userData?.socialMediaLinks.filter((item) => item.link).map((link: any, index: number) => (
                                                         <a key={index} href={link.link} target="_blank" rel="noreferrer">
                                                             <Tooltip
-                                                                title={link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                                                                title={
+                                                                    link.platform === "otherLinks" ?
+                                                                        "Other Link"
+                                                                        : link.platform.charAt(0).toUpperCase() + link.platform.slice(1)
+                                                                }
                                                                 placement="top"
                                                                 color="#000000"
                                                                 overlayInnerStyle={{ color: "#ffffff" }}
                                                             >
-                                                                <img loading="lazy"
-                                                                    src={`/icons/${link.platform}.svg`}
-                                                                    alt={link.platform}
-                                                                    className="w-6 h-6"
-                                                                />
+                                                                {link.platform === "otherLinks" ?
+                                                                    <Link2 />
+                                                                    : <img loading="lazy"
+                                                                        src={`/icons/${link.platform}.svg`}
+                                                                        alt={link.platform}
+                                                                        className="w-6 h-6"
+                                                                    />}
                                                             </Tooltip>
                                                         </a>
                                                     ))
@@ -380,12 +386,14 @@ export default function CreatorDashboard() {
 
                         {/* Sections */}
                         <div className="mt-12 space-y-6">
+                            {showSections.textBlock && TextBlockDiv()}
+
                             {showSections.services && ServicesDiv()}
                             {showSections.partnerships && PartnershipsDiv()}
                             {showSections.work && WorkDiv()}
                             {showSections.linkedin && LinkedInDiv()}
                             {showSections.testimonials && TestimonialsDiv()}
-                            {showSections.textBlock && TextBlockDiv()}
+
                             {showSections.statBlock && StatBlockDiv()}
                         </div>
                     </motion.div>

@@ -19,6 +19,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
 
     const searchParams = useSearchParams();
     const email = searchParams.get("creator");
+    const name = searchParams.get("name");
     const invoiceId = searchParams.get("invoiceId");
 
     const params = useParams();
@@ -84,7 +85,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                 key: razorpayKey,
                 amount: orderAmount,
                 currency,
-                name: "B2B Platform",
+                name: "Linkish",
                 description: "Payment for creator services",
                 order_id: id,
                 handler: async function (response: any) {
@@ -108,8 +109,8 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                     }
                 },
                 prefill: {
-                    name: "Customer Name",
-                    email: "customer@example.com",
+                    name: name,
+                    email: email,
                 },
                 theme: {
                     color: "#4F46E5",

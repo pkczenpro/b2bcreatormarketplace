@@ -629,7 +629,7 @@ export default function CreatorDashboard({
                     </button>
                 </div>
                 {
-                    (isPreview || !eye) ? <p className="text-gray-600 text-sm">
+                    (isPreview || !eye) ? <p className="text-gray-600 text-sm whitespace-pre-wrap">
                         {userData?.textBlock[0]?.description}
                     </p> :
                         <>
@@ -833,12 +833,13 @@ export default function CreatorDashboard({
 
                     {/* Sections */}
                     <div className="mt-12 space-y-6">
+                        {showSections.textBlock && TextBlockDiv()}
                         {showSections.services && ServicesDiv()}
                         {showSections.partnerships && PartnershipsDiv()}
                         {showSections.work && WorkDiv()}
                         {/* {showSections.linkedin && LinkedInDiv()} */}
                         {showSections.testimonials && TestimonialsDiv()}
-                        {showSections.textBlock && TextBlockDiv()}
+
                         {showSections.statBlock && StatBlockDiv()}
                     </div>
                 </motion.div>

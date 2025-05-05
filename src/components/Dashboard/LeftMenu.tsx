@@ -237,7 +237,7 @@ export const LeftMenu = () => {
       {/* Drawer for Mobile */}
       <Drawer title={
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold">B2B Creator</h1>
+          <h1 className="text-lg font-bold">Linkish</h1>
           <Dropdown menu={notificationDropdown} placement="bottomRight">
             <Badge count={notifications.filter((item) => !item.isRead).length} size="small" overflowCount={9}>
               <Bell className="cursor-pointer" onClick={handleMarkAsRead} />
@@ -259,7 +259,9 @@ export const LeftMenu = () => {
       {/* Desktop Sidebar */}
       <div className="sm:flex flex-col px-[16px] bg-white border-r border-gray-200 hidden h-[100vh]">
         <div className="py-6 flex items-center justify-between mt-6">
-          <h1 className="text-lg font-bold">B2B Creator</h1>
+          <img src="/images/logo.jpeg" alt=""
+            className="w-[150px] h-[40px] object-cover"
+          />
           <Dropdown menu={notificationDropdown} placement="bottomRight">
             <Badge count={notifications.filter((item) => !item.isRead).length} size="small" overflowCount={100}>
               <Bell className="cursor-pointer" onClick={handleMarkAsRead} />

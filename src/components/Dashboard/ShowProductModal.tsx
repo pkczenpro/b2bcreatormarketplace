@@ -134,6 +134,11 @@ export default function ShowProductModal({
                                 rel="noopener noreferrer"
                                 className="block text-blue-600 hover:underline flex items-center"
                             >
+                                <img
+                                    src="/images/loom.jpeg"
+                                    alt="Loom Logo"
+                                    className="w-12 mr-2"
+                                />
                                 <Video className="w-4 h-4 mr-2" />
                                 Loom Video <ExternalLink className="inline w-4 h-4 ml-1" />
                             </a>
@@ -143,8 +148,13 @@ export default function ShowProductModal({
                                 href={product.g2Link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline"
+                                className="text-blue-600 hover:underline flex items-center"
                             >
+                                <img
+                                    src="/images/g2.jpeg"
+                                    alt="G2 Logo"
+                                    className="w-8 mr-2"
+                                />
                                 G2 Reviews <ExternalLink className="inline w-4 h-4 ml-1" />
                             </a>
                         )}
@@ -153,8 +163,13 @@ export default function ShowProductModal({
                                 href={product.capterraLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline"
+                                className="block text-blue-600 hover:underline flex items-center"
                             >
+                                <img
+                                    src="/images/arrow.jpeg"
+                                    alt="Capterra Logo"
+                                    className="w-8 mr-2"
+                                />
                                 Capterra Page <ExternalLink className="inline w-4 h-4 ml-1" />
                             </a>
                         )}
@@ -164,8 +179,13 @@ export default function ShowProductModal({
                                 href={product.productHunt}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline"
+                                className="block text-blue-600 hover:underline flex items-center"
                             >
+                                <img
+                                    src="/images/producthunt.jpeg"
+                                    alt="Product Hunt Logo"
+                                    className="w-8 mr-2"
+                                />
                                 Product Hunt <ExternalLink className="inline w-4 h-4 ml-1" />
                             </a>
                         )}

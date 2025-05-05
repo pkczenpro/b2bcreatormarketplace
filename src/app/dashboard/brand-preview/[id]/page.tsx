@@ -4,7 +4,7 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Eye, View, Video, Image } from "lucide-react";
+import { ArrowRight, Eye, View, Video, Image, Link2 } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import { useParams } from "next/navigation";
 import { LeftMenu } from "@/components/Dashboard/LeftMenu";
 import { toast } from "sonner";
 import CustomImage from "@/components/CustomImage";
-import { Rate } from "antd";
+import { Rate, Tooltip } from "antd";
 
 interface SocialMediaLink {
     platform: string;
@@ -119,8 +119,8 @@ export default function BrandDashboard() {
             label: "Campaigns",
             content: (
                 <>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-8">
-                        Product Catalogue of {userData?.profileName}
+                    <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
+                        Our Latest Campaigns
                     </h3>
                     {campaigns
                         ?.sort((a, b) => new Date(b?.createdAt).getTime() - new Date(a?.createdAt).getTime())
@@ -173,8 +173,8 @@ export default function BrandDashboard() {
             label: "Partnerships",
             content: (
                 <>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-8">
-                        Product Catalogue of {userData?.profileName}
+                    <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
+                        Discover Our Partnerships
                     </h3>
                     {partnerships && partnerships.length > 0 && partnerships.map((partnership: Partnership, index: number) => (
                         <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
@@ -445,13 +445,25 @@ export default function BrandDashboard() {
                                             {userData?.socialMediaLinks
                                                 ?.filter((link: SocialMediaLink) => link.url)
                                                 .map((link: SocialMediaLink, index: number) => (
-                                                    <a key={index} href={link.url} target="_blank" rel="noreferrer">
-                                                        <img
-                                                            loading="lazy"
-                                                            src={`/icons/${link.platform}.svg`}
-                                                            alt={link.platform}
-                                                            className="w-5 h-5"
-                                                        />
+                                                    <a key={index} href={link?.link} target="_blank" rel="noreferrer">
+                                                        <Tooltip
+                                                            title={
+                                                                link.platform === "otherLinks" ?
+                                                                    "Other Link"
+                                                                    : link.platform.charAt(0).toUpperCase() + link.platform.slice(1)
+                                                            }
+                                                            placement="top"
+                                                            color="#000000"
+                                                            overlayInnerStyle={{ color: "#ffffff" }}
+                                                        >
+                                                            {link.platform === "otherLinks" ?
+                                                                <Link2 />
+                                                                : <img loading="lazy"
+                                                                    src={`/icons/${link.platform}.svg`}
+                                                                    alt={link.platform}
+                                                                    className="w-6 h-6"
+                                                                />}
+                                                        </Tooltip>
                                                     </a>
                                                 ))}
                                         </div>
