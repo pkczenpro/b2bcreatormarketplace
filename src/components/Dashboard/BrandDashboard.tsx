@@ -530,10 +530,12 @@ export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
         centered
         title="Create Campaign"
         open={visible}
-        okText="Create Campaign"
+        okText={loading ? "Loading..." : "Create Campaign"}
         onOk={async () => {
-          await handleAddCampaign();
-          await getBrand();
+          if (!loading) {
+            await handleAddCampaign();
+            await getBrand();
+          }
         }}
         onCancel={() => setVisible(false)}
       >

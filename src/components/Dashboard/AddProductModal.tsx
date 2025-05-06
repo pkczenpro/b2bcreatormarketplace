@@ -190,7 +190,7 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
         <Button key="cancel" onClick={() => setModal(false)}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
+        <Button key="submit" type="primary" loading={loading} disabled={loading} onClick={handleSubmit}>
           Submit
         </Button>,
       ]}
