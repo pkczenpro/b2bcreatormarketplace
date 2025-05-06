@@ -4,10 +4,31 @@
 
 import Button from "@/components/Button/Button";
 import Tabs from "@/components/Tabs/Tabs";
-import { ArrowRight, Check, ExternalLink, Eye, Image, Pencil, Plus, Trash, Upload, Video, View } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ExternalLink,
+  Eye,
+  Image,
+  Pencil,
+  Plus,
+  Trash,
+  Upload,
+  Video,
+  View,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Modal, Select, Switch, Button as AntdButton, Tooltip, Rate, Popconfirm } from "antd";
+import {
+  Divider,
+  Modal,
+  Select,
+  Switch,
+  Button as AntdButton,
+  Tooltip,
+  Rate,
+  Popconfirm,
+} from "antd";
 import Input from "../Input/Input";
 import TextArea from "antd/es/input/TextArea";
 import AddProductModal from "./AddProductModal";
@@ -23,10 +44,7 @@ type BrandDashboardProps = {
   isPreview: boolean;
 };
 
-export default function BrandDashboard({
-  isPreview
-}: BrandDashboardProps) {
-
+export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
   const [userType, setUserType] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [campaigns, setCampaigns] = useState<any>(null);
@@ -35,21 +53,33 @@ export default function BrandDashboard({
   const [loading, setLoading] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
+  const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(
+    null
+  );
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [selectedProductLogo, setSelectedProductLogo] = useState<File | null>(null);
-  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(null);
-  const [selectedProductImages, setSelectedProductImages] = useState<File[]>([]);
-  const [productImagesPreview, setProductImagesPreview] = useState<string[]>([]);
+  const [selectedProductLogo, setSelectedProductLogo] = useState<File | null>(
+    null
+  );
+  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(
+    null
+  );
+  const [selectedProductImages, setSelectedProductImages] = useState<File[]>(
+    []
+  );
+  const [productImagesPreview, setProductImagesPreview] = useState<string[]>(
+    []
+  );
   const [selectedResources, setSelectedResources] = useState<File[]>([]);
   const [resourcesPreview, setResourcesPreview] = useState<string[]>([]);
 
   const getBrand = async () => {
     setLoading(true);
     try {
-      const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
+      const userId = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user") || "")._id
+        : null;
       if (!userId) return;
       const res = await api.get("/users/brand/" + userId);
       setUserData(res.data);
@@ -60,32 +90,38 @@ export default function BrandDashboard({
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateCampaignStatus = async (campaignId: string, status: boolean) => {
     try {
       await api.put(`/campaigns/${campaignId}/hide`, { status });
       setCampaigns((prev: any) =>
         prev.map((campaign: any) =>
-          campaign._id === campaignId ? { ...campaign, visibility: status } : campaign
+          campaign._id === campaignId
+            ? { ...campaign, visibility: status }
+            : campaign
         )
       );
-      message.success(`Campaign ${status ? 'activated' : 'deactivated'} successfully!`);
+      message.success(
+        `Campaign ${status ? "activated" : "deactivated"} successfully!`
+      );
     } catch (error) {
-      console.error('Error updating campaign status:', error);
-      message.error('Failed to update campaign status');
+      console.error("Error updating campaign status:", error);
+      message.error("Failed to update campaign status");
     }
   };
 
   const deleteCampaign = async (campaignId: string) => {
     try {
       await api.delete(`/campaigns/${campaignId}`);
-      setCampaigns((prev: any) => prev.filter((campaign: any) => campaign._id !== campaignId));
+      setCampaigns((prev: any) =>
+        prev.filter((campaign: any) => campaign._id !== campaignId)
+      );
     } catch (error) {
-      console.error('Error deleting campaign:', error);
-      message.error('Failed to delete campaign');
+      console.error("Error deleting campaign:", error);
+      message.error("Failed to delete campaign");
     }
   };
 
@@ -102,18 +138,18 @@ export default function BrandDashboard({
           <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
             Our Latest Campaigns
           </h3>
-          {campaigns ?
-            campaigns.sort((a: any, b: any) => {
-              const dateA = new Date(a.createdAt);
-              const dateB = new Date(b.createdAt);
-              return dateB.getTime() - dateA.getTime();
-            })
+          {campaigns ? (
+            campaigns
+              .sort((a: any, b: any) => {
+                const dateA = new Date(a.createdAt);
+                const dateB = new Date(b.createdAt);
+                return dateB.getTime() - dateA.getTime();
+              })
               .map((campaign: any, index: number) => (
                 <div
                   key={index}
                   className="relative border border-neutral-100 mt-6 rounded-md p-6 transition-all hover:shadow-md "
                 >
-
                   {/* {campaign?.createdAt && (
                     <span className="text-sm text-neutral-500 font-medium ml-2">
                       {campaign?.createdAt}
@@ -147,19 +183,17 @@ export default function BrandDashboard({
 
                     {/* Delete Campaign */}
                     <Tooltip title="Delete Campaign">
-
                       <Popconfirm
                         title="Are you sure you want to delete this campaign?"
                         onConfirm={() => deleteCampaign(campaign._id)}
                       >
-                        <Trash size={18}
+                        <Trash
+                          size={18}
                           className="text-neutral-400 hover:text-primary-500 transition-colors"
                         />
-
                       </Popconfirm>
                     </Tooltip>
                   </div>
-
 
                   {/* Campaign Content */}
                   <span className="text-md font-bold text-success-500 rounded-sm">
@@ -198,7 +232,9 @@ export default function BrandDashboard({
                   </div>
                 </div>
               ))
-            : <p className="text-center text-neutral-600">No campaigns found.</p>}
+          ) : (
+            <p className="text-center text-neutral-600">No campaigns found.</p>
+          )}
         </>
       ),
     },
@@ -210,68 +246,81 @@ export default function BrandDashboard({
           <h3 className="text-3xl font-bold text-gray-900 mb-8 p-2">
             Discover Our Partnerships
           </h3>
-          {partnerships?.length > 0 && partnerships?.map((partnership: any, index: number) => (
-            <div key={index} className="border border-neutral-100 mt-6 rounded-md p-6">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-4 mb-4">
-                  <img loading="lazy"
-                    className="w-16 h-16 object-cover rounded-full"
-                    src={
-                      partnership?.profileImage?.includes("http")
-                        ? partnership?.profileImage
-                        : process.env.NEXT_PUBLIC_SERVER_URL + partnership?.profileImage
-                    } alt="" />
-                  <span className="text-xl font-bold">
-                    {partnership?.name}
-                  </span>
-                </div>
-                <Link href={`/dashboard/user-preview/${partnership?.user_id}`} target="_blank">
-                  <div className="flex items-center space-x-2 text-primary-700 font-medium">
-                    View Storefront
-                    <ArrowRight size={18} />
+          {partnerships?.length > 0 &&
+            partnerships?.map((partnership: any, index: number) => (
+              <div
+                key={index}
+                className="border border-neutral-100 mt-6 rounded-md p-6"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <img
+                      loading="lazy"
+                      className="w-16 h-16 object-cover rounded-full"
+                      src={
+                        partnership?.profileImage?.includes("http")
+                          ? partnership?.profileImage
+                          : process.env.NEXT_PUBLIC_SERVER_URL +
+                            partnership?.profileImage
+                      }
+                      alt=""
+                    />
+                    <span className="text-xl font-bold">
+                      {partnership?.name}
+                    </span>
                   </div>
-                </Link>
-              </div>
-
-              {partnership.bio && <p className="text-neutral-600 text-left mb-6">
-                {partnership?.bio}
-              </p>}
-
-              {partnership.tags.length > 0 && <div className="flex space-x-2">
-                {
-                  partnership?.tags?.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-              </div>}
-
-              <div className="border-t border-gray-200 my-6"></div>
-
-              <div className="flex flex-wrap">
-                {Array.from(
-                  new Map(partnership?.campaigns?.map(c => [c._id, c])).values()
-                ).map((tag) => (
                   <Link
-                    key={tag._id}
-                    href={`/dashboard/campaigns-details/${tag._id}`}
+                    href={`/dashboard/user-preview/${partnership?.user_id}`}
                     target="_blank"
-                    className="mr-2 mb-2"
                   >
-                    <span
-                      className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm"
-                    >
-                      {tag.title}
-                    </span>
+                    <div className="flex items-center space-x-2 text-primary-700 font-medium">
+                      View Storefront
+                      <ArrowRight size={18} />
+                    </div>
                   </Link>
-                ))}
-              </div>
+                </div>
 
-            </div>
-          ))}
+                {partnership.bio && (
+                  <p className="text-neutral-600 text-left mb-6">
+                    {partnership?.bio}
+                  </p>
+                )}
+
+                {partnership.tags.length > 0 && (
+                  <div className="flex space-x-2">
+                    {partnership?.tags?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="font-bold inline-block border-[1px] border-neutral-600 text-neutral-600 px-2 py-1 rounded-sm text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="border-t border-gray-200 my-6"></div>
+
+                <div className="flex flex-wrap">
+                  {Array.from(
+                    new Map(
+                      partnership?.campaigns?.map((c) => [c._id, c])
+                    ).values()
+                  ).map((tag) => (
+                    <Link
+                      key={tag._id}
+                      href={`/dashboard/campaigns-details/${tag._id}`}
+                      target="_blank"
+                      className="mr-2 mb-2"
+                    >
+                      <span className="font-bold inline-block border-[1px] border-primary-600 text-primary-600 px-2 py-1 rounded-sm text-sm">
+                        {tag.title}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
         </>
       ),
     },
@@ -363,16 +412,22 @@ export default function BrandDashboard({
 
                       <div className="flex items-center mt-2 space-x-4">
                         <div className="flex items-center">
-                          <Rate disabled allowHalf defaultValue={product.rating || 0} className="text-sm" />
+                          <Rate
+                            disabled
+                            allowHalf
+                            defaultValue={product.rating || 0}
+                            className="text-sm"
+                          />
                           <span className="text-sm text-gray-500 ml-2">
                             {product.rating?.toFixed(1) || "Not rated"}
                           </span>
                         </div>
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${product.publicVisibility
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                            }`}
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            product.publicVisibility
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
                           {product.publicVisibility ? "Public" : "Private"}
                         </span>
@@ -410,7 +465,7 @@ export default function BrandDashboard({
             })}
           </div>
         </div>
-      )
+      ),
     },
   ].filter(Boolean);
 
@@ -454,11 +509,10 @@ export default function BrandDashboard({
       console.log(res.data);
       setVisible(false);
       getBrand();
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const [tempTags, setTempTags] = useState("");
   const handleAddTags = () => {
@@ -467,7 +521,7 @@ export default function BrandDashboard({
       tags: [...prevData.tags, tempTags],
     }));
     setTempTags("");
-  }
+  };
 
   const createCampaign = () => {
     return (
@@ -503,7 +557,10 @@ export default function BrandDashboard({
             </div>
             <div className="flex items-end gap-2">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700" htmlFor="tags">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="tags"
+                >
                   Target Audience
                 </label>
                 <Input
@@ -512,13 +569,19 @@ export default function BrandDashboard({
                   onChange={(e) => {
                     setTempTags(e.target.value);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddTags();
+                    }
+                  }}
                   placeholder="Enter keywords"
                   className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
                 />
               </div>
               <AntdButton
                 onClick={handleAddTags}
-                className="h-10 px-3 rounded-lg bg-primary-700 text-white">
+                className="h-10 px-3 rounded-lg bg-primary-700 text-white"
+              >
                 +
               </AntdButton>
             </div>
@@ -536,8 +599,6 @@ export default function BrandDashboard({
               </div>
             </div>
 
-
-
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Content Type
@@ -550,9 +611,15 @@ export default function BrandDashboard({
                 placeholder="Select Content Type"
                 mode="multiple"
               >
-                <Select.Option value="Event Speaker">Event Speaker</Select.Option>
-                <Select.Option value="Social Media Posts">Social Media Posts</Select.Option>
-                <Select.Option value="Video Content">Video Content</Select.Option>
+                <Select.Option value="Event Speaker">
+                  Event Speaker
+                </Select.Option>
+                <Select.Option value="Social Media Posts">
+                  Social Media Posts
+                </Select.Option>
+                <Select.Option value="Video Content">
+                  Video Content
+                </Select.Option>
                 <Select.Option value="Blog Writing">Blog Writing</Select.Option>
                 <Select.Option value="Podcasts">Podcasts</Select.Option>
               </Select>
@@ -663,11 +730,13 @@ export default function BrandDashboard({
   const [modal, setModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
 
-
   const userFileInputRef = useRef(null);
   const userFileInputRef2 = useRef(null);
 
-  const handleUserFilesChange = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleUserFilesChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -687,22 +756,28 @@ export default function BrandDashboard({
             break;
           case "productImages":
             const files = Array.from(event.target.files || []);
-            setSelectedProductImages(prev => [...prev, ...files]);
-            files.forEach(file => {
+            setSelectedProductImages((prev) => [...prev, ...files]);
+            files.forEach((file) => {
               const reader = new FileReader();
               reader.onloadend = () => {
-                setProductImagesPreview(prev => [...prev, reader.result as string]);
+                setProductImagesPreview((prev) => [
+                  ...prev,
+                  reader.result as string,
+                ]);
               };
               reader.readAsDataURL(file);
             });
             break;
           case "resources":
             const resourceFiles = Array.from(event.target.files || []);
-            setSelectedResources(prev => [...prev, ...resourceFiles]);
-            resourceFiles.forEach(file => {
+            setSelectedResources((prev) => [...prev, ...resourceFiles]);
+            resourceFiles.forEach((file) => {
               const reader = new FileReader();
               reader.onloadend = () => {
-                setResourcesPreview(prev => [...prev, reader.result as string]);
+                setResourcesPreview((prev) => [
+                  ...prev,
+                  reader.result as string,
+                ]);
               };
               reader.readAsDataURL(file);
             });
@@ -747,12 +822,12 @@ export default function BrandDashboard({
   const removeFile = (field: string, index?: number) => {
     switch (field) {
       case "productImages":
-        setSelectedProductImages(prev => prev.filter((_, i) => i !== index));
-        setProductImagesPreview(prev => prev.filter((_, i) => i !== index));
+        setSelectedProductImages((prev) => prev.filter((_, i) => i !== index));
+        setProductImagesPreview((prev) => prev.filter((_, i) => i !== index));
         break;
       case "resources":
-        setSelectedResources(prev => prev.filter((_, i) => i !== index));
-        setResourcesPreview(prev => prev.filter((_, i) => i !== index));
+        setSelectedResources((prev) => prev.filter((_, i) => i !== index));
+        setResourcesPreview((prev) => prev.filter((_, i) => i !== index));
         break;
     }
   };
@@ -764,10 +839,18 @@ export default function BrandDashboard({
   return (
     <div className="flex flex-col items-center justify-start h-full py-12 px-4 sm:px-6 lg:px-8">
       {createCampaign()}
-      <AddProductModal modal={modal} setModal={setModal} getProducts={() => {
-        getBrand();
-      }} />
-      <ShowProductModal modal={showProductModal} setModal={setShowProductModal} product={selectedProduct} />
+      <AddProductModal
+        modal={modal}
+        setModal={setModal}
+        getProducts={() => {
+          getBrand();
+        }}
+      />
+      <ShowProductModal
+        modal={showProductModal}
+        setModal={setShowProductModal}
+        product={selectedProduct}
+      />
       <EditProductModal
         modal={editModal}
         setModal={setEditModal}
@@ -779,16 +862,25 @@ export default function BrandDashboard({
         style={{
           display: loading ? "none" : "block",
         }}
-        className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        className="flex flex-col w-full max-w-6xl px-6 py-8 bg-white rounded-md shadow-sm"
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <div className="relative">
             {/* Cover Image */}
             <div className="relative w-full h-48 sm:h-72 group">
               <CustomImage
                 loading="lazy"
-                src={coverPreview || (userData?.coverImage?.includes("http")
-                  ? userData?.coverImage
-                  : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage)}
+                src={
+                  coverPreview ||
+                  (userData?.coverImage?.includes("http")
+                    ? userData?.coverImage
+                    : process.env.NEXT_PUBLIC_SERVER_URL + userData?.coverImage)
+                }
                 alt="Cover"
                 className="w-full h-full object-cover rounded-md"
               />
@@ -811,12 +903,16 @@ export default function BrandDashboard({
 
               {selectedCoverFile && (
                 <div className="absolute bottom-4 right-4 bg-white bg-opacity-90 p-2 rounded-md">
-                  <p className="text-sm text-gray-700">Selected: {selectedCoverFile.name}</p>
+                  <p className="text-sm text-gray-700">
+                    Selected: {selectedCoverFile.name}
+                  </p>
                   <Button
                     variant="primary"
                     size="small"
                     className="mt-2"
-                    onClick={() => updateUserImages("coverImage", selectedCoverFile)}
+                    onClick={() =>
+                      updateUserImages("coverImage", selectedCoverFile)
+                    }
                   >
                     Upload Cover
                   </Button>
@@ -830,9 +926,13 @@ export default function BrandDashboard({
                 <div className="relative group w-24 sm:w-40 rounded-sm overflow-hidden">
                   <CustomImage
                     loading="lazy"
-                    src={profilePreview || (userData?.profileImage?.includes("http")
-                      ? userData?.profileImage
-                      : process.env.NEXT_PUBLIC_SERVER_URL + userData?.profileImage)}
+                    src={
+                      profilePreview ||
+                      (userData?.profileImage?.includes("http")
+                        ? userData?.profileImage
+                        : process.env.NEXT_PUBLIC_SERVER_URL +
+                          userData?.profileImage)
+                    }
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
@@ -848,18 +948,24 @@ export default function BrandDashboard({
                     type="file"
                     className="hidden"
                     ref={userFileInputRef}
-                    onChange={(event) => handleUserFilesChange(event, "profileImage")}
+                    onChange={(event) =>
+                      handleUserFilesChange(event, "profileImage")
+                    }
                     accept="image/*"
                   />
 
                   {selectedProfileFile && (
                     <div className="absolute bottom-4 right-4 bg-white bg-opacity-90 p-2 rounded-md">
-                      <p className="text-sm text-gray-700">Selected: {selectedProfileFile.name}</p>
+                      <p className="text-sm text-gray-700">
+                        Selected: {selectedProfileFile.name}
+                      </p>
                       <Button
                         variant="primary"
                         size="small"
                         className="mt-2"
-                        onClick={() => updateUserImages("profileImage", selectedProfileFile)}
+                        onClick={() =>
+                          updateUserImages("profileImage", selectedProfileFile)
+                        }
                       >
                         Upload Profile
                       </Button>
@@ -871,7 +977,8 @@ export default function BrandDashboard({
                 <div className="flex flex-col">
                   <EditableHeading
                     className={"text-2xl font-semibold"}
-                    initialName={userData?.profileName} onChange={(e) => {
+                    initialName={userData?.profileName}
+                    onChange={(e) => {
                       updateUserImages("profileName", e);
                     }}
                   />
@@ -882,7 +989,10 @@ export default function BrandDashboard({
                     <EditableSocialMediaLinks
                       links={userData?.socialMediaLinks || []}
                       setLinks={(links) => {
-                        updateUserImages("socialMediaLinks", JSON.stringify(links));
+                        updateUserImages(
+                          "socialMediaLinks",
+                          JSON.stringify(links)
+                        );
                       }}
                     />
                   </div>
@@ -890,7 +1000,12 @@ export default function BrandDashboard({
               </div>
 
               {/* Chat Button */}
-              <Button size="small" variant="primary" className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]" onClick={() => setVisible(true)}>
+              <Button
+                size="small"
+                variant="primary"
+                className="mt-4 sm:mt-0 text-sm flex px-3 py-1 items-center max-w-[200px]"
+                onClick={() => setVisible(true)}
+              >
                 {userType === "brand" ? "Create Campaign" : "Follow"}
               </Button>
             </div>
@@ -909,55 +1024,53 @@ export default function BrandDashboard({
           {/* Tags */}
           <div className="mt-4 flex space-x-2">
             <EditableTagsAdder
-              tags={
-                userData?.tags || []
-              }
+              tags={userData?.tags || []}
               setTags={(tags) => {
                 updateUserImages("tags", tags);
               }}
             />
           </div>
 
-
           {/* STATS TODO */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-            <div key={1} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
-              <h1 className="text-lg font-semibold">
-                {campaigns?.length}
-              </h1>
-              <p className="text-gray-600">
-                Campaigns
-              </p>
+            <div
+              key={1}
+              className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center"
+            >
+              <h1 className="text-lg font-semibold">{campaigns?.length}</h1>
+              <p className="text-gray-600">Campaigns</p>
             </div>
-            <div key={2} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
-              <h1 className="text-lg font-semibold">
-                {products?.length || 0}
-              </h1>
-              <p className="text-gray-600">
-                Products
-              </p>
+            <div
+              key={2}
+              className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center"
+            >
+              <h1 className="text-lg font-semibold">{products?.length || 0}</h1>
+              <p className="text-gray-600">Products</p>
             </div>
-            <div key={3} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+            <div
+              key={3}
+              className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center"
+            >
               <h1 className="text-lg font-semibold">
                 {partnerships?.length || 0}
               </h1>
               <p className="text-gray-600">Campaigns Completed</p>
             </div>
-            <div key={4} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
-              <h1 className="text-lg font-semibold">
-                {/* COMPANY SIZE */} 0
-              </h1>
-              <p className="text-gray-600">
-                Company Size
-              </p>
+            <div
+              key={4}
+              className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center"
+            >
+              <h1 className="text-lg font-semibold">{/* COMPANY SIZE */} 0</h1>
+              <p className="text-gray-600">Company Size</p>
             </div>
-            <div key={5} className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center">
+            <div
+              key={5}
+              className="flex flex-col bg-white p-4 rounded-md border border-gray-200 text-center"
+            >
               <h1 className="text-lg font-semibold">
                 {userData?.followers?.length || 0}
               </h1>
-              <p className="text-gray-600">
-                Followers
-              </p>
+              <p className="text-gray-600">Followers</p>
             </div>
           </div>
 
@@ -968,12 +1081,10 @@ export default function BrandDashboard({
         </motion.div>
       </div>
     </div>
-
   );
 }
 
-
-// types 
+// types
 
 type EditableHeadingProps = {
   initialName: string;
@@ -981,7 +1092,11 @@ type EditableHeadingProps = {
   className: string;
 };
 
-const EditableHeading = ({ initialName, onChange, className }: EditableHeadingProps) => {
+const EditableHeading = ({
+  initialName,
+  onChange,
+  className,
+}: EditableHeadingProps) => {
   const [name, setName] = useState(initialName);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -996,7 +1111,7 @@ const EditableHeading = ({ initialName, onChange, className }: EditableHeadingPr
   const handleChange = () => {
     if (name === initialName) return;
     onChange(name);
-  }
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -1026,7 +1141,13 @@ const EditableHeading = ({ initialName, onChange, className }: EditableHeadingPr
   );
 };
 
-const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: string[]) => void }) => {
+const EditableTagsAdder = ({
+  tags,
+  setTags,
+}: {
+  tags: string[];
+  setTags: (tags: string[]) => void;
+}) => {
   const [tagText, setTagText] = useState("");
 
   console.log(tags);
@@ -1035,7 +1156,7 @@ const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: 
       setTags([...tags, tagText]);
       setTagText("");
     }
-  }
+  };
 
   return (
     <div className="w-full sm:w-1/3 mt-3">
@@ -1048,26 +1169,34 @@ const EditableTagsAdder = ({ tags, setTags }: { tags: string[]; setTags: (tags: 
         className="w-full"
       />
       <div className="flex flex-wrap gap-2 mt-2">
-        {tags?.filter((item) => item).map((tag, index) => (
-          <div
-            key={index}
-            className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
-          >
-            {tag}
-            <span
-              className="ml-2 text-red-500 cursor-pointer"
-              onClick={() => setTags(tags?.filter((item) => item !== tag))}
+        {tags
+          ?.filter((item) => item)
+          .map((tag, index) => (
+            <div
+              key={index}
+              className="font-bold border border-primary-700 text-primary-700 px-2 py-1 rounded-sm text-sm flex items-center"
             >
-              ✕
-            </span>
-          </div>
-        ))}
+              {tag}
+              <span
+                className="ml-2 text-red-500 cursor-pointer"
+                onClick={() => setTags(tags?.filter((item) => item !== tag))}
+              >
+                ✕
+              </span>
+            </div>
+          ))}
       </div>
     </div>
   );
-}
+};
 
-const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks: (links: any[]) => void }) => {
+const EditableSocialMediaLinks = ({
+  links,
+  setLinks,
+}: {
+  links: any[];
+  setLinks: (links: any[]) => void;
+}) => {
   const [platform, setPlatform] = useState("");
   const [link, setLink] = useState("");
   const [isAdd, setIsAdd] = useState(false);
@@ -1079,7 +1208,7 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
       setLink("");
       setModal(false);
     }
-  }
+  };
 
   const [modal, setModal] = useState(false);
 
@@ -1087,17 +1216,14 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
     { value: "medium", label: "Medium" },
     { value: "spotify", label: "Spotify" },
     { value: "linkedin", label: "LinkedIn" },
-    { value: "website", label: "Website" }
+    { value: "website", label: "Website" },
   ];
-
 
   return (
     <div className="w-full">
       {/* <h1 className="text-sm font-bold text-left mb-1">Social Media Links:</h1> */}
       <Modal
-        title={
-          !isAdd ? "Edit Link" : "Add Link"
-        }
+        title={!isAdd ? "Edit Link" : "Add Link"}
         visible={modal}
         onCancel={() => {
           setPlatform("");
@@ -1110,26 +1236,31 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
         className="rounded-lg"
       >
         <div className="space-y-4">
-          {isAdd && <div>
-            <label htmlFor="platform" className="text-gray-700 font-medium">Platform</label>
-            <Select
-              placeholder="Select Platform"
-              className="w-full rounded-md border-gray-300"
-              value={platform}
-              onChange={(value) => setPlatform(value)}
-              disabled={!isAdd}
-            >
-              {platforms.map((platform) => (
-                <Select.Option key={platform.value} value={platform.value}>
-                  {platform.label}
-                </Select.Option>
-              ))}
-            </Select>
-
-          </div>}
+          {isAdd && (
+            <div>
+              <label htmlFor="platform" className="text-gray-700 font-medium">
+                Platform
+              </label>
+              <Select
+                placeholder="Select Platform"
+                className="w-full rounded-md border-gray-300"
+                value={platform}
+                onChange={(value) => setPlatform(value)}
+                disabled={!isAdd}
+              >
+                {platforms.map((platform) => (
+                  <Select.Option key={platform.value} value={platform.value}>
+                    {platform.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+          )}
 
           <div>
-            <label htmlFor="link" className="text-gray-700 font-medium">Link</label>
+            <label htmlFor="link" className="text-gray-700 font-medium">
+              Link
+            </label>
             <Input
               id="link"
               placeholder="Enter Link"
@@ -1140,27 +1271,34 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
           </div>
 
           <div className="flex">
-
-            {!isAdd && <AntdButton
-              onClick={() => {
-                setLinks(links.filter((item) => item.platform !== platform && item.link !== link));
-                setModal(false);
-              }}
-              className="w-full bg-red-500 text-white hover:bg-red-600 rounded-md py-2 mt-4"
-            >
-              Delete Link
-            </AntdButton>}
+            {!isAdd && (
+              <AntdButton
+                onClick={() => {
+                  setLinks(
+                    links.filter(
+                      (item) => item.platform !== platform && item.link !== link
+                    )
+                  );
+                  setModal(false);
+                }}
+                className="w-full bg-red-500 text-white hover:bg-red-600 rounded-md py-2 mt-4"
+              >
+                Delete Link
+              </AntdButton>
+            )}
 
             <AntdButton
               onClick={() => {
                 if (isAdd) handleAddLink();
                 else {
-                  setLinks(links.map((item) => {
-                    if (item.platform === platform) {
-                      item.link = link;
-                    }
-                    return item;
-                  }));
+                  setLinks(
+                    links.map((item) => {
+                      if (item.platform === platform) {
+                        item.link = link;
+                      }
+                      return item;
+                    })
+                  );
                   setModal(false);
                 }
               }}
@@ -1172,32 +1310,32 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
         </div>
       </Modal>
 
-
-
       <div className="flex space-x-4 mt-2 text-gray-600">
-        {links.filter((item) => item.link).map((link, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              setPlatform(link.platform);
-              setLink(link.link);
-              setIsAdd(false);
-              setModal(true);
-            }}
-            className="cursor-pointer transition duration-200 ease-in-out transform hover:bg-gray-100 rounded-full hover:scale-105"
-          >
-            <img
-              loading="lazy"
-              src={`/icons/${link.platform}.svg`}
-              alt={link.platform}
-              className="w-6 h-6"
-            />
-          </div>
-        ))}
+        {links
+          .filter((item) => item.link)
+          .map((link, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setPlatform(link.platform);
+                setLink(link.link);
+                setIsAdd(false);
+                setModal(true);
+              }}
+              className="cursor-pointer transition duration-200 ease-in-out transform hover:bg-gray-100 rounded-full hover:scale-105"
+            >
+              <img
+                loading="lazy"
+                src={`/icons/${link.platform}.svg`}
+                alt={link.platform}
+                className="w-6 h-6"
+              />
+            </div>
+          ))}
         {/* // dashed border cirlce for account adding  */}
         <div
           onClick={() => {
-            setModal(true)
+            setModal(true);
             setIsAdd(true);
           }}
           className="flex items-center justify-center w-6 h-6 border-dashed border-2 rounded-full cursor-pointer hover:border-gray-400 bg-[#F6F6F8]"
@@ -1205,10 +1343,6 @@ const EditableSocialMediaLinks = ({ links, setLinks }: { links: any[]; setLinks:
           <Plus size={16} />
         </div>
       </div>
-
-
-
-
     </div>
   );
-}
+};

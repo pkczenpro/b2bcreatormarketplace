@@ -99,14 +99,14 @@ export default function ShowProductModal({
                             <ImageIcon size={24} />
                         </div>}
                     </div>
-                    <p className="text-sm text-gray-700">{product.productDescription}</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{product.productDescription}</p>
                 </div>
 
                 {/* Right Section: Metadata */}
                 <div className="text-sm text-gray-700 space-y-2">
                     {product.additionalDetails && (
-                        <p>
-                            <strong>Details:</strong> {product.additionalDetails}
+                        <p className="whitespace-pre-wrap">
+                            {product.additionalDetails}
                         </p>
                     )}
                     <p>
