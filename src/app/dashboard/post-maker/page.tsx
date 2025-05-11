@@ -29,6 +29,8 @@ export default function PostMaker({}: PostMakerProps) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [brandName, setBrandName] = useState("");
 
+  const [modelName, setModelName] = useState(null);
+
   // get from query campaign the id of campaign
   useEffect(() => {
     // get from query campaign the id of campaign
@@ -441,6 +443,9 @@ export default function PostMaker({}: PostMakerProps) {
         relatedProductsOptions={relatedProducts}
         brandName={brandName}
         setBrandName={setBrandName}
+
+        modelName={modelName}
+        setModelName={setModelName}
       />
       {selectSharingModal()}
       {draftSelectionModal()}

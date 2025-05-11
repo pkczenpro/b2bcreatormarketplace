@@ -23,7 +23,7 @@ export default function Signup() {
       {/* Tabs Section */}
       <div className="w-full px-8 md:px-16 lg:px-32 mb-8 sm:mb-0">
         <img
-          src="/images/logo.jpeg"
+          src="/images/logo.png"
           alt=""
           className="w-[180px] h-[50px] object-cover mb-4"
         />

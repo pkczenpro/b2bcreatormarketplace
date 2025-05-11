@@ -85,7 +85,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
                 key: razorpayKey,
                 amount: orderAmount,
                 currency,
-                name: "Linkish",
+                name: "DemandNest",
                 description: "Payment for creator services",
                 order_id: id,
                 handler: async function (response: any) {

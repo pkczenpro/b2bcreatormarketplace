@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Modal, Input, Switch, Divider, Button, message, Tooltip } from "antd";
 import CustomInput from "@/components/Input/Input";
 import api from "@/utils/axiosInstance";
-import { FaVideo, FaStar, FaLink, FaGlobe, FaProductHunt } from "react-icons/fa";
+import {
+  FaVideo,
+  FaStar,
+  FaLink,
+  FaGlobe,
+  FaProductHunt,
+} from "react-icons/fa";
 import { MdLink, MdVisibility, MdDescription } from "react-icons/md";
 import { BsImage } from "react-icons/bs";
 
@@ -31,7 +37,11 @@ interface FormData {
   resources: File[];
 }
 
-export default function AddProduct({ modal, setModal, getProducts }: AddProductModalProps) {
+export default function AddProduct({
+  modal,
+  setModal,
+  getProducts,
+}: AddProductModalProps) {
   const [formData, setFormData] = useState<FormData>({
     productName: "",
     productLogo: null,
@@ -47,13 +57,19 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
     resources: [],
   });
 
-  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(null);
-  const [productImagesPreview, setProductImagesPreview] = useState<string[]>([]);
+  const [productLogoPreview, setProductLogoPreview] = useState<string | null>(
+    null
+  );
+  const [productImagesPreview, setProductImagesPreview] = useState<string[]>(
+    []
+  );
   const [resourcesPreview, setResourcesPreview] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
@@ -62,7 +78,10 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
     setFormData((prevData) => ({ ...prevData, publicVisibility: checked }));
   };
 
-  const handleFileChange = (name: keyof FormData, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    name: keyof FormData,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -71,10 +90,10 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
         ...prevData,
         productImages: [...prevData.productImages, ...Array.from(files)],
       }));
-      Array.from(files).forEach(file => {
+      Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setProductImagesPreview(prev => [...prev, reader.result as string]);
+          setProductImagesPreview((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -93,10 +112,10 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
         ...prevData,
         resources: [...prevData.resources, ...Array.from(files)],
       }));
-      Array.from(files).forEach(file => {
+      Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setResourcesPreview(prev => [...prev, reader.result as string]);
+          setResourcesPreview((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -106,25 +125,25 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
   const removeFile = (field: string, index?: number) => {
     switch (field) {
       case "productImages":
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          productImages: prev.productImages.filter((_, i) => i !== index)
+          productImages: prev.productImages.filter((_, i) => i !== index),
         }));
-        setProductImagesPreview(prev => prev.filter((_, i) => i !== index));
+        setProductImagesPreview((prev) => prev.filter((_, i) => i !== index));
         break;
       case "productLogo":
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          productLogo: null
+          productLogo: null,
         }));
         setProductLogoPreview(null);
         break;
       case "resources":
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          resources: prev.resources.filter((_, i) => i !== index)
+          resources: prev.resources.filter((_, i) => i !== index),
         }));
-        setResourcesPreview(prev => prev.filter((_, i) => i !== index));
+        setResourcesPreview((prev) => prev.filter((_, i) => i !== index));
         break;
     }
   };
@@ -135,9 +154,15 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
 
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "productImages") {
-        (value as File[]).forEach((file) => formDataToSend.append("productImages", file));
+        (value as File[]).forEach((file) =>
+          formDataToSend.append("productImages", file)
+        );
       } else if (key === "productLogo" && value) {
         formDataToSend.append("productLogo", value);
+      } else if (key === "resources") {
+        (value as File[]).forEach((file) =>
+          formDataToSend.append("resources", file)
+        );
       } else if (value !== null && value !== undefined) {
         formDataToSend.append(key, value.toString());
       }
@@ -178,7 +203,9 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
       centered
       title={
         <div className="flex items-center space-x-2">
-          <h2 className="text-xl font-semibold text-neutral-800">Add a New Product</h2>
+          <h2 className="text-xl font-semibold text-neutral-800">
+            Add a New Product
+          </h2>
           <Tooltip title="Fill in all required information about your product">
             <span className="text-neutral-400">ℹ️</span>
           </Tooltip>
@@ -190,7 +217,13 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
         <Button key="cancel" onClick={() => setModal(false)}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" loading={loading} disabled={loading} onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          disabled={loading}
+          onClick={handleSubmit}
+        >
           Submit
         </Button>,
       ]}
@@ -239,15 +272,26 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                     </div>
                   </div>
                 )}
-                <CustomInput type="file" onChange={(e) => handleFileChange("productLogo", e)} name="productLogo" />
-                <p className="text-xs text-neutral-500">Recommended size: 200x200px</p>
+                <CustomInput
+                  type="file"
+                  onChange={(e) => handleFileChange("productLogo", e)}
+                  name="productLogo"
+                />
+                <p className="text-xs text-neutral-500">
+                  Recommended size: 200x200px
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
                 <label className="font-medium">Public Visibility</label>
                 <div className="flex items-center space-x-2">
-                  <Switch checked={formData.publicVisibility} onChange={handleSwitchChange} />
-                  <span className="text-neutral-600">Make product visible to public</span>
+                  <Switch
+                    checked={formData.publicVisibility}
+                    onChange={handleSwitchChange}
+                  />
+                  <span className="text-neutral-600">
+                    Make product visible to public
+                  </span>
                   <Tooltip title="Toggle to make your product visible to all users">
                     <MdVisibility className="text-neutral-400" />
                   </Tooltip>
@@ -284,8 +328,15 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
 
               <div className="flex flex-col space-y-2">
                 <label className="font-medium">Product Images</label>
-                <CustomInput type="file" multiple onChange={(e) => handleFileChange("productImages", e)} name="productImages" />
-                <p className="text-xs text-neutral-500">Upload multiple product images</p>
+                <CustomInput
+                  type="file"
+                  multiple
+                  onChange={(e) => handleFileChange("productImages", e)}
+                  name="productImages"
+                />
+                <p className="text-xs text-neutral-500">
+                  Upload multiple product images
+                </p>
                 {productImagesPreview.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {productImagesPreview.map((preview, index) => (
@@ -337,7 +388,9 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                   prefix={<FaVideo className="text-neutral-400" />}
                   className="p-2 border rounded-lg w-full"
                 />
-                <p className="text-xs text-neutral-500">Add a demo video to showcase your product</p>
+                <p className="text-xs text-neutral-500">
+                  Add a demo video to showcase your product
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
@@ -348,9 +401,7 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                     className="w-8 mb-2"
                   />
 
-
                   <label className="font-medium">G2 Link</label>
-
                 </div>
                 <Input
                   name="g2Link"
@@ -360,7 +411,9 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                   prefix={<FaStar className="text-neutral-400" />}
                   className="p-2 border rounded-lg w-full"
                 />
-                <p className="text-xs text-neutral-500">Link to your G2 profile for social proof</p>
+                <p className="text-xs text-neutral-500">
+                  Link to your G2 profile for social proof
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
@@ -380,7 +433,9 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                   prefix={<FaGlobe className="text-neutral-400" />}
                   className="p-2 border rounded-lg w-full"
                 />
-                <p className="text-xs text-neutral-500">Link to your Capterra profile</p>
+                <p className="text-xs text-neutral-500">
+                  Link to your Capterra profile
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
@@ -393,7 +448,9 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                   className="p-2 border rounded-lg w-full"
                   rows={4}
                 />
-                <p className="text-xs text-neutral-500">Add any extra information about your product</p>
+                <p className="text-xs text-neutral-500">
+                  Add any extra information about your product
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
@@ -413,20 +470,34 @@ export default function AddProduct({ modal, setModal, getProducts }: AddProductM
                   prefix={<FaProductHunt className="text-neutral-400" />}
                   className="p-2 border rounded-lg w-full"
                 />
-                <p className="text-xs text-neutral-500">Link to your Product Hunt page</p>
+                <p className="text-xs text-neutral-500">
+                  Link to your Product Hunt page
+                </p>
               </div>
 
               <div className="flex flex-col space-y-2">
                 <label className="font-medium">Resources</label>
-                <CustomInput type="file" multiple name="resources" onChange={(e) => handleFileChange("resources", e)} />
-                <p className="text-xs text-neutral-500">Upload additional resources like PDFs, docs, etc.</p>
+                <CustomInput
+                  type="file"
+                  multiple
+                  name="resources"
+                  onChange={(e) => handleFileChange("resources", e)}
+                />
+                <p className="text-xs text-neutral-500">
+                  Upload additional resources like PDFs, docs, etc.
+                </p>
                 {resourcesPreview.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {resourcesPreview.map((preview, index) => (
-                      <div key={index} className="border rounded-md p-2 group relative">
+                      <div
+                        key={index}
+                        className="border rounded-md p-2 group relative"
+                      >
                         <div className="flex items-center space-x-2">
                           <FaLink className="text-neutral-400" />
-                          <p className="text-sm text-neutral-600 truncate">{formData?.resources[index]?.name}</p>
+                          <p className="text-sm text-neutral-600 truncate">
+                            {formData?.resources[index]?.name}
+                          </p>
                         </div>
                         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
                           <Button

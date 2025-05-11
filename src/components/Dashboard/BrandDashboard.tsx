@@ -125,6 +125,18 @@ export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
     }
   };
 
+  const deleteProduct = async (productId: string) => {
+    try {
+      await api.delete(`/products/${productId}`);
+      setProducts((prev: any) =>
+        prev.filter((product: any) => product._id !== productId)
+      );
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      message.error("Failed to delete product");
+    }
+  };
+
   React.useEffect(() => {
     getBrand();
   }, []);
@@ -403,6 +415,21 @@ export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
                           >
                             <Eye size={16} />
                           </Button>
+                          <Popconfirm
+                            title="Are you sure you want to delete this product?"
+                            onConfirm={() => deleteProduct(product._id)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement="topRight"
+                          >
+                            <Button
+                              variant="primary"
+                              size="small"
+                              className="rounded-full"
+                           >
+                              <Trash size={16} />
+                            </Button>
+                          </Popconfirm>
                         </div>
                       </div>
 
@@ -506,7 +533,7 @@ export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
   const handleAddCampaign = async () => {
     try {
       const res = await api.post("/campaigns", formData);
-      console.log(res.data);
+
       setVisible(false);
       getBrand();
     } catch (error) {

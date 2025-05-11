@@ -30,6 +30,9 @@ const MainContent = ({
     brandName,
     setBrandName,
 
+    modelName,
+    setModelName,
+
 }) => {
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [category, setCategory] = useState("");
@@ -78,6 +81,9 @@ const MainContent = ({
                     relatedProductsOptions={relatedProductsOptions}
                     brandName={brandName}
                     setBrandName={setBrandName}
+
+                    modelName={modelName}
+                    setModelName={setModelName}
                 />
             </div>
             <div className="sm:max-w-[50%] w-full">

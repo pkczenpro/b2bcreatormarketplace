@@ -1,9 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 import {
-  Inbox, Store, Flag, Calendar, AlignCenter, GalleryHorizontal, User,
-  BriefcaseBusiness, Bell, LogOut, Menu as BurgerIcon,
+  Inbox,
+  Store,
+  Flag,
+  Calendar,
+  GalleryHorizontal,
+  User,
+  BriefcaseBusiness,
+  Bell,
+  LogOut,
+  Menu as BurgerIcon,
   Home,
-  LinkIcon
+  LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +42,9 @@ export const LeftMenu = () => {
 
   const getUserDetails = async () => {
     setLoading(true);
-    const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "")._id : null;
+    const userId = localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user") || "")._id
+      : null;
     if (!userId) return;
     let res = null;
     try {
@@ -42,13 +52,12 @@ export const LeftMenu = () => {
       setUserData(res.data);
       setUserType(res.data.userType);
       setUnreadMessages(res.data.unreadMessages);
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const getNotifications = async () => {
     try {
@@ -75,7 +84,8 @@ export const LeftMenu = () => {
 
     socketRef.current.emit("join", userData._id);
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
     const audio = new Audio("/assets/notification.mp3");
 
     socketRef.current.on("newNotification", (data) => {
@@ -83,30 +93,28 @@ export const LeftMenu = () => {
 
       // Decode and play audio
       fetch(audio.src)
-        .then(response => response.arrayBuffer())
-        .then(data => audioContext.decodeAudioData(data))
-        .then(buffer => {
+        .then((response) => response.arrayBuffer())
+        .then((data) => audioContext.decodeAudioData(data))
+        .then((buffer) => {
           const source = audioContext.createBufferSource();
           source.buffer = buffer;
           source.connect(audioContext.destination);
           source.start();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Audio play error:", err);
         });
     });
 
     socketRef.current.on("message", (newMessage: Message) => {
       console.log("New message received:", newMessage);
-      setUnreadMessages(prev => prev + 1);
+      setUnreadMessages((prev) => prev + 1);
     });
 
     return () => {
       socketRef.current.off("newNotification");
     };
   }, [userData]);
-
-
 
   const handleMarkAsRead = async () => {
     await api.put(`/notifications/mark-read`);
@@ -131,55 +139,70 @@ export const LeftMenu = () => {
     </div>
   );
 
-
   const notificationDropdown = {
     items: notifications.length
       ? [
-        {
-          key: "notification-list",
-          label: (
-            <div className="max-h-80 overflow-y-auto custom-scrollbar max-w-[300px]">
-              {notifications.map((item) => (
-                item.link ? (
-                  <Link
-                    key={item._id}
-                    href={item.link}
-                    className="cursor-pointer px-3 py-2  rounded-lg transition-all my-4"
-                  >
-                    <NotificationItem item={item} />
-                  </Link>
-                ) : (
-                  <div
-                    key={item._id}
-                    className="cursor-default px-3 py-2rounded-lg transition-all my-4"
-                  >
-                    <NotificationItem item={item} />
-                  </div>
-                )
-              )
-              )}
-            </div>
-          ),
-        },
-      ]
+          {
+            key: "notification-list",
+            label: (
+              <div className="max-h-80 overflow-y-auto custom-scrollbar max-w-[300px]">
+                {notifications.map((item) =>
+                  item.link ? (
+                    <Link
+                      key={item._id}
+                      href={item.link}
+                      className="cursor-pointer px-3 py-2  rounded-lg transition-all my-4"
+                    >
+                      <NotificationItem item={item} />
+                    </Link>
+                  ) : (
+                    <div
+                      key={item._id}
+                      className="cursor-default px-3 py-2rounded-lg transition-all my-4"
+                    >
+                      <NotificationItem item={item} />
+                    </div>
+                  )
+                )}
+              </div>
+            ),
+          },
+        ]
       : [
-        {
-          key: "empty",
-          label: (
-            <div className="text-center px-4 py-6 text-gray-400 text-sm">
-              No Notifications
-            </div>
-          ),
-        },
-      ],
+          {
+            key: "empty",
+            label: (
+              <div className="text-center px-4 py-6 text-gray-400 text-sm">
+                No Notifications
+              </div>
+            ),
+          },
+        ],
   };
 
   const menuItems = [
-    { name: "Home", icon: Home, link: userType === "brand" ? `/dashboard/brand-preview/${userData?._id}` : `/dashboard/user-preview/${userData?._id}` },
+    {
+      name: "Home",
+      icon: Home,
+      link:
+        userType === "brand"
+          ? `/dashboard/brand-preview/${userData?._id}`
+          : `/dashboard/user-preview/${userData?._id}`,
+    },
     { name: "Inbox", icon: Inbox, link: "/dashboard/inbox" },
-    { name: userType === "brand" ? "Brandfront" : "Storefront", icon: Store, link: "/dashboard", underline: true },
+    {
+      name: userType === "brand" ? "Brandfront" : "Storefront",
+      icon: Store,
+      link: "/dashboard",
+      underline: true,
+    },
     { name: "Campaigns", icon: Flag, link: "/dashboard/campaigns" },
-    { name: "Calendar", icon: Calendar, link: "/dashboard/calendar", underline: true },
+    {
+      name: "Calendar",
+      icon: Calendar,
+      link: "/dashboard/calendar",
+      underline: true,
+    },
     {
       name: "AI Text Creator",
       icon: WandSparkles,
@@ -187,10 +210,23 @@ export const LeftMenu = () => {
       tooltip: "Generate AI-powered text content effortlessly!",
       color: "#F38509",
     },
-    { name: "Carousel Maker", icon: GalleryHorizontal, link: "/dashboard/carousel-maker", underline: true },
+    {
+      name: "Carousel Maker",
+      icon: GalleryHorizontal,
+      link: "/dashboard/carousel-maker",
+      underline: true,
+    },
 
-    userType === "brand" && { name: "Creators", icon: User, link: "/dashboard/creators" },
-    userType === "creator" && { name: "Brands", icon: BriefcaseBusiness, link: "/dashboard/brands" },
+    userType === "brand" && {
+      name: "Creators",
+      icon: User,
+      link: "/dashboard/creators",
+    },
+    userType === "creator" && {
+      name: "Brands",
+      icon: BriefcaseBusiness,
+      link: "/dashboard/brands",
+    },
   ].filter(Boolean);
 
   const logout = () => {
@@ -199,55 +235,90 @@ export const LeftMenu = () => {
   };
 
   const renderMenuItems = () =>
-    menuItems.map(({ name, icon: Icon, link, underline, tooltip, color }, index) => (
-      <div key={index}>
-        <Link href={link} className="w-full">
-          <Tooltip title={tooltip} placement="right" arrow={true}>
-            <li
-              className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold relative ${pathname === link ? "bg-neutral-50" : ""
+    menuItems.map(
+      ({ name, icon: Icon, link, underline, tooltip, color }, index) => (
+        <div key={index}>
+          <Link href={link} className="w-full">
+            <Tooltip title={tooltip} placement="right" arrow={true}>
+              <li
+                className={`py-4 rounded-md px-4 cursor-pointer flex items-center font-bold relative ${
+                  pathname === link ? "bg-neutral-50" : ""
                 }`}
-              style={{ color: "#3D4350" }}
-            >
-              <Icon size={20} className="mr-2" style={{ color: "#3D4350" }} />
-              <span className="flex items-center gap-2">
-                {name}
-                {name === "Inbox" && (
-                  <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                    {!loading ? unreadMessages > 0 ? unreadMessages : 0 :
-                      <span className="animate-pulse">...</span>
-                    }
-                  </span>
-                )}
-              </span>
-            </li>
-          </Tooltip>
-        </Link>
-        {underline && <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>}
-      </div>
-    ));
-
+                style={{ color: "#3D4350" }}
+              >
+                <Icon size={20} className="mr-2" style={{ color: "#3D4350" }} />
+                <span className="flex items-center gap-2">
+                  {name}
+                  {name === "Inbox" && (
+                    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                      {!loading ? (
+                        unreadMessages > 0 ? (
+                          unreadMessages
+                        ) : (
+                          0
+                        )
+                      ) : (
+                        <span className="animate-pulse">...</span>
+                      )}
+                    </span>
+                  )}
+                </span>
+              </li>
+            </Tooltip>
+          </Link>
+          {underline && (
+            <div className="h-[1px] w-full bg-neutral-100 mt-4"></div>
+          )}
+        </div>
+      )
+    );
 
   return (
     <div className="bg-neutral-50 min-w-[20%] max-w-[20%] w-[20%]">
       {/* Mobile Menu */}
       <div className="sm:hidden bg-white border-b flex p-8 justify-between items-start">
-        <BurgerIcon size={24} className="cursor-pointer" onClick={() => setDrawerVisible(true)} />
+        <BurgerIcon
+          size={24}
+          className="cursor-pointer"
+          onClick={() => setDrawerVisible(true)}
+        />
       </div>
 
       {/* Drawer for Mobile */}
-      <Drawer title={
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold">Linkish</h1>
-          <Dropdown menu={notificationDropdown} placement="bottomRight">
-            <Badge count={notifications.filter((item) => !item.isRead).length} size="small" overflowCount={9}>
-              <Bell className="cursor-pointer" onClick={handleMarkAsRead} />
-            </Badge>
-          </Dropdown>
-        </div>
-      } placement="left" open={drawerVisible} onClose={() => setDrawerVisible(false)} width={300} closable={false} bodyStyle={{ padding: 0 }}>
+      <Drawer
+        title={
+          <div className="flex items-center justify-between">
+            <img
+              src="/images/logo.png"
+              alt=""
+              className="w-[150px] h-[40px] object-cover"
+            />
+            <Dropdown menu={notificationDropdown} placement="bottomRight">
+              <Badge
+                count={notifications.filter((item) => !item.isRead).length}
+                size="small"
+                overflowCount={9}
+              >
+                <Bell className="cursor-pointer" onClick={handleMarkAsRead} />
+              </Badge>
+            </Dropdown>
+          </div>
+        }
+        placement="left"
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={300}
+        closable={false}
+        bodyStyle={{ padding: 0 }}
+      >
         <ul className="w-full">{renderMenuItems()}</ul>
         <div className="flex items-center justify-around mt-auto py-8">
-          <CustomImage loading="lazy" src="/images/profile.png" alt="Profile" className="w-10 h-10 rounded-full" />
+          <CustomImage
+            loading="lazy"
+            src="/images/profile.png"
+            alt="Profile"
+            className="w-10 h-10 rounded-full"
+          />
           <div className="flex flex-col">
             <span className="font-bold">{userData?.name}</span>
             <span className="text-xs text-neutral-500">{userData?.email}</span>
@@ -259,11 +330,17 @@ export const LeftMenu = () => {
       {/* Desktop Sidebar */}
       <div className="sm:flex flex-col px-[16px] bg-white border-r border-gray-200 hidden h-[100vh]">
         <div className="py-6 flex items-center justify-between mt-6">
-          <img src="/images/logo.jpeg" alt=""
+          <img
+            src="/images/logo.png"
+            alt=""
             className="w-[150px] h-[40px] object-cover"
           />
           <Dropdown menu={notificationDropdown} placement="bottomRight">
-            <Badge count={notifications.filter((item) => !item.isRead).length} size="small" overflowCount={100}>
+            <Badge
+              count={notifications.filter((item) => !item.isRead).length}
+              size="small"
+              overflowCount={100}
+            >
               <Bell className="cursor-pointer" onClick={handleMarkAsRead} />
             </Badge>
           </Dropdown>
@@ -288,13 +365,8 @@ export const LeftMenu = () => {
             <span className="text-xs text-neutral-500">{userData?.email}</span>
           </div>
 
-          <LogOut
-            size={20}
-            className="cursor-pointer"
-            onClick={logout}
-          />
+          <LogOut size={20} className="cursor-pointer" onClick={logout} />
         </div>
-
       </div>
     </div>
   );

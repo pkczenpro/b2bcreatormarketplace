@@ -207,7 +207,7 @@ export function CreatorTable({
                 const hasContent = record.content?.length > 0;
 
                 const invoiceId = record?.invoiceId;
-                const isPaymentMade = record?.invoiceStatus === "paid";
+                const isPaymentMade = record?.invoiceStatus === "paidpe";
 
                 const isAmountSet = record?.amount > 0;
 
