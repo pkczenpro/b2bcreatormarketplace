@@ -5,9 +5,10 @@ interface FileUploadProps {
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
     multiple?: boolean;
+    maxFiles?: number;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required, multiple }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required, multiple, maxFiles }) => {
     const [dragOver, setDragOver] = useState<boolean>(false);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -52,6 +53,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, onChange, required, multi
                     name={name}
                     onChange={onChange}
                     required={required}
+                    max={maxFiles}
                     className="hidden"
                 />
             </div>

@@ -333,6 +333,7 @@ export default function AddProduct({
                   multiple
                   onChange={(e) => handleFileChange("productImages", e)}
                   name="productImages"
+                  maxFiles={5}
                 />
                 <p className="text-xs text-neutral-500">
                   Upload multiple product images
