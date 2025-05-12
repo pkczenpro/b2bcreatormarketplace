@@ -80,7 +80,7 @@ export default function PayCreator({ }: CampaignDetailsProps) {
             });
 
             const { id, currency, amount: orderAmount } = res.data;
-
+            //o
             const options = {
                 key: razorpayKey,
                 amount: orderAmount,
