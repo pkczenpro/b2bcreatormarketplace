@@ -126,6 +126,8 @@ export default function EditProductModal({
         [name]: files[0],
       }));
     }
+
+    e.target.value = ""; // Clear the input value
   };
 
   const handleSubmit = async () => {
