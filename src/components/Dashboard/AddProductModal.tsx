@@ -120,6 +120,8 @@ export default function AddProduct({
         reader.readAsDataURL(file);
       });
     }
+
+    e.target.value = "";
   };
 
   const removeFile = (field: string, index?: number) => {
@@ -335,6 +337,7 @@ export default function AddProduct({
                   name="productImages"
                   maxFiles={5}
                 />
+
                 <p className="text-xs text-neutral-500">
                   Upload multiple product images
                 </p>
