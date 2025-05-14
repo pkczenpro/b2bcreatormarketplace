@@ -383,6 +383,7 @@ const CarouselEditor = () => {
   const [imageFile, setImageFile] = useState(null);
 
   const publishToLinkedIn = async () => {
+    setLoading(true);
     const imageFilesToAdd = [];
 
     setPostsData((prevPostsData) => {
@@ -474,6 +475,8 @@ const CarouselEditor = () => {
       });
     } catch (error) {
       console.error("Error sharing post to LinkedIn:", error);
+    } finally{
+      setLoading(false);
     }
   };
 

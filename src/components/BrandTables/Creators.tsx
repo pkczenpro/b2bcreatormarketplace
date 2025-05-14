@@ -556,9 +556,9 @@ export function CreatorTable({ campaign, Refresh }) {
                   <Button
                     className="absolute top-2 right-2"
                     size="small"
-                    disabled={contentData?.status === "done"}
+                    disabled={contentData?.status === "done" || loading}
                   >
-                    Approve
+                    Approve {loading && <LoadingOutlined />}
                   </Button>
                 </Popconfirm>
 
