@@ -202,7 +202,7 @@ export default function CreatorDashboard({ isPreview }: CreatorDashboardProps) {
               </div>
               <div className="flex items-center space-x-2 mt-4 sm:mt-0">
                 <Input
-                  placeholder="Enter Amount"
+                  placeholder="Enter Amount (USD)"
                   className="w-24"
                   value={data.price || ""}
                   onChange={(e) => {

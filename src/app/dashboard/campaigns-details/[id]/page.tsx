@@ -395,8 +395,8 @@ export default function CampaignDetails({}: CampaignDetailsProps) {
         cancelText="Maybe Later"
       >
         <p className="mb-3">
-          We'd love to have you on board! Let us know your charges for this
-          campaign:
+          We would love to have you on board! Let us know your charges for this
+          campaign in USD. :
         </p>
         <Input
           type="text"
@@ -405,7 +405,7 @@ export default function CampaignDetails({}: CampaignDetailsProps) {
             const rawValue = e.target.value.replace(/,/g, ""); // Remove existing commas
             setAmount(rawValue ? parseInt(rawValue, 10) : ""); // Ensure it's a number
           }}
-          placeholder="Enter your rate (e.g., 1,000)"
+          placeholder="Enter your rate (e.g., 1,000$)"
           prefix="💰"
         />
       </Modal>

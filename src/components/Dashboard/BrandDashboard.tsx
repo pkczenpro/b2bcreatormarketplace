@@ -739,14 +739,14 @@ export default function BrandDashboard({ isPreview }: BrandDashboardProps) {
                 className="block text-sm font-medium text-gray-700"
                 htmlFor="budget"
               >
-                Budget
+                Budget (USD)
               </label>
               <Input
                 name="budget"
                 type="number"
                 value={formData.budget}
                 onChange={handleInputChange}
-                placeholder="Enter Budget"
+                placeholder="Enter Budget (USD)"
                 className="mt-1 p-2 border rounded-lg w-full"
               />
             </div>
