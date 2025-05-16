@@ -27,7 +27,7 @@ type UserData = {
   subCategory: string;
 };
 
-export default function ProfileSetup({ }: ProfileSetupProps) {
+export default function ProfileSetup({}: ProfileSetupProps) {
   const router = useRouter();
   const [userType, setUserType] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -43,11 +43,10 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     } finally {
       setLoading(false);
     }
-  }
+  };
   useEffect(() => {
     getUserData();
   }, []);
-
 
   const [profileName, setProfileName] = useState<string>("");
   const [location, setLocation] = useState<string>("");
@@ -68,7 +67,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const [category, setCategory] = useState<string>("");
   const [subCategory, setSubCategory] = useState<string>("");
 
-
   useEffect(() => {
     if (userData) {
       setProfileName(userData.name);
@@ -76,9 +74,8 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
       setProfilePicture(userData.profileImage);
       setCoverPicture(userData.coverImage);
       setLinkedin(
-        userData.socialMediaLinks.find(
-          (item) => item.platform === "linkedin"
-        )?.link || ""
+        userData.socialMediaLinks.find((item) => item.platform === "linkedin")
+          ?.link || ""
       );
       setMedium(
         userData.socialMediaLinks.find((item) => item.platform === "medium")
@@ -96,14 +93,15 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
         userData.socialMediaLinks.find((item) => item.platform === "otherLinks")
           ?.link || ""
       );
-      setShortIntroduction(userData.bio === "undefined" ? "" : userData.bio || "");
+      setShortIntroduction(
+        userData.bio === "undefined" ? "" : userData.bio || ""
+      );
       setTags(userData.tags || []);
 
       setCategory(userData.category || "");
       setSubCategory(userData.subCategory || "");
     }
   }, [userData]);
-
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && e.currentTarget.value.trim() !== "") {
@@ -129,15 +127,24 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     }
   };
 
-  const handleMainCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleMainCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedCategory = event.target.value;
     setCategory(selectedCategory);
     setSubCategory(""); // Reset subcategory when main category changes
-  }
-  const handleSubCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSubCategory(event.target.value);
-  }
-  
+  };
+  const handleSubCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newSubCategory = event.target.value;
+    setSubCategory(newSubCategory);
+    
+    const subTags = categoriesSubcategories[category][newSubCategory];
+    if (subTags) {
+      setTags((prevTags) => [...prevTags, ...subTags]);
+    }
+  };
 
   const [activeId, setActiveId] = useState(1);
 
@@ -288,8 +295,6 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
   const ShortIntroduction = () => {
     return (
       <>
-
-
         {userType === "brand" && (
           <>
             <h1 className="text-h5 font-bold text-left mb-1">
@@ -322,10 +327,11 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                 className="w-full p-2 border text-sm border-neutral-200 rounded-lg"
               >
                 <option value="">Select Category</option>
-                <option value="tech">Tech</option>
-                <option value="fashion">Fashion</option>
-                <option value="food">Food</option>
-                {/* Add more categories as needed */}
+                {Object.keys(categoriesSubcategories).map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
 
               {category && (
@@ -335,23 +341,12 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
                   className="w-full p-2 border text-sm border-neutral-200 rounded-lg mt-2"
                 >
                   <option value="">Select Subcategory</option>
-                  {category === "tech" && (
-                    <>
-                      <option value="software">Software</option>
-                      <option value="hardware">Hardware</option>
-                    </>
-                  )}
-                  {category === "fashion" && (
-                    <>
-                      <option value="clothing">Clothing</option>
-                      <option value="accessories">Accessories</option>
-                    </>
-                  )}
-                  {category === "food" && (
-                    <>
-                      <option value="snacks">Snacks</option>
-                      <option value="beverages">Beverages</option>
-                    </>
+                  {Object.keys(categoriesSubcategories[category] || {}).map(
+                    (subCat) => (
+                      <option key={subCat} value={subCat}>
+                        {subCat}
+                      </option>
+                    )
                   )}
                 </select>
               )}
@@ -436,13 +431,13 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
     if (tags.length === 0) {
       toast.error("Please add at least one tag");
       setLoading(false);
-      return
+      return;
     }
 
     if (!shortIntroduction) {
       toast.error("Please add a short introduction");
       setLoading(false);
-      return
+      return;
     }
 
     try {
@@ -471,14 +466,10 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
 
       // Append files
       if (profileFile) {
-        formData.append("profileImage",
-          profileFile
-        );
+        formData.append("profileImage", profileFile);
       }
       if (coverFile) {
-        formData.append("coverImage",
-          coverFile
-        );
+        formData.append("coverImage", coverFile);
       }
 
       // Make the POST request with FormData
@@ -501,9 +492,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
 
   return (
     <div className="flex flex-col-reverse items-center justify-center bg-white p-4 md:flex-row md:p-6 relative">
-      <LoadingOverlay
-        loading={loading}
-      />
+      <LoadingOverlay loading={loading} />
       <div className="w-full max-w-lg md:w-[40vw] ml-0 md:ml-24">
         <h1 className="text-h3 font-bold text-left mb-1">Setup Your Profile</h1>
         <p className="text-neutral-600 text-left mb-6 md:mb-10">
@@ -523,7 +512,7 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
             <Button
               variant="secondary"
               className="underline text-primary-700 w-full md:w-auto"
-              onClick={() => { }}
+              onClick={() => {}}
               size="small"
             >
               Skip this step {loading && <Spin />}
@@ -583,6 +572,244 @@ export default function ProfileSetup({ }: ProfileSetupProps) {
         shortIntroduction={shortIntroduction}
       />
     </div>
-
   );
 }
+
+const categoriesSubcategories = {
+  "Business Software": {
+    "Project Management": [],
+    "Task Management": [],
+    "Resource Management": [],
+    "Agile & Scrum Tools": [],
+    "CRM (Customer Relationship Management)": [
+      "Sales CRM",
+      "Real Estate CRM",
+      "Call Center CRM",
+    ],
+    "ERP (Enterprise Resource Planning)": [
+      "Manufacturing ERP",
+      "Construction ERP",
+      "Retail ERP",
+    ],
+    "Business Intelligence": [
+      "Data Visualization",
+      "Embedded Analytics",
+      "Dashboard Software",
+    ],
+    "Collaboration Tools": [
+      "Document Collaboration",
+      "Team Communication",
+      "Whiteboard Tools",
+    ],
+    "Accounting & Finance": ["Invoicing", "Bookkeeping", "Tax Management"],
+    "HR & Payroll": [
+      "Performance Management",
+      "Applicant Tracking Systems (ATS)",
+      "Payroll Software",
+    ],
+  },
+  "Marketing & Sales": {
+    "Email Marketing": [],
+    "Marketing Automation": [],
+    "Social Media Management": [],
+    "SEO Tools": [],
+    "Affiliate Marketing": [],
+    "Lead Generation": [],
+    "Sales Enablement": [],
+    "E-commerce Marketing": [],
+  },
+  "IT & Dev Tools": {
+    "Cloud Computing": [],
+    "DevOps Tools": [],
+    "APM (Application Performance Monitoring)": [],
+    "Bug Tracking": [],
+    "Version Control": [],
+    "ITSM (IT Service Management)": [],
+    "Database Management": [],
+    "No-Code / Low-Code Platforms": [],
+  },
+  "Design & Creative": {
+    "Graphic Design": [],
+    "UI/UX Design Tools": [],
+    "Video Editing": [],
+    "Photo Editing": [],
+    "Animation Software": [],
+    "Prototyping Tools": [],
+  },
+  "Customer Support": {
+    "Help Desk Software": [],
+    "Live Chat": [],
+    Chatbots: [],
+    "Knowledge Base": [],
+    "Customer Feedback Tools": [],
+    "Call Center Software": [],
+  },
+  "Education & Training": {
+    "Learning Management Systems (LMS)": [],
+    "Online Course Platforms": [],
+    "Exam Proctoring": [],
+    "Authoring Tools": [],
+    "Tutoring Software": [],
+    "School Management Systems": [],
+  },
+  "E-Commerce": {
+    "Online Store Builders": [],
+    "Product Information Management (PIM)": [],
+    "Order Management": [],
+    "Inventory Management": [],
+    "Payment Gateway Integration": [],
+  },
+  Security: {
+    "Antivirus & Endpoint Protection": [],
+    "Network Security": [],
+    "Cloud Security": [],
+    "Password Management": [],
+    "Vulnerability Scanning": [],
+    "Data Loss Prevention": [],
+  },
+  "Industry-Specific Software": {
+    Healthcare: ["EHR/EMR", "Medical Billing", "Telemedicine"],
+    "Real Estate": ["Property Management", "Real Estate CRM"],
+    Retail: ["POS Systems", "Retail Management"],
+    Hospitality: ["Hotel Management", "Restaurant POS"],
+    Construction: ["Estimating Software", "Construction Management"],
+    Legal: ["Legal Practice Management", "Document Automation"],
+  },
+  "Productivity & Office Tools": {
+    "Note-Taking Apps": [],
+    "Time Tracking": [],
+    "Calendars & Scheduling": [],
+    "Document Management": [],
+    "E-Signature Software": [],
+  },
+  "Artificial Intelligence & Data Science": {
+    "AI Chatbots": [],
+    "Machine Learning Platforms": [],
+    "Data Annotation Tools": [],
+    "Predictive Analytics": [],
+    "AutoML Tools": [],
+  },
+  HRTech: {
+    "Core HR & Employee Management": [
+      "HRIS (Human Resource Information System)",
+      "Employee Database Management",
+      "Employee Self-Service Portals",
+    ],
+    "Recruitment & Talent Acquisition": [
+      "Applicant Tracking System (ATS)",
+      "Recruitment Marketing",
+      "Video Interviewing Software",
+      "Resume Parsing Tools",
+      "Job Board Software",
+    ],
+    "Onboarding & Offboarding": [
+      "Digital Onboarding Platforms",
+      "Document Collection & e-Signatures",
+      "Exit Management Tools",
+    ],
+    "Performance Management": [
+      "OKR & Goal Setting Software",
+      "360-Degree Feedback Tools",
+      "Performance Review Platforms",
+      "Continuous Feedback Tools",
+    ],
+    "Learning & Development": [
+      "Learning Management Systems (LMS)",
+      "Employee Training Software",
+      "Skill Development Platforms",
+      "Compliance Training Tools",
+    ],
+    "Payroll & Compensation": [
+      "Payroll Processing",
+      "Salary Benchmarking",
+      "Compensation Management",
+      "Benefits Administration",
+    ],
+    "Time, Attendance & Leave": [
+      "Time Tracking Software",
+      "Attendance Management",
+      "Leave Management Systems",
+      "Shift Scheduling Tools",
+    ],
+    "Employee Engagement": [
+      "Pulse Survey Tools",
+      "Recognition & Rewards Platforms",
+      "Internal Communication Tools",
+      "Employee Wellness Software",
+    ],
+    "Workforce Planning & Analytics": [
+      "Workforce Analytics",
+      "Succession Planning",
+      "Talent Forecasting Tools",
+    ],
+    "HR Compliance & Policy Management": [
+      "Policy Management Tools",
+      "Labor Law Compliance",
+      "Audit & Reporting Systems",
+    ],
+    "Remote Work Tools": [
+      "Remote Team Management",
+      "Employee Monitoring Software",
+      "Virtual Workspaces",
+    ],
+  },
+  EdTech: {
+    "Learning Management Systems (LMS)": [
+      "Corporate LMS",
+      "K-12 LMS",
+      "Higher Education LMS",
+      "SCORM-compliant LMS",
+    ],
+    "Online Course Platforms": [
+      "Course Creation Tools",
+      "MOOC Platforms",
+      "White-labeled Course Marketplaces",
+    ],
+    "Virtual Classroom & Video Learning": [
+      "Virtual Classroom Platforms",
+      "Video Conferencing for Education",
+      "Live Class Recording Tools",
+    ],
+    "Assessment & Testing": [
+      "Online Examination Software",
+      "Proctoring Solutions (AI + Human)",
+      "Quiz & Test Builders",
+      "Academic Integrity Tools",
+    ],
+    "Student Information Systems (SIS)": [
+      "Admissions & Enrollment Management",
+      "Student Progress Tracking",
+      "Gradebook Software",
+    ],
+    "Content & Curriculum Management": [
+      "Curriculum Design Tools",
+      "Interactive Content Platforms",
+      "Digital Libraries",
+    ],
+    "Gamification & Engagement": [
+      "Game-Based Learning Tools",
+      "Learning Rewards Platforms",
+      "Leaderboards & Badging Systems",
+    ],
+    "Tutoring & Coaching Platforms": [
+      "One-on-One Tutoring Software",
+      "Peer Learning Platforms",
+      "Mentorship Management Tools",
+    ],
+    "Communication & Collaboration": [
+      "Parent-Teacher Communication Tools",
+      "Student Collaboration Tools",
+      "Campus Notification Systems",
+    ],
+    "EdTech for Institutions": [
+      "School Management Systems",
+      "College ERP",
+      "Classroom Management Tools",
+    ],
+    "AI & Adaptive Learning": [
+      "Personalized Learning Engines",
+      "AI-Powered Study Assistants",
+      "Skill Gap Analysis Tools",
+    ],
+  },
+};
