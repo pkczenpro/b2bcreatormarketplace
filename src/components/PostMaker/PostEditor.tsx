@@ -243,6 +243,11 @@ const PostEditor = ({
         id: "Qwen/Qwen2.5-7B-Instruct-Turbo",
         display_name: "Qwen 2.5",
       },
+      // deepseek
+      {
+        id: "DeepSeek/DeepSeek-7B",
+        display_name: "DeepSeek 7B",
+      },
     ];
 
     setModels(modelsArray);

@@ -537,7 +537,7 @@ export default function EditProductModal({
                 </p>
               </div>
 
-              <div className="flex flex-col space-y-2">
+              {/* <div className="flex flex-col space-y-2">
                 <label className="font-medium">Resources</label>
                 {product?.resources?.length > 0 && (
                   <div className="grid grid-cols-1 gap-2 mb-2">
@@ -562,7 +562,7 @@ export default function EditProductModal({
                     )}
                   </div>
                 )}
-                <CustomInput
+                 <CustomInput
                   type="file"
                   multiple
                   name="resources"
@@ -603,8 +603,8 @@ export default function EditProductModal({
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
+                )} 
+              </div> */}
             </div>
           </div>
         </div>

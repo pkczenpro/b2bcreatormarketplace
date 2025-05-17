@@ -162,6 +162,17 @@ export default function CampaignDetails({}: CampaignDetailsProps) {
           {campaign?.description}
         </p>
 
+        {/* Budget */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-800">Budget:</h3>
+          <p className="text-base text-primary-700 font-medium">
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+            }).format(campaign?.budget || 0)}
+          </p>
+        </div>
+
         <h3 className="text-h6 font-bold mt-8">Goals and Deliverables</h3>
 
         <p>{campaign?.goalsAndDeliverables}</p>

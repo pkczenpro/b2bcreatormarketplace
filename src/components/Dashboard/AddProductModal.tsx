@@ -479,7 +479,7 @@ export default function AddProduct({
                 </p>
               </div>
 
-              <div className="flex flex-col space-y-2">
+              {/* <div className="flex flex-col space-y-2">
                 <label className="font-medium">Resources</label>
                 <CustomInput
                   type="file"
@@ -516,7 +516,7 @@ export default function AddProduct({
                     ))}
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
