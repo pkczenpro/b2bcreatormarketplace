@@ -162,6 +162,10 @@ export default function CampaignDetails({}: CampaignDetailsProps) {
           {campaign?.description}
         </p>
 
+        <h3 className="text-h6 font-bold mt-8">Content Type</h3>
+
+        <p>{campaign?.contentType.join(", ")}</p>
+
         {/* Budget */}
         <div className="mt-8">
           <h3 className="text-lg font-semibold text-gray-800">Budget:</h3>
