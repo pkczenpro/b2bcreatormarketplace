@@ -175,7 +175,7 @@ export default function Dashboard() {
                     />
                     <div>
                       <Link
-                        href={`/dashboard/brands/${record._id}`}
+                        href={`/dashboard/brand-preview/${record._id}`}
                         className="text-lg font-semibold text-gray-800 hover:text-blue-500"
                       >
                         {name}
