@@ -8,7 +8,7 @@ import ProfileCardPreview from "@/components/ProfileCardPreview/ProfileCardPrevi
 import React from "react";
 import api from "@/utils/axiosInstance";
 import { useRouter } from "next/navigation";
-import { Spin } from "antd";
+import { Select, Spin } from "antd";
 import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
 import { toast } from "sonner";
 
@@ -139,7 +139,7 @@ export default function ProfileSetup({}: ProfileSetupProps) {
   ) => {
     const newSubCategory = event.target.value;
     setSubCategory(newSubCategory);
-    
+
     const subTags = categoriesSubcategories[category][newSubCategory];
     if (subTags) {
       setTags((prevTags) => [...prevTags, ...subTags]);
@@ -304,14 +304,24 @@ export default function ProfileSetup({}: ProfileSetupProps) {
               Let creators know where you are located
             </p>
             <div className="w-[70%] mb-4">
-              <Input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Location"
-                required
-                name="location"
-              />
+              <Select
+                defaultValue="Select Location"
+                className="w-full"
+                onChange={(value) => setLocation(value)}
+                placeholder="Select Location"
+              >
+                {/* US , UK , Canada , Australia  , Dubai  , Saudi Arabia, Kuwait, Singapore , Netherlands , India. */}
+                <Select.Option value="US">United States</Select.Option>
+                <Select.Option value="UK">United Kingdom</Select.Option>
+                <Select.Option value="Canada">Canada</Select.Option>
+                <Select.Option value="Australia">Australia</Select.Option>
+                <Select.Option value="Dubai">Dubai</Select.Option>
+                <Select.Option value="Saudi Arabia">Saudi Arabia</Select.Option>
+                <Select.Option value="Kuwait">Kuwait</Select.Option>
+                <Select.Option value="Singapore">Singapore</Select.Option>
+                <Select.Option value="Netherlands">Netherlands</Select.Option>
+                <Select.Option value="India">India</Select.Option>
+              </Select>
             </div>
 
             <h1 className="text-h5 font-bold text-left mb-1">

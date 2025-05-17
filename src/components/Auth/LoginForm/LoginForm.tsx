@@ -132,11 +132,11 @@ const LoginForm = ({ userType }: LoginFormProps) => {
                     Sign in
                 </Button>
             </form>
-            <Link
+            {/* <Link
                 href='/forgot-password'
                 className="text-primary-700 font-medium text-center float-right my-4">
                 Forgot password?
-            </Link>
+            </Link> */}
 
 
             <div className="mt-6 space-y-3 mb-4">
