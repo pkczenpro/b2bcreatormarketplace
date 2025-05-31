@@ -18,7 +18,7 @@ Making the p/ brand page /creator page / campaign / product page publically view
 
 Design for the content save on the platform in the respective folder and can be sequenced on the Calander  
 
-
+test
 Email alerts for any schdule job and post to pan the user notification on any task pending shall be altered to the created  - DOMAIN
 
 Category and subcategory need to be populated with the data - to be provided by prashant  - PRASHANT
